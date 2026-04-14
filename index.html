@@ -310,7 +310,18 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
 ════════════════════════════════════════════════════ -->
 <div class="page on" id="pg-geral">
 <div class="dash-page">
-  <div class="dh2"><div class="dhic" style="background:var(--b50);">📊</div>Dashboard Geral — Visão Completa</div>
+  <div class="dh2" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="dhic" style="background:var(--b50);">📊</div>
+      Dashboard Geral — Visão Completa
+    </div>
+    <div style="display:flex;align-items:center;gap:.625rem;">
+      <span id="sync-indicator" style="font-size:10px;color:var(--muted);"></span>
+      <button class="btn bs" onclick="manualRefresh()" style="font-size:10px;padding:4px 12px;display:flex;align-items:center;gap:4px;">
+        🔄 Atualizar
+      </button>
+    </div>
+  </div>
 
   <!-- ── ROW 1: KPIs principais ── -->
   <div class="srow" style="grid-template-columns:repeat(5,1fr);margin-bottom:.875rem;">
@@ -3846,6 +3857,20 @@ function setCollabMode(){
 /* ═══ PERSIST (localStorage) ═══ */
 const STORE_KEY = 'hepta_portal_data';
 
+function manualRefresh(){
+  try{ loadAll(); }catch(e){}
+  refreshAll();
+  var ind = document.getElementById('sync-indicator');
+  if(ind){
+    var now = new Date();
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    ind.textContent = 'Atualizado às '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    ind.style.color = 'var(--g600)';
+    setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; }, 3000);
+  }
+  toast('Painel atualizado!','ok');
+}
+
 function refreshAll(){
   try{rFerias();}catch(e){}
   try{rBH();}catch(e){}
@@ -3866,12 +3891,15 @@ function refreshAll(){
 
 function saveAll(){
   try{
-    _ls.setItem(STORE_KEY, JSON.stringify({
+    var payload = JSON.stringify({
       COLL, PAUSAS, PEND_PAUSAS, FERIAS, BH_DATA,
       ATES_DATA, DEVICE_DATA, UNI_DATA, SOL_DATA,
       ACESSO_DATA, BV_ACORDOS, PONTO_DATA, ANIV_CONFIG,
       FEEDBACK_DATA, GER_DATA, MALETA_DATA
-    }));
+    });
+    _ls.setItem(STORE_KEY, payload);
+    // Write a sync timestamp so other tabs/sessions detect the change
+    _ls.setItem(STORE_KEY + '_sync', Date.now().toString());
   }catch(e){}
 }
 
@@ -3901,35 +3929,61 @@ function loadAll(){
 
 /* ═══ TOAST ═══ */
 
-/* ═══ STORAGE EVENT — live sync between tabs ═══ */
+/* ═══ STORAGE EVENT — live sync entre abas ═══ */
 window.addEventListener('storage', function(e){
-  if(e.key === 'hepta_portal_data'){
-    loadAll();
-    refreshAll();
-    toast('Dados sincronizados — novo envio recebido!','ok');
-    try{document.getElementById('n-bh').style.display=BH_DATA.length>0?'inline-block':'none';}catch(ex){}
-    try{document.getElementById('n-at').style.display=ATES_DATA.length>0?'inline-block':'none';}catch(ex){}
+  // Disparado quando OUTRA aba/janela grava no localStorage
+  if(e.key === STORE_KEY || e.key === STORE_KEY + '_sync'){
+    try{ loadAll(); }catch(ex){}
+    if(!ST.collab){
+      refreshAll();
+      try{document.getElementById('n-bh').style.display=BH_DATA.length>0?'inline-block':'none';}catch(ex){}
+      try{document.getElementById('n-at').style.display=ATES_DATA.length>0?'inline-block':'none';}catch(ex){}
+      toast('✅ Novo envio recebido — painel atualizado!','ok');
+    }
   }
 });
 
-// ── Auto-refresh: reload data from storage every 30s (catches updates from other tabs/sessions) ──
+// ── Ao retornar à aba, recarrega dados (gestor volta após colaborador enviar) ──
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible' && !ST.collab){
+    try{
+      var stored = _ls.getItem(STORE_KEY);
+      if(!stored) return;
+      var storedParsed = JSON.parse(stored);
+      // Compara contagens rápidas para detectar novos envios
+      var changed =
+        (storedParsed.FERIAS    && storedParsed.FERIAS.length    !== FERIAS.length)    ||
+        (storedParsed.BH_DATA   && storedParsed.BH_DATA.length   !== BH_DATA.length)   ||
+        (storedParsed.ATES_DATA && storedParsed.ATES_DATA.length !== ATES_DATA.length) ||
+        (storedParsed.PAUSAS    && storedParsed.PAUSAS.length    !== PAUSAS.length)    ||
+        (storedParsed.PEND_PAUSAS && storedParsed.PEND_PAUSAS.length !== PEND_PAUSAS.length) ||
+        (storedParsed.DEVICE_DATA && storedParsed.DEVICE_DATA.length !== DEVICE_DATA.length) ||
+        (storedParsed.UNI_DATA  && storedParsed.UNI_DATA.length  !== UNI_DATA.length)  ||
+        (storedParsed.PONTO_DATA && storedParsed.PONTO_DATA.length !== PONTO_DATA.length) ||
+        (storedParsed.MALETA_DATA && storedParsed.MALETA_DATA.length !== MALETA_DATA.length) ||
+        (storedParsed.FEEDBACK_DATA && storedParsed.FEEDBACK_DATA.length !== FEEDBACK_DATA.length) ||
+        (storedParsed.COLL      && storedParsed.COLL.length      !== COLL.length);
+      if(changed){
+        loadAll(); refreshAll();
+        toast('✅ Painel atualizado com novos envios!','ok');
+      }
+    }catch(ex){}
+  }
+});
+
+// ── Auto-refresh a cada 15s usando timestamp ──
+var _lastSyncTs = (function(){ try{ return _ls.getItem(STORE_KEY+'_sync')||'0'; }catch(e){return '0';} })();
 setInterval(function(){
+  if(ST.collab) return;
   try{
-    var raw = _ls.getItem('hepta_portal_data');
-    if(!raw) return;
-    var snap = JSON.stringify({
-      COLL:COLL, PAUSAS:PAUSAS, PEND_PAUSAS:PEND_PAUSAS, FERIAS:FERIAS,
-      BH_DATA:BH_DATA, ATES_DATA:ATES_DATA, DEVICE_DATA:DEVICE_DATA,
-      UNI_DATA:UNI_DATA, PONTO_DATA:PONTO_DATA, MALETA_DATA:MALETA_DATA,
-      FEEDBACK_DATA:FEEDBACK_DATA
-    });
-    var stored = raw;
-    if(snap !== stored){
-      loadAll();
-      refreshAll();
+    var ts = _ls.getItem(STORE_KEY+'_sync') || '0';
+    if(ts !== _lastSyncTs){
+      _lastSyncTs = ts;
+      loadAll(); refreshAll();
+      toast('✅ Dados atualizados!','ok');
     }
   }catch(ex){}
-}, 30000);
+}, 15000);
 
 // ── postMessage listener: Google Sites can send form routing commands ──
 // Usage: iframe.contentWindow.postMessage({portalForm:'pau'},'*')
