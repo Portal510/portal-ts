@@ -1979,20 +1979,26 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
   <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;" id="gas-config-card">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--b800);">☁️ Integração Google Drive / Sheets</div>
-        <p style="font-size:10px;color:var(--b800);margin-top:3px;max-width:500px;">
-          Cole abaixo a URL do seu <strong>Google Apps Script Web App</strong> para salvar automaticamente os dados dos formulários no Google Sheets.<br>
-          <a href="https://drive.google.com/drive/folders/1Dv9mQUy7MlAeD2OGjT8dMm6yn3XgBJCL" target="_blank" style="color:var(--b800);font-size:10px;">📁 Abrir pasta do Google Drive</a>
+        <div style="font-size:12px;font-weight:700;color:var(--b800);">☁️ Sincronização em Nuvem — Google Sheets</div>
+        <p style="font-size:10px;color:var(--b800);margin-top:3px;max-width:520px;">
+          Configure uma vez e os formulários de <strong>qualquer dispositivo</strong> (celular, outro computador, etc.) atualizam o dashboard automaticamente.<br>
+          <strong style="color:var(--g800);">✅ Solução gratuita — usa sua conta Google</strong>
         </p>
       </div>
       <button onclick="document.getElementById('gas-help').style.display=document.getElementById('gas-help').style.display==='none'?'block':'none'" class="btn bs" style="font-size:10px;">? Instruções</button>
     </div>
-    <div id="gas-help" style="display:none;background:rgba(255,255,255,.5);border-radius:8px;padding:10px;margin:.5rem 0;font-size:10px;color:var(--b800);">
-      <strong>Como configurar:</strong><br>
-      1. Acesse <a href="https://script.google.com" target="_blank">script.google.com</a> e crie um novo projeto<br>
-      2. Cole o código do Apps Script (disponível na pasta do Drive)<br>
-      3. Clique em "Implantar" → "Novo implante" → Web App → "Qualquer pessoa"<br>
-      4. Copie a URL gerada e cole abaixo
+    <div id="gas-help" style="display:none;background:rgba(255,255,255,.7);border-radius:8px;padding:12px;margin:.5rem 0;font-size:11px;color:var(--b800);line-height:1.8;">
+      <strong>Como configurar (5 minutos):</strong><br>
+      1. Acesse <a href="https://script.google.com" target="_blank" style="color:var(--b600);">script.google.com</a> e clique em <strong>"Novo projeto"</strong><br>
+      2. Apague o código de exemplo e cole o código abaixo (botão "Copiar")<br>
+      3. Clique em <strong>Implantar → Novo implante</strong><br>
+      4. Tipo: <strong>App da Web</strong> → Executar como: <strong>Eu</strong> → Acesso: <strong>Qualquer pessoa</strong><br>
+      5. Clique em <strong>Implantar</strong> → autorize as permissões<br>
+      6. Copie a <strong>URL da Web App</strong> gerada (começa com script.google.com/macros/s/...)<br>
+      7. Cole a URL no campo abaixo e clique em 💾 Salvar<br>
+      <br>
+      <strong style="color:var(--g800);">Após configurar:</strong> Todos os formulários enviam dados para o Google Sheets.
+      O dashboard atualiza automaticamente a cada 15s buscando os dados do Sheets.
     </div>
     <div style="display:flex;gap:.5rem;margin-top:.75rem;align-items:center;">
       <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/..." 
@@ -2009,42 +2015,79 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
     <p style="font-size:10px;color:var(--muted);margin-bottom:.75rem;">Copie este código, cole no Google Apps Script e implante como Web App.</p>
     <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:monospace;font-size:10px;overflow-x:auto;max-height:200px;overflow-y:auto;position:relative;">
       <button onclick="navigator.clipboard.writeText(document.getElementById('gas-code-txt').textContent);toast('Código copiado!','ok')" class="btn bs" style="position:absolute;top:6px;right:6px;font-size:10px;padding:3px 8px;">Copiar</button>
-      <pre id="gas-code-txt" style="white-space:pre;color:var(--text);">const FOLDER_ID = '1Dv9mQUy7MlAeD2OGjT8dMm6yn3XgBJCL';
+      <pre id="gas-code-txt" style="white-space:pre;color:var(--text);">// Portal T&S — Google Apps Script
+// Cole em script.google.com → Implantar → App da Web
+// Executar como: Eu  |  Acesso: Qualquer pessoa
 
+const SS_NAME = 'Portal_TS_Dados';
+
+function getOrCreateSS() {
+  var files = DriveApp.getFilesByName(SS_NAME);
+  if (files.hasNext()) return SpreadsheetApp.open(files.next());
+  return SpreadsheetApp.create(SS_NAME);
+}
+
+function getOrCreateSheet(ss, name) {
+  var sh = ss.getSheetByName(name);
+  if (!sh) sh = ss.insertSheet(name);
+  return sh;
+}
+
+// POST — recebe envios dos colaboradores
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents);
-    const sheetName = data.sheet || 'Dados';
-    const row = data.row || [];
-    
-    // Get or create spreadsheet in folder
-    const folder = DriveApp.getFolderById(FOLDER_ID);
-    let ss;
-    const files = folder.getFilesByName('Portal_T&S_Dados');
-    if (files.hasNext()) {
-      ss = SpreadsheetApp.open(files.next());
-    } else {
-      ss = SpreadsheetApp.create('Portal_T&S_Dados');
-      DriveApp.getFileById(ss.getId()).moveTo(folder);
-    }
-    
-    // Get or create sheet tab
-    let sheet = ss.getSheetByName(sheetName);
-    if (!sheet) {
-      sheet = ss.insertSheet(sheetName);
-    }
-    
-    // Append row with timestamp
-    sheet.appendRow([data.timestamp || new Date().toISOString(), ...row]);
-    
-    return ContentService
-      .createTextOutput(JSON.stringify({status:'ok'}))
+    var data = JSON.parse(e.postData.contents);
+    var ss = getOrCreateSS();
+    var sh = getOrCreateSheet(ss, data.sheet || 'Dados');
+    var entry = data.entry || {};
+    sh.appendRow([data.ts || new Date().toISOString(), JSON.stringify(entry)]);
+    return ContentService.createTextOutput(JSON.stringify({status:'ok'}))
       .setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({status:'error',message:err.message}))
+    return ContentService.createTextOutput(JSON.stringify({status:'error',message:err.message}))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// GET — retorna dados para o gestor (suporta JSONP para funcionar sem CORS)
+function doGet(e) {
+  var params = (e && e.parameter) ? e.parameter : {};
+  var action = params.action || '';
+  var callback = params.callback || '';
+  var result;
+
+  if (action !== 'pull') {
+    result = {status:'ok', message:'Portal T&S API ativa'};
+  } else {
+    try {
+      var ss = getOrCreateSS();
+      result = {status:'ok', ts: new Date().toISOString()};
+      var sheets = ['Ferias','Pausas','PendPausas','BH','Atestados',
+                    'Dispositivos','Uniformes','Ponto','Maleta','Feedback'];
+      sheets.forEach(function(name) {
+        var sh = ss.getSheetByName(name);
+        if (!sh) { result[name] = []; return; }
+        var rows = sh.getDataRange().getValues();
+        var entries = [];
+        rows.forEach(function(row) {
+          if (!row[1]) return;
+          try { var entry = JSON.parse(String(row[1])); if (entry && entry.id) entries.push(entry); } catch(ex) {}
+        });
+        result[name] = entries;
+      });
+    } catch(err) {
+      result = {status:'error', message:err.message};
+    }
+  }
+
+  var json = JSON.stringify(result);
+  // JSONP — contorna CORS sem precisar de configuração extra
+  if (callback) {
+    return ContentService.createTextOutput(callback + '(' + json + ')')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(json)
+    .setMimeType(ContentService.MimeType.JSON);
 }</pre>
     </div>
   </div>
@@ -3318,34 +3361,139 @@ var _ls = (function(){
 
 const GAS_URL = _ls.getItem('gas_url') || '';
 
-async function gasPost(sheet, rowData){
-  if(!GAS_URL) return; // not configured
+/* ─── GOOGLE APPS SCRIPT — INTEGRAÇÃO CENTRALIZADA ─── */
+// Dados salvos no Sheets → qualquer pessoa pode enviar, gestor lê de qualquer lugar
+
+var _gasUrl = (function(){ try{ return _ls.getItem('gas_url')||''; }catch(e){ return ''; } })();
+
+function getGasUrl(){ return _gasUrl || (function(){ try{ return _ls.getItem('gas_url')||''; }catch(e){ return ''; } })(); }
+
+// Envia uma linha para uma aba do Sheets
+async function gasPost(sheet, rowData, extraFields){
+  var url = getGasUrl();
+  if(!url) return false;
   try{
-    await fetch(GAS_URL, {
-      method:'POST',
-      mode:'no-cors',
+    var body = {action:'append', sheet:sheet, row:rowData, ts:new Date().toISOString()};
+    if(extraFields) Object.assign(body, extraFields);
+    await fetch(url, {
+      method:'POST', mode:'no-cors',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({sheet, row:rowData, timestamp:new Date().toISOString()})
+      body:JSON.stringify(body)
     });
-  }catch(e){console.warn('GAS post failed:',e);}
+    return true;
+  }catch(e){ console.warn('GAS post failed:',e); return false; }
 }
 
+// Lê todos os dados do Sheets e sincroniza com o estado local
+async function gasPull(){
+  var url = getGasUrl();
+  if(!url) return false;
+  return new Promise(function(resolve){
+    // Use JSONP to avoid CORS — Apps Script supports ?callback=fnName
+    var cbName = '_gasCb_'+Date.now();
+    var done = false;
+    var timer = setTimeout(function(){
+      if(!done){ done=true; cleanup(); resolve(false); }
+    }, 10000);
+
+    function cleanup(){
+      clearTimeout(timer);
+      delete window[cbName];
+      var s = document.getElementById(cbName);
+      if(s) s.remove();
+    }
+
+    window[cbName] = function(d){
+      if(done) return;
+      done = true; cleanup();
+      if(!d || d.status==='error'){ resolve(false); return; }
+      try{
+        var merged = 0;
+        if(d.Ferias)      { mergeById(FERIAS,        d.Ferias);      merged++; }
+        if(d.Pausas)      { mergeById(PAUSAS,        d.Pausas);      merged++; }
+        if(d.PendPausas)  { mergeById(PEND_PAUSAS,   d.PendPausas);  merged++; }
+        if(d.BH)          { mergeById(BH_DATA,        d.BH);          merged++; }
+        if(d.Atestados)   { mergeById(ATES_DATA,      d.Atestados);   merged++; }
+        if(d.Dispositivos){ mergeById(DEVICE_DATA,    d.Dispositivos);merged++; }
+        if(d.Uniformes)   { mergeById(UNI_DATA,       d.Uniformes);   merged++; }
+        if(d.Ponto)       { mergeById(PONTO_DATA,     d.Ponto);       merged++; }
+        if(d.Maleta)      { mergeById(MALETA_DATA,    d.Maleta);      merged++; }
+        if(d.Feedback)    { mergeById(FEEDBACK_DATA,  d.Feedback);    merged++; }
+        if(merged > 0){ saveAll(); refreshAll(); }
+        var ind = document.getElementById('sync-indicator');
+        if(ind){
+          var now = new Date();
+          var p = function(n){ return String(n).padStart(2,'0'); };
+          ind.textContent = '☁️ Sync '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
+          ind.style.color = 'var(--g600)';
+          setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; }, 4000);
+        }
+        resolve(true);
+      }catch(ex){ resolve(false); }
+    };
+
+    var script = document.createElement('script');
+    script.id = cbName;
+    script.src = url+'?action=pull&callback='+cbName+'&t='+Date.now();
+    script.onerror = function(){ if(!done){ done=true; cleanup(); resolve(false); } };
+    document.head.appendChild(script);
+  });
+}
+
+// Merge: adds remote items not yet in local array (by .id)
+function mergeById(localArr, remoteArr){
+  if(!Array.isArray(remoteArr)) return;
+  var existingIds = new Set(localArr.map(function(x){ return x.id; }));
+  var added = 0;
+  remoteArr.forEach(function(item){
+    if(!existingIds.has(item.id)){
+      localArr.push(item);
+      added++;
+    }
+  });
+  return added;
+}
 
 async function testGasConnection(){
-  const url=document.getElementById('gas-url-input')?.value||GAS_URL;
-  const st=document.getElementById('gas-status');
-  if(!url){if(st)st.innerHTML='<span style="color:var(--r600);">⚠ Nenhuma URL configurada.</span>';return;}
-  if(st)st.innerHTML='🔄 Testando conexão...';
+  var url = (document.getElementById('gas-url-input')?.value||getGasUrl()||'').trim();
+  var st = document.getElementById('gas-status');
+  if(!url){ if(st)st.innerHTML='<span style="color:var(--r600);">⚠ Nenhuma URL configurada.</span>'; return; }
+  if(st) st.innerHTML='🔄 Testando conexão...';
+
+  // Test write (POST no-cors)
   try{
     await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({sheet:'_test',row:['Teste de conexão',new Date().toISOString()]})});
-    if(st)st.innerHTML='<span style="color:var(--g600);">✓ Conexão ok! (no-cors: verifique o Apps Script para confirmar)</span>';
-  }catch(e){if(st)st.innerHTML='<span style="color:var(--r600);">✗ Erro: '+e.message+'</span>';}
+      body:JSON.stringify({action:'append',sheet:'_test',row:['Teste',new Date().toISOString()],entry:{id:Date.now(),test:true}})});
+  }catch(e){}
+
+  // Test read (JSONP)
+  var cbName = '_gasTest_'+Date.now();
+  var ok = await new Promise(function(resolve){
+    var timer = setTimeout(function(){ cleanup(); resolve(false); }, 8000);
+    function cleanup(){ clearTimeout(timer); delete window[cbName]; var s=document.getElementById(cbName); if(s)s.remove(); }
+    window[cbName] = function(d){ cleanup(); resolve(!!(d && d.status==='ok')); };
+    var sc = document.createElement('script');
+    sc.id = cbName;
+    sc.src = url+'?action=pull&callback='+cbName+'&t='+Date.now();
+    sc.onerror = function(){ cleanup(); resolve(false); };
+    document.head.appendChild(sc);
+  });
+
+  if(ok){
+    if(st) st.innerHTML='<span style="color:var(--g600);">✅ Conexão OK! Escrita e leitura funcionando. Dados serão sincronizados em todos os dispositivos.</span>';
+  } else {
+    if(st) st.innerHTML='<span style="color:var(--a600);">⚠ Escrita OK mas leitura falhou. Verifique:<br>1. O código do Apps Script foi atualizado com o novo <strong>doGet</strong><br>2. O implante foi recriado como "Nova versão"<br>3. Acesso está como "Qualquer pessoa"</span>';
+  }
 }
 function setGasUrl(url){
+  url = (url||'').trim();
+  _gasUrl = url;
   _ls.setItem('gas_url', url);
-  toast('URL do Apps Script salva!','ok');
+  var inp = document.getElementById('gas-url-input');
+  if(inp) inp.value = url;
+  toast('URL do Apps Script salva! Clique em 🔗 Testar para verificar.','ok');
 }
+
 
 /* ─── CARGO + NAME FILTER HELPERS ─── */
 function buildCargoSelect(selId){
@@ -3481,6 +3629,7 @@ function aprovP(id,ok){
   p.status=ok?'aprovado':'reprovado';
   PEND_PAUSAS=PEND_PAUSAS.filter(x=>x.id!==id);
   PAUSAS.push(p);rPausas();saveAll();refreshAll();
+  gasPost('Pausas',[p.id,p.nome,p.cargo||'',p.data,p.tipo,p.hora,p.status],{entry:p});
   gasPost('N1-Pausas',[p.nome,p.cargo||'',p.data,p.hora||'',p.tipo,p.detalhes||'',p.status]);
   toast(ok?'Ocorrência aprovada!':'Ocorrência reprovada.',ok?'ok':'warn');
 }
@@ -3620,7 +3769,7 @@ function subFer(){
   const collab=COLL.find(c=>c.nome.toLowerCase()===nome.toLowerCase());
   FERIAS.push({nome,cargo:ferCargo||collab?.cargo||'—',mes,ano,ini:new Date(ini).toLocaleDateString('pt-BR'),fim,dias,vender,status:'solicitado'});
   rFerias();refreshGeral();saveAll();
-  gasPost('Ferias',[nome,ferCargo||'',mes+'/'+ano,ini,fim,dias+'d',vender?'Sim':'Não']);
+  var _ferEntry=FERIAS[FERIAS.length-1]; if(_ferEntry) gasPost('Ferias',[_ferEntry.id,_ferEntry.nome,_ferEntry.cargo,_ferEntry.mes,_ferEntry.ano,_ferEntry.ini,_ferEntry.fim,_ferEntry.dias,_ferEntry.vender?'Sim':'Não',_ferEntry.status],{entry:_ferEntry});
   const fNome2=document.getElementById('fer_nome_sel')?.value||document.getElementById('fer_nome')?.value||'';
   const fDias2=document.getElementById('fer_dias').value;
   const fIni2=document.getElementById('fer_ini').value?new Date(document.getElementById('fer_ini').value).toLocaleDateString('pt-BR'):'—';
@@ -3858,17 +4007,37 @@ function setCollabMode(){
 const STORE_KEY = 'hepta_portal_data';
 
 function manualRefresh(){
-  try{ loadAll(); }catch(e){}
-  refreshAll();
-  var ind = document.getElementById('sync-indicator');
-  if(ind){
-    var now = new Date();
-    var pad = function(n){ return String(n).padStart(2,'0'); };
-    ind.textContent = 'Atualizado às '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
-    ind.style.color = 'var(--g600)';
-    setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; }, 3000);
+  var gasUrl = getGasUrl();
+  if(gasUrl){
+    var ind = document.getElementById('sync-indicator');
+    if(ind){ ind.textContent = '☁️ Sincronizando...'; ind.style.color='var(--b600)'; }
+    gasPull().then(function(ok){
+      if(!ok){
+        try{ loadAll(); }catch(e){}
+        refreshAll();
+      }
+      var now = new Date();
+      var pad = function(n){ return String(n).padStart(2,'0'); };
+      if(ind){
+        ind.textContent = (ok?'☁️':'💾')+' Atualizado às '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+        ind.style.color = 'var(--g600)';
+        setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; }, 4000);
+      }
+      toast('Painel atualizado!','ok');
+    });
+  } else {
+    try{ loadAll(); }catch(e){}
+    refreshAll();
+    var ind2 = document.getElementById('sync-indicator');
+    if(ind2){
+      var now2 = new Date();
+      var pad2 = function(n){ return String(n).padStart(2,'0'); };
+      ind2.textContent = '💾 Atualizado às '+pad2(now2.getHours())+':'+pad2(now2.getMinutes())+':'+pad2(now2.getSeconds());
+      ind2.style.color = 'var(--g600)';
+      setTimeout(function(){ if(ind2) ind2.style.color='var(--muted)'; }, 3000);
+    }
+    toast('Painel atualizado!','ok');
   }
-  toast('Painel atualizado!','ok');
 }
 
 function refreshAll(){
@@ -3975,6 +4144,12 @@ document.addEventListener('visibilitychange', function(){
 var _lastSyncTs = (function(){ try{ return _ls.getItem(STORE_KEY+'_sync')||'0'; }catch(e){return '0';} })();
 setInterval(function(){
   if(ST.collab) return;
+  // If GAS configured, pull from Sheets (handles cross-device sync)
+  if(getGasUrl()){
+    gasPull();
+    return;
+  }
+  // Fallback: same-browser tab sync via timestamp
   try{
     var ts = _ls.getItem(STORE_KEY+'_sync') || '0';
     if(ts !== _lastSyncTs){
@@ -4110,7 +4285,8 @@ function subBH(){
     tempo, hora: hora||'—', motivo, chamado: chamado||'—', desc: desc||'—',
     minutos: sinalMin, status: 'registrado'
   });
-  saveAll();refreshGeral();
+  saveAll();
+  var _e=BH_DATA[BH_DATA.length-1]; if(_e) gasPost('BH',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e});refreshGeral();
   const bhNome2=document.getElementById('bh_nome').value;
   const bhTip2=document.getElementById('bh_tipo').value;
   const bhTmp2=document.getElementById('bh_tempo').value;
@@ -4363,6 +4539,7 @@ function subAtestado(){
   }
   ATES_DATA.push(entry);
   saveAll();
+  var _e=ATES_DATA[ATES_DATA.length-1]; if(_e) gasPost('Atestados',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e});
   // reset fields
   document.getElementById('at_nome').value='';
   document.getElementById('at_tipo').value='';
@@ -4506,6 +4683,7 @@ function subDevice(){
   }
   DEVICE_DATA.push(entry);
   saveAll();
+  var _e=DEVICE_DATA[DEVICE_DATA.length-1]; if(_e) gasPost('Dispositivos',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e});
   showCollabSuccess('device-form-wrap','device-success',
     '<strong>Dispositivo registrado com sucesso!</strong><br>Colaborador: '+nome+'<br>Tipo: '+tipo+' | Marca: '+(entry.marca||'—')+' | Modelo: '+(entry.modelo||'—')+'<br>IMEI/Série: '+(entry.imei||'—'));
   toast('Dispositivo registrado!','ok');
@@ -4620,6 +4798,7 @@ function subUniRec(){
   };
   UNI_DATA.push(entry);
   saveAll();
+  var _e=UNI_DATA[UNI_DATA.length-1]; if(_e) gasPost('Uniformes',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e});
   showCollabSuccess('uni-rec-form','uni-rec-success',
     '<strong>Recebimento confirmado com sucesso!</strong><br>Colaborador: '+entry.nome+' ('+entry.gen+')<br>Camisa: '+entry.camisa+' | Calça: '+entry.calca+' | Sapato: '+entry.sapato+extra+'<br>Data: '+entry.data);
   toast('Recebimento confirmado!','ok');
@@ -4641,6 +4820,7 @@ function subUniSol(){
   const entry={id:Date.now(),nome,gen:gen==='M'?'Masculino':'Feminino',pecas:pecas.join(' | '),data:new Date().toLocaleDateString('pt-BR'),status:'solicitado'};
   SOL_DATA.push(entry);
   saveAll();
+  var _e=UNI_DATA[UNI_DATA.length-1]; if(_e) gasPost('Uniformes',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e});
   showCollabSuccess('uni-sol-form','uni-sol-success',
     '<strong>Solicitação enviada com sucesso!</strong><br>Nome: '+nome+'<br>Gênero: '+entry.gen+'<br>Peças: '+entry.pecas);
   toast('Solicitação enviada!','ok');
@@ -4718,7 +4898,8 @@ function subPonto(){
   if(!nome||!mes){toast('Preencha nome e mês.','warn');return;}
   const collab=COLL.find(c=>c.nome===nome);
   PONTO_DATA.push({id:Date.now(),nome,cargo:collab?.cargo||'—',mes,ano,entregue:new Date().toLocaleDateString('pt-BR'),status:'entregue',acao:'Aguardando'});
-  saveAll();refreshAll();
+  saveAll();
+  var _e=PONTO_DATA[PONTO_DATA.length-1]; if(_e) gasPost('Ponto',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e});refreshAll();
   showCollabSuccess('ponto-form-wrap','ponto-success','<strong>Folha de ponto enviada com sucesso!</strong><br>Colaborador: '+nome+'<br>Referência: '+mes+'/'+ano);
   toast('Folha de ponto enviada!','ok');
 }
@@ -5252,7 +5433,8 @@ function subMaleta(){
     status:'Registrado', acao:'aguardando'
   });
 
-  saveAll(); rMaleta(); clearMaletaForm();
+  saveAll();
+  var _e=MALETA_DATA[MALETA_DATA.length-1]; if(_e) gasPost('Maleta',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e}); rMaleta(); clearMaletaForm();
   toast('Maleta confirmada! '+nOK+'/'+total+' itens verificados.', nOK===total?'ok':'warn');
 }
 
@@ -5721,6 +5903,7 @@ function mcSubmit(){
   };
   MALETA_DATA.push(entry);
   saveAll();
+  var _e=MALETA_DATA[MALETA_DATA.length-1]; if(_e) gasPost('Maleta',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e});
 
   var newIdx=MALETA_DATA.length-1;
 
