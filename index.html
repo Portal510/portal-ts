@@ -2000,13 +2000,19 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
       <strong style="color:var(--g800);">Após configurar:</strong> Todos os formulários enviam dados para o Google Sheets.
       O dashboard atualiza automaticamente a cada 15s buscando os dados do Sheets.
     </div>
-    <div style="display:flex;gap:.5rem;margin-top:.75rem;align-items:center;">
+    <div style="display:flex;gap:.5rem;margin-top:.75rem;align-items:center;flex-wrap:wrap;">
       <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/..." 
-        value="" style="flex:1;font-size:11px;" oninput="">
+        value="" style="flex:1;font-size:11px;min-width:200px;" oninput="">
       <button class="btn bp" onclick="setGasUrl(document.getElementById('gas-url-input').value)" style="white-space:nowrap;">💾 Salvar URL</button>
       <button class="btn bs" onclick="testGasConnection()" style="white-space:nowrap;">🔗 Testar</button>
     </div>
     <div id="gas-status" style="font-size:10px;color:var(--muted);margin-top:6px;"></div>
+    <!-- Botão aparece após salvar URL -->
+    <div id="gas-download-btn" style="display:none;margin-top:.75rem;background:var(--g50);border:.5px solid var(--g600);border-radius:8px;padding:.75rem 1rem;">
+      <div style="font-size:11px;font-weight:700;color:var(--g800);margin-bottom:.375rem;">⬇️ Próximo passo — embutir URL no portal</div>
+      <p style="font-size:10px;color:var(--g800);margin-bottom:.625rem;">Para funcionar em <strong>qualquer dispositivo</strong>, baixe o portal com a URL já embutida e suba no GitHub.</p>
+      <button class="btn bp" onclick="downloadPortalWithGasUrl()" style="font-size:11px;background:var(--g600);border-color:var(--g600);">⬇️ Baixar index.html com URL embutida</button>
+    </div>
   </div>
 
 
@@ -3362,11 +3368,20 @@ var _ls = (function(){
 const GAS_URL = _ls.getItem('gas_url') || '';
 
 /* ─── GOOGLE APPS SCRIPT — INTEGRAÇÃO CENTRALIZADA ─── */
-// Dados salvos no Sheets → qualquer pessoa pode enviar, gestor lê de qualquer lugar
+// URL embutida no código — funciona em QUALQUER dispositivo sem configuração
 
-var _gasUrl = (function(){ try{ return _ls.getItem('gas_url')||''; }catch(e){ return ''; } })();
+// ★ URL DO APPS SCRIPT — preenchida automaticamente ao salvar no portal
+var _GAS_HARDCODED = ''; // será preenchida via setGasUrl()
 
-function getGasUrl(){ return _gasUrl || (function(){ try{ return _ls.getItem('gas_url')||''; }catch(e){ return ''; } })(); }
+var _gasUrl = (function(){
+  try{ return _ls.getItem('gas_url')||_GAS_HARDCODED||''; }catch(e){ return _GAS_HARDCODED||''; }
+})();
+
+function getGasUrl(){
+  // Prioridade: 1) hardcoded no HTML, 2) localStorage, 3) variável em memória
+  if(_GAS_HARDCODED) return _GAS_HARDCODED;
+  try{ return _ls.getItem('gas_url')||_gasUrl||''; }catch(e){ return _gasUrl||''; }
+}
 
 // Envia uma linha para uma aba do Sheets
 async function gasPost(sheet, rowData, extraFields){
@@ -3487,11 +3502,55 @@ async function testGasConnection(){
 }
 function setGasUrl(url){
   url = (url||'').trim();
+  // Save in memory, localStorage AND hardcoded variable (all devices)
   _gasUrl = url;
-  _ls.setItem('gas_url', url);
+  _GAS_HARDCODED = url;
+  try{ _ls.setItem('gas_url', url); }catch(e){}
   var inp = document.getElementById('gas-url-input');
   if(inp) inp.value = url;
-  toast('URL do Apps Script salva! Clique em 🔗 Testar para verificar.','ok');
+  // Inject URL into the page HTML so it survives on other devices when file is re-downloaded
+  _injectGasUrlIntoHtml(url);
+  toast('URL salva! Re-baixe o portal e suba no GitHub para funcionar em todos os dispositivos.','ok');
+}
+
+function _injectGasUrlIntoHtml(url){
+  try{
+    var dlBtn = document.getElementById('gas-download-btn');
+    if(dlBtn) dlBtn.style.display = url ? 'block' : 'none';
+  }catch(e){}
+}
+
+// Download portal with GAS URL baked in
+function downloadPortalWithGasUrl(){
+  var url = getGasUrl();
+  if(!url){ toast('Configure e salve a URL primeiro.','warn'); return; }
+
+  // Get the current page HTML from the DOM (already loaded, no CORS issues)
+  var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+  // Inject the GAS URL into the hardcoded variable
+  var escaped = url.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  var updated = html.replace(
+    /var _GAS_HARDCODED = '[^']*';/,
+    "var _GAS_HARDCODED = '" + escaped + "';"
+  );
+
+  if(updated === html){
+    // Fallback: inject as a new script tag before closing body
+    var injection = '<script>var _GAS_HARDCODED = \'' + escaped + '\';<\/script>';
+    updated = html.replace('</body>', injection + '</body>');
+    toast('URL embutida via fallback.','ok');
+  }
+
+  var blob = new Blob([updated], {type:'text/html;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  toast('✅ index.html baixado com URL embutida! Suba no GitHub.','ok');
 }
 
 
@@ -5332,6 +5391,16 @@ window.addEventListener('DOMContentLoaded',()=>{
   checkHash();
   // Also listen for hash changes (direct browser navigation)
   window.addEventListener('hashchange', function(){ checkHash(); });
+  // If GAS URL already configured, pre-fill input and show download button
+  try{
+    var _existingUrl = getGasUrl();
+    if(_existingUrl){
+      var _inp = document.getElementById('gas-url-input');
+      if(_inp) _inp.value = _existingUrl;
+      var _dlBtn = document.getElementById('gas-download-btn');
+      if(_dlBtn) _dlBtn.style.display = 'block';
+    }
+  }catch(e){}
   // Detect Google Sites iframe embedding
   try {
     if(window.self !== window.top) {
