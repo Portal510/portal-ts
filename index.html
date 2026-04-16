@@ -2007,8 +2007,8 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
       <button class="btn bs" onclick="testGasConnection()" style="white-space:nowrap;">🔗 Testar</button>
     </div>
     <div id="gas-status" style="font-size:10px;color:var(--muted);margin-top:6px;"></div>
-    <!-- Botão aparece após salvar URL -->
-    <div id="gas-download-btn" style="display:none;margin-top:.75rem;background:var(--g50);border:.5px solid var(--g600);border-radius:8px;padding:.75rem 1rem;">
+    <!-- Botão de download sempre visível quando URL configurada -->
+    <div id="gas-download-btn" style="display:block;margin-top:.75rem;background:var(--g50);border:.5px solid var(--g600);border-radius:8px;padding:.75rem 1rem;">
       <div style="font-size:11px;font-weight:700;color:var(--g800);margin-bottom:.375rem;">⬇️ Próximo passo — embutir URL no portal</div>
       <p style="font-size:10px;color:var(--g800);margin-bottom:.625rem;">Para funcionar em <strong>qualquer dispositivo</strong>, baixe o portal com a URL já embutida e suba no GitHub.</p>
       <button class="btn bp" onclick="downloadPortalWithGasUrl()" style="font-size:11px;background:var(--g600);border-color:var(--g600);">⬇️ Baixar index.html com URL embutida</button>
@@ -3371,7 +3371,7 @@ const GAS_URL = _ls.getItem('gas_url') || '';
 // URL embutida no código — funciona em QUALQUER dispositivo sem configuração
 
 // ★ URL DO APPS SCRIPT — preenchida automaticamente ao salvar no portal
-var _GAS_HARDCODED = ''; // será preenchida via setGasUrl()
+var _GAS_HARDCODED = 'https://script.google.com/macros/s/AKfycbxgZt2N3q8zI-Ru4cM0jYwwxqMcFJRp_vrcZfLy6G32jfjo0kiDax5n0vI08u7j89ju/exec'; // será preenchida via setGasUrl()
 
 var _gasUrl = (function(){
   try{ return _ls.getItem('gas_url')||_GAS_HARDCODED||''; }catch(e){ return _GAS_HARDCODED||''; }
@@ -3532,7 +3532,7 @@ function downloadPortalWithGasUrl(){
   var escaped = url.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   var updated = html.replace(
     /var _GAS_HARDCODED = '[^']*';/,
-    "var _GAS_HARDCODED = '" + escaped + "';"
+    "var _GAS_HARDCODED = 'https://script.google.com/macros/s/AKfycbxgZt2N3q8zI-Ru4cM0jYwwxqMcFJRp_vrcZfLy6G32jfjo0kiDax5n0vI08u7j89ju/exec';"
   );
 
   if(updated === html){
