@@ -269,9 +269,13 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
 #modal-body input:focus,#modal-body select:focus{border-color:var(--b600);box-shadow:0 0 0 2px rgba(24,95,165,.1);}
 
 /* ── ROLE-BASED VISIBILITY ── */
+/* Elements hidden for colaborador role */
 body[data-role="colaborador"] #gas-config-card,
 body[data-role="colaborador"] .gas-code-card,
-body[data-role="colaborador"] #gas-download-btn { display:none !important; }
+body[data-role="colaborador"] #gas-download-btn,
+body[data-role="colaborador"] .gestor-only { display:none !important; }
+/* gestor-only: only visible when NOT colaborador */
+.gestor-only { display:block; }
 #login-screen{
   position:fixed;inset:0;z-index:99999;
   background:var(--bg);
@@ -2062,7 +2066,7 @@ body[data-role="colaborador"] #gas-download-btn { display:none !important; }
     <button class="btn bp" onclick="gerarPortalLinks()" style="padding:10px 24px;font-size:13px;">🌐 Abrir Página Web dos Links</button>
   </div>
   <!-- Google Drive Config -->
-  <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;" id="gas-config-card">
+  <div class="card g-only gestor-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;" id="gas-config-card">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
       <div>
         <div style="font-size:12px;font-weight:700;color:var(--b800);">☁️ Sincronização em Nuvem — Google Sheets</div>
@@ -2094,7 +2098,7 @@ body[data-role="colaborador"] #gas-download-btn { display:none !important; }
     </div>
     <div id="gas-status" style="font-size:10px;color:var(--muted);margin-top:6px;"></div>
     <!-- Botão de download sempre visível quando URL configurada -->
-    <div id="gas-download-btn" style="display:block;margin-top:.75rem;background:var(--g50);border:.5px solid var(--g600);border-radius:8px;padding:.75rem 1rem;">
+    <div id="gas-download-btn" class="gestor-only" style="margin-top:.75rem;background:var(--g50);border:.5px solid var(--g600);border-radius:8px;padding:.75rem 1rem;">
       <div style="font-size:11px;font-weight:700;color:var(--g800);margin-bottom:.375rem;">⬇️ Próximo passo — embutir URL no portal</div>
       <p style="font-size:10px;color:var(--g800);margin-bottom:.625rem;">Para funcionar em <strong>qualquer dispositivo</strong>, baixe o portal com a URL já embutida e suba no GitHub.</p>
       <button class="btn bp" onclick="downloadPortalWithGasUrl()" style="font-size:11px;background:var(--g600);border-color:var(--g600);">⬇️ Baixar index.html com URL embutida</button>
@@ -3471,7 +3475,10 @@ function getGasUrl(){
 // Envia uma linha para uma aba do Sheets
 async function gasPost(sheet, rowData, extraFields){
   var url = getGasUrl();
-  if(!url) return false;
+  if(!url){
+    // No GAS configured — data only in localStorage
+    return false;
+  }
   try{
     var body = {action:'append', sheet:sheet, row:rowData, ts:new Date().toISOString()};
     if(extraFields) Object.assign(body, extraFields);
@@ -3480,6 +3487,27 @@ async function gasPost(sheet, rowData, extraFields){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)
     });
+    // Show cloud sync indicator
+    var ind = document.getElementById('sync-indicator');
+    if(ind){
+      ind.textContent = '☁️ Enviando...';
+      ind.style.color = 'var(--b600)';
+    }
+    // Pull after short delay to confirm data arrived in Sheets
+    setTimeout(function(){
+      gasPull().then(function(ok){
+        var ind2 = document.getElementById('sync-indicator');
+        if(ind2){
+          var now = new Date();
+          var p = function(n){ return String(n).padStart(2,'0'); };
+          ind2.textContent = ok
+            ? '☁️ Sync '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds())
+            : '⚠️ Verifique conexão';
+          ind2.style.color = ok ? 'var(--g600)' : 'var(--a600)';
+          setTimeout(function(){ if(ind2) ind2.style.color='var(--muted)'; }, 4000);
+        }
+      });
+    }, 2000); // wait 2s for Sheets to process
     return true;
   }catch(e){ console.warn('GAS post failed:',e); return false; }
 }
@@ -5620,6 +5648,15 @@ function _initPortal(){
     document.body.classList.remove('collab');
     // Force navigate to links page after init
     window._forceLinksPage = true;
+    // Explicitly hide GAS config and code cards
+    try{
+      ['gas-config-card','gas-download-btn'].forEach(function(id){
+        var el=document.getElementById(id);if(el)el.style.display='none';
+      });
+      document.querySelectorAll('.gas-code-card,.gestor-only').forEach(function(el){
+        el.style.display='none';
+      });
+    }catch(ex){}
     // Hide all tabs except Portal Links
     try{
       var allTabs = document.querySelectorAll('.tab');
@@ -6709,6 +6746,7 @@ function subFeedback() {
   });
 
   saveAll(); rFeedback(); clearFbForm();
+  var _fb=FEEDBACK_DATA[FEEDBACK_DATA.length-1]; if(_fb) gasPost('Feedback',[_fb.id||Date.now(),_fb.nome||'',_fb.tipo||''],{entry:_fb});
   toast('Feedback registrado com sucesso!','ok');
 }
 
