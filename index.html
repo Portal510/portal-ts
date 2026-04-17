@@ -268,7 +268,10 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
 #modal-body select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M0 0l5 7 5-7z' fill='%235F5E5A'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;cursor:pointer;}
 #modal-body input:focus,#modal-body select:focus{border-color:var(--b600);box-shadow:0 0 0 2px rgba(24,95,165,.1);}
 
-/* ── LOGIN SCREEN ── */
+/* ── ROLE-BASED VISIBILITY ── */
+body[data-role="colaborador"] #gas-config-card,
+body[data-role="colaborador"] .gas-code-card,
+body[data-role="colaborador"] #gas-download-btn { display:none !important; }
 #login-screen{
   position:fixed;inset:0;z-index:99999;
   background:var(--bg);
@@ -2099,8 +2102,7 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
   </div>
 
 
-  <div class="card g-only" style="margin-bottom:.875rem;">
-    <div style="font-size:12px;font-weight:700;margin-bottom:.5rem;">📋 Código para Google Apps Script</div>
+  <div class="card g-only gas-code-card" style="margin-bottom:.875rem;">
     <p style="font-size:10px;color:var(--muted);margin-bottom:.75rem;">Copie este código, cole no Google Apps Script e implante como Web App.</p>
     <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:monospace;font-size:10px;overflow-x:auto;max-height:200px;overflow-y:auto;position:relative;">
       <button onclick="navigator.clipboard.writeText(document.getElementById('gas-code-txt').textContent);toast('Código copiado!','ok')" class="btn bs" style="position:absolute;top:6px;right:6px;font-size:10px;padding:3px 8px;">Copiar</button>
@@ -5508,6 +5510,8 @@ function doLogin(){
       try{ sessionStorage.setItem('portal_auth_user', found.nome||found.user); }catch(e){}
       try{ sessionStorage.setItem('portal_auth_role',  found.role||'gestor'); }catch(e){}
       _AUTH_SESSION = token;
+      // Apply role as data attribute on body for CSS-based hiding
+      document.body.setAttribute('data-role', found.role||'gestor');
       
       // Hide login screen
       var ls = document.getElementById('login-screen');
@@ -5532,6 +5536,7 @@ function doLogout(){
   try{ sessionStorage.removeItem('portal_auth_token'); }catch(e){}
   try{ sessionStorage.removeItem('portal_auth_user'); }catch(e){}
   try{ sessionStorage.removeItem('portal_auth_role'); }catch(e){}
+  document.body.removeAttribute('data-role');
   _AUTH_SESSION = null;
   var ls = document.getElementById('login-screen');
   if(ls){ ls.classList.remove('hidden'); }
@@ -5605,6 +5610,8 @@ function _initPortal(){
   // ── Apply role-based access ──
   var _userRole = (function(){ try{ return sessionStorage.getItem('portal_auth_role')||'gestor'; }catch(e){ return 'gestor'; } })();
   var _userName = (function(){ try{ return sessionStorage.getItem('portal_auth_user')||''; }catch(e){ return ''; } })();
+  // Apply role as CSS data attribute
+  document.body.setAttribute('data-role', _userRole);
 
   if(_userRole === 'colaborador'){
     // Perfil COLABORADOR — acessa apenas o Portal de Links
