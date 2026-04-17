@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+<html lang="pt-BR"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal T&S</title>
+<title>Portal T&amp;S</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 :root{
@@ -328,31 +327,29 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
 
 </style>
 </head>
-<body>
+<body data-role="gestor">
 
 <!-- ════════════ NAV ════════════ -->
 
 <!-- ══════════════════════════════════
      TELA DE LOGIN
 ══════════════════════════════════ -->
-<div id="login-screen">
+<div id="login-screen" class="hidden">
   <div class="login-card">
     <div class="login-logo">🏛</div>
-    <div class="login-title">Portal T&S</div>
+    <div class="login-title">Portal T&amp;S</div>
     <div class="login-sub">Gestão de Terceirizados — Hepta / SESUC</div>
     <div class="login-field">
       <label for="login-user">Usuário</label>
-      <input type="text" id="login-user" placeholder="Digite seu usuário"
-        autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pwd').focus()">
+      <input type="text" id="login-user" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pwd').focus()">
     </div>
     <div class="login-field">
       <label for="login-pwd">Senha</label>
-      <input type="password" id="login-pwd" placeholder="Digite sua senha"
-        autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="password" id="login-pwd" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div id="login-error"></div>
     <button class="login-btn" id="login-btn" onclick="doLogin()">Entrar →</button>
-    <div class="login-footer">Portal T&S · Acesso restrito a usuários autorizados</div>
+    <div class="login-footer">Portal T&amp;S · Acesso restrito a usuários autorizados</div>
     <div style="margin-top:.75rem;background:#f8f8f6;border-radius:8px;padding:.75rem;font-size:10px;color:var(--muted);text-align:left;">
       <div style="font-weight:700;margin-bottom:.375rem;color:var(--b800);">Perfis de acesso:</div>
       <div>👔 <strong>Gestor</strong> — acesso total ao portal</div>
@@ -364,26 +361,26 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
 <nav class="nav">
   <div class="nav-l">
     <div class="nav-logo">🏛</div>
-    <div class="nav-title">Portal T&S<small>Gestão de Terceirizados</small></div>
+    <div class="nav-title">Portal T&amp;S<small>Gestão de Terceirizados</small></div>
   </div>
   <div class="tabs">
-    <button class="tab on"  onclick="pg('geral'  ,this)">📊 Geral</button>
-    <button class="tab"     onclick="pg('cad'    ,this)">📋 Cadastro</button>
-    <button class="tab"     onclick="pg('ctrl'   ,this)">👥 Controle</button>
-    <button class="tab"     onclick="pg('pausas' ,this)">⏱ N1<span id="n-p" style="display:none;" class="ndot"></span></button>
-    <button class="tab"     onclick="pg('ferias' ,this)">🌴 Férias<span id="n-f" style="display:none;" class="ndot"></span></button>
-    <button class="tab"     onclick="pg('bh'     ,this)">⏰ Banco de Horas<span id="n-bh" style="display:none;" class="ndot"></span></button>
-    <button class="tab"     onclick="pg('ates'   ,this)">🏥 Atestados<span id="n-at" style="display:none;" class="ndot"></span></button>
-    <button class="tab"     onclick="pg('device' ,this)">📱 Celular/Tablet</button>
-    <button class="tab"     onclick="pg('uni'    ,this)">👔 Uniformes</button>
-    <button class="tab"     onclick="pg('maleta' ,this)">🧰 Maleta</button>
-    <button class="tab"     onclick="pg('ponto'  ,this)">📅 Folha de Ponto</button>
-    <button class="tab"     onclick="pg('aniv'   ,this)">🎂 Aniversariantes</button>
-    <button class="tab"     onclick="pg('links'  ,this)">🔗 Portal Links</button>
-    <button class="tab"     onclick="pg('gerencial',this)">📊 Gerencial</button>
-    <button class="tab"     onclick="pg('feedback',this)">💬 Feedback</button>
+    <button class="tab" onclick="pg('geral'  ,this)">📊 Geral</button>
+    <button class="tab" onclick="pg('cad'    ,this)">📋 Cadastro</button>
+    <button class="tab" onclick="pg('ctrl'   ,this)">👥 Controle</button>
+    <button class="tab" onclick="pg('pausas' ,this)">⏱ N1<span id="n-p" style="display:none;" class="ndot"></span></button>
+    <button class="tab" onclick="pg('ferias' ,this)">🌴 Férias<span id="n-f" style="display: inline-block;" class="ndot"></span></button>
+    <button class="tab" onclick="pg('bh'     ,this)">⏰ Banco de Horas<span id="n-bh" style="display:none;" class="ndot"></span></button>
+    <button class="tab" onclick="pg('ates'   ,this)">🏥 Atestados<span id="n-at" style="display: inline-block;" class="ndot"></span></button>
+    <button class="tab" onclick="pg('device' ,this)">📱 Celular/Tablet</button>
+    <button class="tab" onclick="pg('uni'    ,this)">👔 Uniformes</button>
+    <button class="tab" onclick="pg('maleta' ,this)">🧰 Maleta</button>
+    <button class="tab" onclick="pg('ponto'  ,this)">📅 Folha de Ponto</button>
+    <button class="tab" onclick="pg('aniv'   ,this)">🎂 Aniversariantes</button>
+    <button class="tab on" onclick="pg('links'  ,this)">🔗 Portal Links</button>
+    <button class="tab" onclick="pg('gerencial',this)">📊 Gerencial</button>
+    <button class="tab" onclick="pg('feedback',this)">💬 Feedback</button>
   </div>
-  <div class="nav-r">
+  <div class="nav-r"><span style="font-size: 11px; color: var(--b100); padding: 0px 8px;">👤 Administrador</span>
     <span class="mpill" id="mpill">GESTOR</span>
     <button class="bsm" id="btog" onclick="toggleMode()">Modo colaborador</button>
     <button class="bsm" onclick="doLogout()" title="Sair" style="background:rgba(163,45,45,.2);color:#f7c1c1;border-color:rgba(163,45,45,.4);">⏻ Sair</button>
@@ -392,13 +389,13 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
 
 <!-- Collab-only header (shown only via link) -->
 <div class="collab-header" style="display:none;background:var(--b900);height:48px;align-items:center;justify-content:center;border-bottom:2px solid var(--b600);position:sticky;top:0;z-index:200;">
-  <div style="color:#fff;font-size:13px;font-weight:600;">🏛 Portal T&S — Formulário</div>
+  <div style="color:#fff;font-size:13px;font-weight:600;">🏛 Portal T&amp;S — Formulário</div>
 </div>
 
 <!-- ════════════════════════════════════════════════════
      PÁGINA 0 — DASHBOARD GERAL
 ════════════════════════════════════════════════════ -->
-<div class="page on" id="pg-geral">
+<div class="page" id="pg-geral">
 <div class="dash-page">
   <div class="dh2" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
     <div style="display:flex;align-items:center;gap:10px;">
@@ -415,11 +412,11 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
 
   <!-- ── ROW 1: KPIs principais ── -->
   <div class="srow" style="grid-template-columns:repeat(5,1fr);margin-bottom:.875rem;">
-    <div class="sc"><div class="sl">👥 Colaboradores ativos</div><div class="sv" id="g-total">0</div></div>
-    <div class="sc"><div class="sl">📋 Cadastros em andamento</div><div class="sv" style="color:var(--a600);" id="g-cad">0</div></div>
+    <div class="sc"><div class="sl">👥 Colaboradores ativos</div><div class="sv" id="g-total">10</div></div>
+    <div class="sc"><div class="sl">📋 Cadastros em andamento</div><div class="sv" style="color:var(--a600);" id="g-cad">1</div></div>
     <div class="sc"><div class="sl">⏳ Aguardando validação</div><div class="sv" style="color:var(--r600);" id="g-pend">0</div></div>
-    <div class="sc"><div class="sl">⏱ N1 pendentes</div><div class="sv" style="color:var(--a600);" id="g-pau">0</div></div>
-    <div class="sc"><div class="sl">⏰ Saldo banco de horas</div><div class="sv" style="font-size:15px;" id="g-bh-saldo">0h</div></div>
+    <div class="sc"><div class="sl">⏱ N1 pendentes</div><div class="sv" style="color:var(--a600);" id="g-pau">4</div></div>
+    <div class="sc"><div class="sl">⏰ Saldo banco de horas</div><div class="sv" style="font-size: 15px; color: var(--g600);" id="g-bh-saldo">0min</div></div>
   </div>
 
   <!-- ── ROW 2: Controle de colaboradores + Cadastro ── -->
@@ -433,7 +430,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.625rem;">
         <div style="background:var(--g50);border-radius:8px;padding:.5rem .75rem;text-align:center;">
-          <div style="font-size:18px;font-weight:800;color:var(--g600);" id="g-ativos">0</div>
+          <div style="font-size:18px;font-weight:800;color:var(--g600);" id="g-ativos">10</div>
           <div style="font-size:9px;color:var(--g800);">Ativos</div>
         </div>
         <div style="background:var(--r50);border-radius:8px;padding:.5rem .75rem;text-align:center;">
@@ -445,7 +442,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <div style="font-size:9px;color:var(--a600);">Férias/Afastados</div>
         </div>
       </div>
-      <div id="g-cargo-mini" style="display:flex;flex-direction:column;gap:4px;"></div>
+      <div id="g-cargo-mini" style="display:flex;flex-direction:column;gap:4px;"><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;" title="Analista de suporte telefônico (TEL)">Analista de suporte …</div><div class="gauge-bar"><div class="gauge-fill" style="width:36%;background:var(--r600);"></div></div><div class="gauge-lbl">4/11</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;" title="Analista de suporte (BSB)">Analista de suporte …</div><div class="gauge-bar"><div class="gauge-fill" style="width:17%;background:var(--r600);"></div></div><div class="gauge-lbl">2/12</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;" title="Analista de suporte (EST)">Analista de suporte …</div><div class="gauge-bar"><div class="gauge-fill" style="width:4%;background:var(--r600);"></div></div><div class="gauge-lbl">1/27</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;" title="Analista de suporte especializado (AE)">Analista de suporte …</div><div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--r600);"></div></div><div class="gauge-lbl">0/8</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;" title="Analista de suporte especializado (CE)">Analista de suporte …</div><div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--r600);"></div></div><div class="gauge-lbl">0/1</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;" title="Analista de suporte especializado (AC)">Analista de suporte …</div><div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--r600);"></div></div><div class="gauge-lbl">0/1</div></div></div>
     </div>
 
     <!-- CADASTRO Fases -->
@@ -457,13 +454,13 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       <div style="display:flex;align-items:center;gap:14px;">
         <div class="pring" style="flex-shrink:0;">
           <svg width="64" height="64" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--gy100)" stroke-width="7"/>
-            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--b600)" stroke-width="7" stroke-dasharray="163.4" id="g-ring" stroke-dashoffset="163.4" stroke-linecap="round"/>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--gy100)" stroke-width="7"></circle>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--b600)" stroke-width="7" stroke-dasharray="163.4" id="g-ring" stroke-dashoffset="163.4" stroke-linecap="round" style="stroke-dashoffset: 163.4;"></circle>
           </svg>
           <div class="pnum" id="g-ring-txt">0%</div>
         </div>
         <div style="flex:1;">
-          <div id="g-cad-phases" style="display:flex;flex-direction:column;gap:4px;"></div>
+          <div id="g-cad-phases" style="display:flex;flex-direction:column;gap:4px;"><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:65px;">Fase 1</div><div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--gy400);"></div></div><div class="gauge-lbl" style="color:var(--gy400);font-size:9px;">Aguardando</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:65px;">Fase 2</div><div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--gy400);"></div></div><div class="gauge-lbl" style="color:var(--gy400);font-size:9px;">Aguardando</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:65px;">Fase 3</div><div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--gy400);"></div></div><div class="gauge-lbl" style="color:var(--gy400);font-size:9px;">Aguardando</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:65px;">Fase 4</div><div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--gy400);"></div></div><div class="gauge-lbl" style="color:var(--gy400);font-size:9px;">Aguardando</div></div><div class="gauge-row"><div style="font-size:10px;color:var(--muted);min-width:65px;">Fase 5</div><div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--gy400);"></div></div><div class="gauge-lbl" style="color:var(--gy400);font-size:9px;">Aguardando</div></div></div>
         </div>
       </div>
     </div>
@@ -479,11 +476,11 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <button class="btn bp" style="font-size:10px;padding:3px 10px;" onclick="pg('pausas',document.querySelectorAll('.tab')[3])">Ver →</button>
       </div>
       <div class="srow3" style="margin-bottom:.625rem;">
-        <div class="sc"><div class="sl">Total</div><div class="sv" id="g-poc">0</div></div>
-        <div class="sc"><div class="sl">Aprovadas</div><div class="sv" style="color:var(--g600);" id="g-pap">0</div></div>
-        <div class="sc"><div class="sl">Pendentes</div><div class="sv" style="color:var(--a600);" id="g-ppe">0</div></div>
+        <div class="sc"><div class="sl">Total</div><div class="sv" id="g-poc">6</div></div>
+        <div class="sc"><div class="sl">Aprovadas</div><div class="sv" style="color:var(--g600);" id="g-pap">2</div></div>
+        <div class="sc"><div class="sl">Pendentes</div><div class="sv" style="color:var(--a600);" id="g-ppe">4</div></div>
       </div>
-      <div id="g-pausas-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-pausas-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:.5px solid var(--brd);"><span style="font-size:10px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Gabriel Pereira</span><span class="bdg bw" style="font-size:8px;">pendente</span><span style="font-size:9px;color:var(--muted);">16/04/2026</span></div><div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:.5px solid var(--brd);"><span style="font-size:10px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Ana Paula Ferreira</span><span class="bdg bw" style="font-size:8px;">pendente</span><span style="font-size:9px;color:var(--muted);">16/04/2026</span></div><div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:.5px solid var(--brd);"><span style="font-size:10px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Hermano Marques Fernandes</span><span class="bdg bw" style="font-size:8px;">pendente</span><span style="font-size:9px;color:var(--muted);">13/04/2026</span></div></div>
     </div>
 
     <!-- FÉRIAS -->
@@ -493,11 +490,11 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <button class="btn bp" style="font-size:10px;padding:3px 10px;" onclick="pg('ferias',document.querySelectorAll('.tab')[4])">Ver →</button>
       </div>
       <div class="srow3" style="margin-bottom:.625rem;">
-        <div class="sc"><div class="sl">Solicitações</div><div class="sv" id="g-fs">0</div></div>
-        <div class="sc"><div class="sl">Dias totais</div><div class="sv" style="color:var(--b800);" id="g-fd">0</div></div>
+        <div class="sc"><div class="sl">Solicitações</div><div class="sv" id="g-fs">2</div></div>
+        <div class="sc"><div class="sl">Dias totais</div><div class="sv" style="color:var(--b800);" id="g-fd">50d</div></div>
         <div class="sc"><div class="sl">Aprovadas</div><div class="sv" style="color:var(--g600);" id="g-fer-apr">0</div></div>
       </div>
-      <div id="g-ferias-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-ferias-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:.5px solid var(--brd);"><span style="font-size:10px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Carla Santos Lima</span><span class="bdg bi" style="font-size:8px;">30d</span><span style="font-size:9px;color:var(--muted);">31/01/2026</span></div><div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:.5px solid var(--brd);"><span style="font-size:10px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Carolina Gonçalves</span><span class="bdg bi" style="font-size:8px;">20d</span><span style="font-size:9px;color:var(--muted);">19/05/2026</span></div></div>
     </div>
 
     <!-- BANCO DE HORAS -->
@@ -508,10 +505,10 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       </div>
       <div class="srow3" style="margin-bottom:.625rem;">
         <div class="sc"><div class="sl">Registros</div><div class="sv" id="g-bh-reg">0</div></div>
-        <div class="sc"><div class="sl">Saldo total</div><div class="sv" style="font-size:13px;" id="g-bh-saldo2">0h</div></div>
+        <div class="sc"><div class="sl">Saldo total</div><div class="sv" style="font-size: 13px; color: var(--g600);" id="g-bh-saldo2">0min</div></div>
         <div class="sc"><div class="sl">Negativos</div><div class="sv" style="color:var(--r600);" id="g-bh-neg">0</div></div>
       </div>
-      <div id="g-bh-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-bh-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="font-size:11px;color:var(--muted);">Sem registros.</div></div>
     </div>
   </div>
 
@@ -525,11 +522,11 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <button class="btn bp" style="font-size:10px;padding:3px 10px;" onclick="pg('ates',document.querySelectorAll('.tab')[6])">Ver →</button>
       </div>
       <div class="srow3" style="margin-bottom:.625rem;">
-        <div class="sc"><div class="sl">Total</div><div class="sv" id="g-at-tot">0</div></div>
+        <div class="sc"><div class="sl">Total</div><div class="sv" id="g-at-tot">1</div></div>
         <div class="sc"><div class="sl">Médicos</div><div class="sv" style="color:var(--r600);" id="g-at-med">0</div></div>
-        <div class="sc"><div class="sl">Dias</div><div class="sv" style="color:var(--a600);" id="g-at-dias">0</div></div>
+        <div class="sc"><div class="sl">Dias</div><div class="sv" style="color:var(--a600);" id="g-at-dias">0d</div></div>
       </div>
-      <div id="g-at-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-at-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:.5px solid var(--brd);"><span style="font-size:10px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Eduardo Mota</span><span class="bdg bw" style="font-size:8px;">Compar.</span><span style="font-size:9px;color:var(--muted);">31/05/2026</span></div></div>
     </div>
 
     <!-- CELULAR/TABLET -->
@@ -543,7 +540,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="sc"><div class="sl">Celulares</div><div class="sv" style="color:var(--b600);" id="g-dev-cel">0</div></div>
         <div class="sc"><div class="sl">Tablets</div><div class="sv" style="color:var(--pu600);" id="g-dev-tab">0</div></div>
       </div>
-      <div id="g-dev-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-dev-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="font-size:11px;color:var(--muted);">Sem dispositivos.</div></div>
     </div>
 
     <!-- UNIFORMES -->
@@ -557,7 +554,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="sc"><div class="sl">Entregues</div><div class="sv" style="color:var(--g600);" id="g-uni-ent">0</div></div>
         <div class="sc"><div class="sl">Pendentes</div><div class="sv" style="color:var(--a600);" id="g-uni-pend">0</div></div>
       </div>
-      <div id="g-uni-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-uni-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="font-size:11px;color:var(--muted);">Sem registros.</div></div>
     </div>
   </div>
 
@@ -573,9 +570,9 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       <div class="srow3" style="margin-bottom:.625rem;">
         <div class="sc"><div class="sl">Entregues</div><div class="sv" id="g-ponto-tot">0</div></div>
         <div class="sc"><div class="sl">Aprovadas</div><div class="sv" style="color:var(--g600);" id="g-ponto-apr">0</div></div>
-        <div class="sc"><div class="sl">Pendentes</div><div class="sv" style="color:var(--r600);" id="g-ponto-pend">0</div></div>
+        <div class="sc"><div class="sl">Pendentes</div><div class="sv" style="color:var(--r600);" id="g-ponto-pend">10</div></div>
       </div>
-      <div id="g-ponto-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-ponto-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="font-size:11px;color:var(--muted);">Sem registros.</div></div>
     </div>
 
     <!-- MALETA -->
@@ -589,7 +586,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="sc"><div class="sl">Completas</div><div class="sv" style="color:var(--g600);" id="g-mal-comp">0</div></div>
         <div class="sc"><div class="sl">Incompletas</div><div class="sv" style="color:var(--a600);" id="g-mal-inc">0</div></div>
       </div>
-      <div id="g-mal-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-mal-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="font-size:11px;color:var(--muted);">Sem registros.</div></div>
     </div>
 
     <!-- FEEDBACK -->
@@ -603,7 +600,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="sc"><div class="sl">Positivos</div><div class="sv" style="color:var(--g600);" id="g-fb-pos">0</div></div>
         <div class="sc"><div class="sl">Pendentes</div><div class="sv" style="color:var(--r600);" id="g-fb-pend">0</div></div>
       </div>
-      <div id="g-fb-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"></div>
+      <div id="g-fb-list" style="display:flex;flex-direction:column;gap:3px;font-size:11px;"><div style="font-size:11px;color:var(--muted);">Sem feedbacks.</div></div>
     </div>
   </div>
 
@@ -617,9 +614,9 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <button class="btn bp" style="font-size:10px;padding:3px 10px;" onclick="pg('cad',document.querySelector('.tab:nth-child(2)'))">Ver →</button>
       </div>
       <div class="srow3" style="margin-bottom:.625rem;">
-        <div class="sc"><div class="sl">Colaboradores</div><div class="sv" id="g-ac-tot">0</div></div>
+        <div class="sc"><div class="sl">Colaboradores</div><div class="sv" id="g-ac-tot">10</div></div>
         <div class="sc"><div class="sl">Configurados</div><div class="sv" style="color:var(--g600);" id="g-ac-ok">0</div></div>
-        <div class="sc"><div class="sl">Pendentes</div><div class="sv" style="color:var(--r600);" id="g-ac-pend">0</div></div>
+        <div class="sc"><div class="sl">Pendentes</div><div class="sv" style="color:var(--r600);" id="g-ac-pend">10</div></div>
       </div>
       <div style="height:6px;background:var(--gy100);border-radius:3px;overflow:hidden;">
         <div id="g-ac-bar" style="height:100%;width:0%;background:var(--g600);border-radius:3px;transition:width .4s;"></div>
@@ -633,7 +630,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="ctitle" style="margin:0;">📅 Próximos Feriados / Pontos Facultativos — TCU 2026</div>
         <button class="btn bp" style="font-size:10px;padding:3px 10px;" onclick="pg('ponto',document.querySelectorAll('.tab')[9])">Ver todos →</button>
       </div>
-      <div id="g-feriados-prox" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem;"></div>
+      <div id="g-feriados-prox" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem;"><div style="background:#FAEEDA;border-radius:8px;padding:.625rem .75rem;border:.5px solid #FAC775"><div style="font-size:9px;font-weight:700;color:#854F0B;">🟡 Ponto Facultativo</div><div style="font-size:12px;font-weight:700;color:#1a1a18;margin:.2rem 0;">Ponto facultativo</div><div style="font-size:10px;color:#666;">Segunda-feira · 20/04/2026</div></div><div style="background:#FCEBEB;border-radius:8px;padding:.625rem .75rem;border:.5px solid #F7C1C1"><div style="font-size:9px;font-weight:700;color:#A32D2D;">🔴 Feriado Nacional</div><div style="font-size:12px;font-weight:700;color:#1a1a18;margin:.2rem 0;">Tiradentes</div><div style="font-size:10px;color:#666;">Terça-feira · 21/04/2026</div></div><div style="background:#FCEBEB;border-radius:8px;padding:.625rem .75rem;border:.5px solid #F7C1C1"><div style="font-size:9px;font-weight:700;color:#A32D2D;">🔴 Feriado Nacional</div><div style="font-size:12px;font-weight:700;color:#1a1a18;margin:.2rem 0;">Dia Mundial do Trabalho</div><div style="font-size:10px;color:#666;">Sexta-feira · 01/05/2026</div></div><div style="background:#FAEEDA;border-radius:8px;padding:.625rem .75rem;border:.5px solid #FAC775"><div style="font-size:9px;font-weight:700;color:#854F0B;">🟡 Ponto Facultativo</div><div style="font-size:12px;font-weight:700;color:#1a1a18;margin:.2rem 0;">Corpus Christi</div><div style="font-size:10px;color:#666;">Quinta-feira · 04/06/2026</div></div></div>
     </div>
   </div>
 
@@ -648,12 +645,12 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
 
   <aside class="sidebar">
     <div class="sbl">Fases</div>
-    <div class="sbi on"     onclick="gp(1)" id="nav1"><div class="sbn">1</div><div class="sb-text">Dados Pessoais<small>Formulário cadastral</small></div></div>
+    <div class="sbi" onclick="gp(1)" id="nav1"><div class="sbn">1</div><div class="sb-text">Dados Pessoais<small>Formulário cadastral</small></div></div>
     <div class="sbi" onclick="gp(2)" id="nav2"><div class="sbn">2</div><div class="sb-text">Documentação<small>Por cargo</small></div></div>
     <div class="sbi" onclick="gp(3)" id="nav3"><div class="sbn">3</div><div class="sb-text">Termos de Acesso<small>PCSI + formulários</small></div></div>
     <div class="sbi" onclick="gp(4)" id="nav4"><div class="sbn">4</div><div class="sb-text">Boas-Vindas<small>E-mail + atividades</small></div></div>
     <div class="sbi" onclick="gp(5)" id="nav5"><div class="sbn">5</div><div class="sb-text">Acesso ao Sistema<small>Chamados + licenças</small></div></div>
-    <div class="sbi"        onclick="gp(6)" id="nav6"><div class="sbn">📊</div><div class="sb-text">Dashboard<small>Fase do cadastro</small></div></div>
+    <div class="sbi on" onclick="gp(6)" id="nav6"><div class="sbn">📊</div><div class="sb-text">Dashboard<small>Fase do cadastro</small></div></div>
     <div class="sb-prog"><div class="sb-pl">Progresso — <span id="pct">0%</span></div><div class="sb-bar"><div class="sb-fill" id="pbar" style="width:0%"></div></div></div>
     <div class="sb-foot">Central de Serviços<br><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#fff;">0800-6441500</span></div>
   </aside>
@@ -661,14 +658,14 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   <main class="main-area">
 
     <!-- ── P1: Dados Pessoais ── -->
-    <div class="panel on" id="p1">
+    <div class="panel" id="p1">
       <div class="cbb"><span style="font-size:20px;flex-shrink:0;">👤</span><div><strong>Fase 1 — Dados Cadastrais</strong>Preencha todos os campos obrigatórios.</div></div>
       <div class="ph"><div class="phic" style="background:var(--b50);">👤</div><div><h1>Dados Cadastrais</h1><p>Informações pessoais para credenciamento.</p></div></div>
 
       <div class="card lcard" style="background:var(--b50);border-color:var(--b100);">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem;"><span style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link Fase 1</span><span class="bdg bi"><span class="bdot"></span>Ativo</span></div>
         <p style="font-size:10px;color:var(--b800);margin-bottom:.4rem;">Colaborador verá apenas este formulário — sem acesso a outras seções.</p>
-        <div class="lbox"><input type="text" readonly id="lk1"/><button onclick="cpL(1)">Copiar</button></div>
+        <div class="lbox"><input type="text" readonly="" id="lk1"><button onclick="cpL(1)">Copiar</button></div>
       </div>
 
       <div class="card">
@@ -691,7 +688,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="fg fg3">
           <div class="fp"><label>Nacionalidade *</label><select id="f_nac" onchange="ck1()"><option value="">Selecione</option><option>Brasileira</option><option>Outra</option></select></div>
           <div class="fp"><label>Naturalidade (cidade) *</label><input type="text" id="f_natural" placeholder="Ex: Brasília" oninput="ck1()"></div>
-          <div class="fp"><label>UF</label><select><option>UF</option><option selected>DF</option><option>SP</option><option>RJ</option><option>MG</option><option>GO</option><option>RS</option><option>BA</option><option>PR</option><option>PE</option><option>CE</option></select></div>
+          <div class="fp"><label>UF</label><select><option>UF</option><option selected="">DF</option><option>SP</option><option>RJ</option><option>MG</option><option>GO</option><option>RS</option><option>BA</option><option>PR</option><option>PE</option><option>CE</option></select></div>
         </div>
       </div>
       <div class="card">
@@ -701,11 +698,11 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <div class="fp ff"><label>Endereço completo *</label><input type="text" id="f_end" placeholder="Rua, número, complemento" oninput="ck1()"></div>
           <div class="fp"><label>CEP *</label><input type="text" id="f_cep" placeholder="00000-000" oninput="ck1()"></div>
           <div class="fp"><label>Cidade *</label><input type="text" id="f_cidade" placeholder="Ex: Brasília" oninput="ck1()"></div>
-          <div class="fp"><label>Estado *</label><select id="f_uf" onchange="ck1()"><option value="">Selecione</option><option selected>DF</option><option>SP</option><option>RJ</option><option>MG</option><option>GO</option></select></div>
+          <div class="fp"><label>Estado *</label><select id="f_uf" onchange="ck1()"><option value="">Selecione</option><option selected="">DF</option><option>SP</option><option>RJ</option><option>MG</option><option>GO</option></select></div>
         </div>
       </div>
       <div id="ok1" class="al al-ok" style="display:none;"><span>✓</span><div class="alb"><strong>Campos completos</strong>Clique em Enviar para concluir a Fase 1.</div></div>
-      <div class="brow" id="crow1" style="display:none;"><button class="btn bp" id="bsub1" onclick="subP(1)" disabled>Enviar formulário →</button></div>
+      <div class="brow" id="crow1" style="display:none;"><button class="btn bp" id="bsub1" onclick="subP(1)" disabled="">Enviar formulário →</button></div>
       <div class="awb" id="aw1"><div class="awic">✅</div><p>Formulário enviado!</p><small>Aguarde validação para receber o link da Fase 2.</small></div>
       <div class="vp g-only" id="vp1">
         <h3>🔍 Validação — Fase 1</h3><p>Revise os dados e valide para liberar a Fase 2.</p>
@@ -745,7 +742,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         </div>
         <div id="lk2-wrap" style="display:none;">
           <p style="font-size:10px;color:var(--b800);margin-bottom:.4rem;">Link gerado com cargo pré-definido — envie ao colaborador:</p>
-          <div class="lbox"><input type="text" readonly id="lk2"/><button onclick="cpL(2)">Copiar</button></div>
+          <div class="lbox"><input type="text" readonly="" id="lk2"><button onclick="cpL(2)">Copiar</button></div>
         </div>
         <div id="lk2-hint" style="font-size:10px;color:var(--gy600);margin-top:.4rem;">👆 Selecione o cargo acima para gerar o link.</div>
       </div>
@@ -758,7 +755,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       </div>
 
       <div id="ok2" class="al al-ok" style="display:none;"><span>✓</span><div class="alb"><strong>Todos os documentos anexados</strong>Clique em Enviar.</div></div>
-      <div class="brow" id="crow2" style="display:none;"><button class="btn bp" id="bsub2" onclick="subP(2)" disabled>Enviar documentação →</button></div>
+      <div class="brow" id="crow2" style="display:none;"><button class="btn bp" id="bsub2" onclick="subP(2)" disabled="">Enviar documentação →</button></div>
       <div class="awb" id="aw2"><div class="awic">✅</div><p>Documentação enviada!</p><small>Aguarde validação para receber o link da Fase 3.</small></div>
       <div class="vp g-only" id="vp2">
         <h3>🔍 Validação — Fase 2</h3><p>Revise a documentação e valide.</p>
@@ -775,7 +772,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
 
       <div class="card lcard" style="background:var(--b50);border-color:var(--b100);">
         <span style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link Fase 3</span>
-        <div class="lbox" style="margin-top:.4rem;"><input type="text" readonly id="lk3"/><button onclick="cpL(3)">Copiar</button></div>
+        <div class="lbox" style="margin-top:.4rem;"><input type="text" readonly="" id="lk3"><button onclick="cpL(3)">Copiar</button></div>
       </div>
 
       <!-- PCSI -->
@@ -862,7 +859,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       </div>
 
       <div id="ok3" class="al al-ok" style="display:none;"><span>✓</span><div class="alb"><strong>Todos os termos aceitos e documentos enviados</strong>Clique em Enviar.</div></div>
-      <div class="brow" id="crow3" style="display:none;"><button class="btn bok" id="bsub3" onclick="subP(3)" disabled>Enviar termos →</button></div>
+      <div class="brow" id="crow3" style="display:none;"><button class="btn bok" id="bsub3" onclick="subP(3)" disabled="">Enviar termos →</button></div>
       <div class="awb" id="aw3"><div class="awic">✅</div><p>Termos enviados!</p><small>Aguarde validação da Fase 4.</small></div>
       <div class="vp g-only" id="vp3">
         <h3>🔍 Validação — Fase 3</h3><p>Termos enviados. Valide para liberar Fase 4.</p>
@@ -957,7 +954,57 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="tw">
           <table>
             <thead><tr><th>Colaborador</th><th>Chamado — Acesso Sistema</th><th>Chamado — Office</th><th>Chamado — Sistemas</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody id="acesso-tbody"></tbody>
+            <tbody id="acesso-tbody"><tr><td style="font-weight:500;white-space:nowrap;">Lucas Sena de Souza</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[0].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[0].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[0].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(0,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(0,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(0,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Hermano Marques Fernandes</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[1].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[1].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[1].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(1,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(1,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(1,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Carolina Gonçalves</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[2].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[2].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[2].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(2,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(2,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(2,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Ana Paula Ferreira</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[3].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[3].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[3].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(3,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(3,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(3,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Bruno Alves Costa</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[4].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[4].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[4].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(4,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(4,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(4,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Carla Santos Lima</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[5].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[5].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[5].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(5,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(5,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(5,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Diego Rodrigues</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[6].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[6].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[6].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(6,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(6,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(6,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Eduardo Mota</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[7].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[7].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[7].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(7,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(7,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(7,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Fernanda Oliveira</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[8].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[8].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[8].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(8,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(8,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(8,1);rAcesso()}">🗑</button></td></tr><tr><td style="font-weight:500;white-space:nowrap;">Gabriel Pereira</td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[9].chamTcu=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[9].chamOffice=this.value;rAcesso();saveAll()"></td>
+      <td><input type="text" value="" placeholder="Pendente..." style="font-size:11px;padding:4px 7px;border:.5px solid var(--r600);border-radius:5px;width:140px;background:var(--r50)" onchange="ACESSO_DATA[9].chamSys=this.value;rAcesso();saveAll()"></td>
+      <td><span class="bdg be">Pendente</span></td>
+      <td><span class="bdg be">⚠ Pendente</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="acessoAcao(9,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="acessoAcao(9,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){ACESSO_DATA.splice(9,1);rAcesso()}">🗑</button></td></tr></tbody>
           </table>
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:.5rem;">🔴 Pendente &nbsp; 🟢 Registrado — campos abertos para inclusão a qualquer momento</div>
@@ -972,7 +1019,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
     </div>
 
     <!-- ── P6: Dashboard Cadastro ── -->
-    <div class="panel" id="p6">
+    <div class="panel on" id="p6">
       <div class="ph"><div class="phic" style="background:var(--t50);">📊</div><div><h1>Dashboard — Fase do Cadastro</h1><p>Acompanhe e valide cada fase do credenciamento.</p></div></div>
       <div class="steps">
         <div class="std" id="sd1"><div class="stc" id="sc1">1</div><small>Dados</small></div><div class="stl" id="sl1"></div>
@@ -983,9 +1030,9 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="std active"><div class="stc">✓</div><small>Concluído</small></div>
       </div>
       <div class="srow" style="grid-template-columns:repeat(3,1fr);">
-        <div class="sc"><div class="sl">Status</div><div class="sv" id="d-st" style="font-size:13px;color:var(--a600);">Em andamento</div></div>
+        <div class="sc"><div class="sl">Status</div><div class="sv" id="d-st" style="font-size: 13px; color: var(--b600);">Em andamento</div></div>
         <div class="sc"><div class="sl">Fases validadas</div><div class="sv" id="d-cnt">0 / 5</div></div>
-        <div class="sc"><div class="sl">Aguardando validação</div><div class="sv" id="d-pnd" style="color:var(--a600);">0</div></div>
+        <div class="sc"><div class="sl">Aguardando validação</div><div class="sv" id="d-pnd" style="color: var(--g600);">0</div></div>
       </div>
       <div class="card">
         <div class="ctitle">Status por Fase</div>
@@ -1049,14 +1096,14 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <p style="font-size:10px;color:var(--b800);margin-top:.25rem;">Envie ao colaborador para registrar pausas/ocorrências.</p>
       </div>
       <div style="display:flex;gap:.5rem;align-items:center;">
-        <div class="lbox" style="margin-top:0;min-width:320px;"><input type="text" readonly id="lk-pausa"/><button onclick="cpPauLink()">Copiar</button></div>
+        <div class="lbox" style="margin-top:0;min-width:320px;"><input type="text" readonly="" id="lk-pausa"><button onclick="cpPauLink()">Copiar</button></div>
         <button class="btn bp" onclick="cpPauLink(true)" style="white-space:nowrap;">📤 Enviar link</button>
       </div>
     </div>
   </div>
 
   <!-- COLLAB: formulário de ocorrência -->
-  <div id="pau-form-wrap">
+  <div id="pau-form-wrap" style="display: none;">
     <div class="card">
       <div class="ctitle">Registrar Ocorrência</div>
       <div class="fg">
@@ -1100,7 +1147,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   </div>
 
   <!-- GESTOR: dashboard -->
-  <div id="pau-dash-wrap">
+  <div id="pau-dash-wrap" style="display: block;">
     <div class="al al-r" id="pau-alert" style="display:none;">
       <span style="font-size:16px;">🔔</span><div class="alb"><strong>Nova ocorrência aguardando aprovação da gestão!</strong>Revise abaixo.</div>
     </div>
@@ -1131,7 +1178,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <select id="pau-exp-ano" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os anos</option>
             <option>2025</option>
-<option  selected>2026</option>
+<option selected="">2026</option>
 <option>2027</option>
 <option>2028</option>
 <option>2029</option>
@@ -1156,7 +1203,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   <div class="card" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;" id="fer-link-card">
     <span style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link do formulário de férias</span>
     <p style="font-size:10px;color:var(--b800);margin:.4rem 0;">Envie ao colaborador para solicitar férias.</p>
-    <div class="lbox"><input type="text" readonly id="lk-fer"/><button onclick="cpL('fer')">Copiar</button></div>
+    <div class="lbox"><input type="text" readonly="" id="lk-fer"><button onclick="cpL('fer')">Copiar</button></div>
   </div>
 
   <!-- FORM FÉRIAS (visível no modo collab via hash) -->
@@ -1186,16 +1233,16 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <select id="fer_mes"><option value="">Mês</option><option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option></select>
       </div>
       <div class="fp"><label>Ano de referência *</label>
-        <select id="fer_ano"><option>2025</option><option selected>2026</option><option>2027</option></select>
+        <select id="fer_ano"><option>2025</option><option selected="">2026</option><option>2027</option></select>
       </div>
       <div class="fp"><label>Quantidade de dias *</label><input type="number" id="fer_dias" min="1" max="30" placeholder="Ex: 15" oninput="calcFer()"></div>
       <div class="fp"><label>Data de início *</label><input type="date" id="fer_ini" oninput="calcFer()"></div>
-      <div class="fp"><label>Data de fim (calculada)</label><input type="text" id="fer_fim" readonly class="ro" placeholder="Automático"></div>
+      <div class="fp"><label>Data de fim (calculada)</label><input type="text" id="fer_fim" readonly="" class="ro" placeholder="Automático"></div>
       <div class="fp ff">
         <label>Deseja vender 10 dias do período de descanso?</label>
         <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px;">
           <label style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:400;color:var(--text);cursor:pointer;"><input type="radio" name="vender" value="sim"> Sim — manifesto intenção de vender 1/3 do período</label>
-          <label style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:400;color:var(--text);cursor:pointer;"><input type="radio" name="vender" value="nao" checked> Não — não desejo vender</label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:400;color:var(--text);cursor:pointer;"><input type="radio" name="vender" value="nao" checked=""> Não — não desejo vender</label>
         </div>
       </div>
     </div>
@@ -1203,13 +1250,13 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   </div>
 
   <!-- DASHBOARD GESTOR -->
-  <div id="fer-dash">
+  <div id="fer-dash" style="display: block;">
     <div class="srow srow3" style="margin-bottom:.875rem;">
-      <div class="sc"><div class="sl">Solicitações</div><div class="sv" id="f-cnt">0</div></div>
-      <div class="sc"><div class="sl">Dias totais</div><div class="sv" id="f-dias">0</div></div>
-      <div class="sc"><div class="sl">Sem solicitação</div><div class="sv" style="color:var(--a600);" id="f-sem">71</div></div>
+      <div class="sc"><div class="sl">Solicitações</div><div class="sv" id="f-cnt">2</div></div>
+      <div class="sc"><div class="sl">Dias totais</div><div class="sv" id="f-dias">50</div></div>
+      <div class="sc"><div class="sl">Sem solicitação</div><div class="sv" style="color:var(--a600);" id="f-sem">69</div></div>
     </div>
-    <div id="fer-pend-alerta" style="display:none;" class="al al-w"><span>⚠</span><div class="alb" id="fer-pend-txt"></div></div>
+    <div id="fer-pend-alerta" style="display: flex;" class="al al-w"><span>⚠</span><div class="alb" id="fer-pend-txt">8 colaborador(es) ainda não solicitaram férias.</div></div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
         <div class="ctitle" style="margin:0;">Solicitações</div>
@@ -1217,7 +1264,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
           <select id="fer-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rFerias()">
             <option value="">Todos os cargos</option>
-          </select>
+          <option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select>
           <select id="fer-exp-mes" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os meses</option>
             <option>Janeiro</option>
@@ -1236,7 +1283,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <select id="fer-exp-ano" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os anos</option>
             <option>2025</option>
-<option  selected>2026</option>
+<option selected="">2026</option>
 <option>2027</option>
 <option>2028</option>
 <option>2029</option>
@@ -1244,7 +1291,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expFer('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expFer('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div></div>
       </div>
-      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Cargo</th><th>Mês/Ano</th><th>Início</th><th>Fim</th><th>Dias</th><th>Venda 10d</th><th>Status</th><th>Ação</th></tr></thead><tbody id="fer-tbody"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Cargo</th><th>Mês/Ano</th><th>Início</th><th>Fim</th><th>Dias</th><th>Venda 10d</th><th>Status</th><th>Ação</th></tr></thead><tbody id="fer-tbody"><tr><td style="font-weight:500;">Carolina Gonçalves</td><td><span class="bdg bi">GSD</span></td><td>Maio/2026</td><td>19/05/2026</td><td>07/06/2026</td><td style="font-weight:600;color:var(--b800);">20d</td><td><span class="bdg bw">Sim</span></td><td><span class="bdg bok2">solicitado</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="ferAcao(0,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="ferAcao(0,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){FERIAS.splice(0,1);rFerias();refreshGeral();saveAll()}">🗑</button></td></tr><tr><td style="font-weight:500;">Carla Santos Lima</td><td><span class="bdg bi">EST</span></td><td>Julho/2026</td><td>31/01/2026</td><td>01/03/2026</td><td style="font-weight:600;color:var(--b800);">30d</td><td>Não</td><td><span class="bdg bok2">solicitado</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="ferAcao(1,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="ferAcao(1,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){FERIAS.splice(1,1);rFerias();refreshGeral();saveAll()}">🗑</button></td></tr></tbody></table></div>
     </div>
   </div>
 </div>
@@ -1260,14 +1307,14 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   <div class="dh2"><div class="dhic" style="background:var(--pu50);">⏰</div>Banco de Horas</div>
 
   <!-- LINK COLABORADOR -->
-  <div class="card" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;" id="bh-link-card">
+  <div class="card" style="background: var(--b50); border-color: var(--b100); margin-bottom: 0.875rem; display: block;" id="bh-link-card">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
       <div>
         <div style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link do formulário de banco de horas</div>
         <p style="font-size:10px;color:var(--b800);margin-top:.25rem;">Envie ao colaborador para registrar horas positivas ou negativas.</p>
       </div>
       <div style="display:flex;gap:.5rem;align-items:center;">
-        <div class="lbox" style="margin-top:0;min-width:300px;"><input type="text" readonly id="lk-bh"/><button onclick="cpBHLink()">Copiar</button></div>
+        <div class="lbox" style="margin-top:0;min-width:300px;"><input type="text" readonly="" id="lk-bh"><button onclick="cpBHLink()">Copiar</button></div>
         <button class="btn bp" onclick="cpBHLink(true)" style="white-space:nowrap;">📤 Enviar link</button>
       </div>
     </div>
@@ -1320,13 +1367,13 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   </div>
 
   <!-- DASHBOARD GESTOR -->
-  <div id="bh-dash">
+  <div id="bh-dash" style="display: block;">
     <!-- KPIs -->
     <div class="srow" style="grid-template-columns:repeat(4,1fr);margin-bottom:.875rem;">
       <div class="sc"><div class="sl">Total registros</div><div class="sv" id="bh-tot">0</div></div>
-      <div class="sc"><div class="sl">Saldo geral (min)</div><div class="sv" style="font-size:16px;" id="bh-saldo">0</div></div>
-      <div class="sc"><div class="sl">Horas positivas</div><div class="sv" style="color:var(--g600);" id="bh-pos">0</div></div>
-      <div class="sc"><div class="sl">Horas negativas</div><div class="sv" style="color:var(--r600);" id="bh-neg">0</div></div>
+      <div class="sc"><div class="sl">Saldo geral (min)</div><div class="sv" style="font-size: 16px; color: var(--g600);" id="bh-saldo">0min</div></div>
+      <div class="sc"><div class="sl">Horas positivas</div><div class="sv" style="color:var(--g600);" id="bh-pos">0min</div></div>
+      <div class="sc"><div class="sl">Horas negativas</div><div class="sv" style="color:var(--r600);" id="bh-neg">0min</div></div>
     </div>
 
     <!-- POR COLABORADOR -->
@@ -1336,11 +1383,11 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div style="display:flex;gap:.5rem;">
           <select id="bh-filter-nome" onchange="rBH()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);background:var(--card);">
             <option value="">Todos os colaboradores</option>
-          </select>
+          <option value="Lucas Sena de Souza">Lucas Sena de Souza</option><option value="Hermano Marques Fernandes">Hermano Marques Fernandes</option><option value="Carolina Gonçalves">Carolina Gonçalves</option><option value="Ana Paula Ferreira">Ana Paula Ferreira</option><option value="Bruno Alves Costa">Bruno Alves Costa</option><option value="Carla Santos Lima">Carla Santos Lima</option><option value="Diego Rodrigues">Diego Rodrigues</option><option value="Eduardo Mota">Eduardo Mota</option><option value="Fernanda Oliveira">Fernanda Oliveira</option><option value="Gabriel Pereira">Gabriel Pereira</option></select>
           <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
           <select id="bh-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rBH()">
             <option value="">Todos os cargos</option>
-          </select>
+          <option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select>
           <select id="bh-exp-mes" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os meses</option>
             <option>Janeiro</option>
@@ -1359,7 +1406,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <select id="bh-exp-ano" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os anos</option>
             <option>2025</option>
-<option  selected>2026</option>
+<option selected="">2026</option>
 <option>2027</option>
 <option>2028</option>
 <option>2029</option>
@@ -1368,7 +1415,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         </div>
         </div>
       </div>
-      <div id="bh-saldo-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <div id="bh-saldo-list" style="display:flex;flex-direction:column;gap:6px;"><div style="font-size:12px;color:var(--muted);padding:.5rem 0;">Nenhum registro ainda.</div></div>
     </div>
 
     <!-- TABELA COMPLETA -->
@@ -1390,7 +1437,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
               <th>Ação</th>
             </tr>
           </thead>
-          <tbody id="bh-tbody"></tbody>
+          <tbody id="bh-tbody"><tr><td colspan="10" style="text-align:center;color:var(--muted);padding:1rem;">Nenhum registro encontrado.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -1409,7 +1456,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   <div class="card" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;" id="ates-link-card">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
       <div><div style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link do formulário de atestados</div></div>
-      <div style="display:flex;gap:.5rem;"><div class="lbox" style="margin-top:0;min-width:280px;"><input type="text" readonly id="lk-ates"/><button onclick="cpAtesLink()">Copiar</button></div><button class="btn bp" onclick="cpAtesLink(true)">📤 Enviar</button></div>
+      <div style="display:flex;gap:.5rem;"><div class="lbox" style="margin-top:0;min-width:280px;"><input type="text" readonly="" id="lk-ates"><button onclick="cpAtesLink()">Copiar</button></div><button class="btn bp" onclick="cpAtesLink(true)">📤 Enviar</button></div>
     </div>
   </div>
   <!-- form collab -->
@@ -1417,8 +1464,8 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
     <div class="card">
       <div class="ctitle">Registrar Atestado</div>
       <div class="fg">
-        <div class="fp ff"><label>Cargo *</label><select id="at_cargo" onchange="filterNameByCargo('at_cargo','at_nome')"><option value="">— Selecione o cargo —</option></select></div>
-        <div class="fp ff"><label>Seu nome *</label><select id="at_nome"><option value="">— Selecione seu nome —</option></select></div>
+        <div class="fp ff"><label>Cargo *</label><select id="at_cargo" onchange="filterNameByCargo('at_cargo','at_nome')"><option value="">— Selecione o cargo —</option><option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select></div>
+        <div class="fp ff"><label>Seu nome *</label><select id="at_nome"><option value="">— Selecione seu nome —</option><option value="Lucas Sena de Souza">Lucas Sena de Souza</option><option value="Hermano Marques Fernandes">Hermano Marques Fernandes</option><option value="Carolina Gonçalves">Carolina Gonçalves</option><option value="Ana Paula Ferreira">Ana Paula Ferreira</option><option value="Bruno Alves Costa">Bruno Alves Costa</option><option value="Carla Santos Lima">Carla Santos Lima</option><option value="Diego Rodrigues">Diego Rodrigues</option><option value="Eduardo Mota">Eduardo Mota</option><option value="Fernanda Oliveira">Fernanda Oliveira</option><option value="Gabriel Pereira">Gabriel Pereira</option></select></div>
         <div class="fp ff"><label>Tipo de atestado *</label>
           <select id="at_tipo" onchange="onAtTipo()">
             <option value="">Selecione</option>
@@ -1429,11 +1476,11 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       </div>
       <!-- MÉDICO -->
       <div id="at-med-fields" style="display:none;margin-top:.875rem;">
-        <div class="al al-info" style="margin-bottom:.75rem;"><span>ℹ</span><div class="alb"><strong>Processo de homologação</strong>Atestados médicos com afastamento superior a 15 dias precisam de homologação no sindicato. Telefone da empresa homologadora: <strong>(61) 3xxx-xxxx</strong> &nbsp;|&nbsp; E-mail: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="177f787a787b787076747678577f726763763974787a397565">[email&#160;protected]</a></strong></div></div>
+        <div class="al al-info" style="margin-bottom:.75rem;"><span>ℹ</span><div class="alb"><strong>Processo de homologação</strong>Atestados médicos com afastamento superior a 15 dias precisam de homologação no sindicato. Telefone da empresa homologadora: <strong>(61) 3xxx-xxxx</strong> &nbsp;|&nbsp; E-mail: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="177f787a787b787076747678577f726763763974787a397565">[email&nbsp;protected]</a></strong></div></div>
         <div class="fg">
           <div class="fp"><label>Quantidade de dias de afastamento *</label><input type="number" id="at_dias" min="1" placeholder="Ex: 3" oninput="calcAtFim()"></div>
           <div class="fp"><label>Data de início do afastamento *</label><input type="date" id="at_ini" oninput="calcAtFim()"></div>
-          <div class="fp"><label>Data de retorno (calculada)</label><input type="text" id="at_fim" readonly class="ro" placeholder="Automático"></div>
+          <div class="fp"><label>Data de retorno (calculada)</label><input type="text" id="at_fim" readonly="" class="ro" placeholder="Automático"></div>
           <div class="fp ff"><label>Anexar atestado médico *</label><label class="ulb" id="ul-at-med"><input type="file" accept=".pdf,.jpg,.png" onchange="atFileUp('med',this)">📎 Anexar</label></div>
         </div>
       </div>
@@ -1451,10 +1498,10 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
     </div>
   </div>
   <!-- dash gestor -->
-  <div id="ates-dash">
+  <div id="ates-dash" style="display: block;">
     <div class="srow srow3" style="margin-bottom:.875rem;">
       <div class="sc"><div class="sl">Atestados médicos</div><div class="sv" id="at-med-cnt">0</div></div>
-      <div class="sc"><div class="sl">Atestados comparec.</div><div class="sv" id="at-comp-cnt">0</div></div>
+      <div class="sc"><div class="sl">Atestados comparec.</div><div class="sv" id="at-comp-cnt">1</div></div>
       <div class="sc"><div class="sl">Dias afastados (total)</div><div class="sv" style="color:var(--r600);" id="at-dias-cnt">0</div></div>
     </div>
     <div class="card">
@@ -1463,7 +1510,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
           <select id="at-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rAtes()">
             <option value="">Todos os cargos</option>
-          </select>
+          <option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select>
           <select id="at-exp-mes" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os meses</option>
             <option>Janeiro</option>
@@ -1482,7 +1529,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <select id="at-exp-ano" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os anos</option>
             <option>2025</option>
-<option  selected>2026</option>
+<option selected="">2026</option>
 <option>2027</option>
 <option>2028</option>
 <option>2029</option>
@@ -1490,7 +1537,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expAtestados('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expAtestados('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div>
       </div>
-      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Tipo</th><th>Data</th><th>Dias/Horas</th><th>Retorno</th><th>BH Negativo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="ates-tbody"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Tipo</th><th>Data</th><th>Dias/Horas</th><th>Retorno</th><th>BH Negativo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="ates-tbody"><tr><td style="font-weight:500;">Eduardo Mota</td><td><span class="bdg bw">Comparec.</span></td><td>31/05/2026</td><td>2h</td><td>—</td><td><span class="bdg be">−2h</span></td><td><span class="bdg bpu">registrado</span></td><td><span class="bdg bw">Aguardando</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="atesAcao(0,'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="atesAcao(0,'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?'))  {ATES_DATA.splice(0,1);rAtes();saveAll()}">🗑</button></td></tr></tbody></table></div>
     </div>
   </div>
 </div>
@@ -1505,15 +1552,15 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
       <div><div style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link do formulário de dispositivos</div></div>
-      <div style="display:flex;gap:.5rem;"><div class="lbox" style="margin-top:0;min-width:280px;"><input type="text" readonly id="lk-device"/><button onclick="cpDeviceLink()">Copiar</button></div><button class="btn bp" onclick="cpDeviceLink(true)">📤 Enviar</button></div>
+      <div style="display:flex;gap:.5rem;"><div class="lbox" style="margin-top:0;min-width:280px;"><input type="text" readonly="" id="lk-device"><button onclick="cpDeviceLink()">Copiar</button></div><button class="btn bp" onclick="cpDeviceLink(true)">📤 Enviar</button></div>
     </div>
   </div>
   <div id="device-form-wrap" style="display:none;">
     <div class="card">
       <div class="ctitle">Registrar Dispositivo Recebido</div>
       <div class="fg">
-        <div class="fp ff"><label>Cargo *</label><select id="dev_cargo" onchange="filterNameByCargo('dev_cargo','dev_nome')"><option value="">— Selecione o cargo —</option></select></div>
-        <div class="fp ff"><label>Seu nome *</label><select id="dev_nome"><option value="">— Selecione seu nome —</option></select></div>
+        <div class="fp ff"><label>Cargo *</label><select id="dev_cargo" onchange="filterNameByCargo('dev_cargo','dev_nome')"><option value="">— Selecione o cargo —</option><option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select></div>
+        <div class="fp ff"><label>Seu nome *</label><select id="dev_nome"><option value="">— Selecione seu nome —</option><option value="Lucas Sena de Souza">Lucas Sena de Souza</option><option value="Hermano Marques Fernandes">Hermano Marques Fernandes</option><option value="Carolina Gonçalves">Carolina Gonçalves</option><option value="Ana Paula Ferreira">Ana Paula Ferreira</option><option value="Bruno Alves Costa">Bruno Alves Costa</option><option value="Carla Santos Lima">Carla Santos Lima</option><option value="Diego Rodrigues">Diego Rodrigues</option><option value="Eduardo Mota">Eduardo Mota</option><option value="Fernanda Oliveira">Fernanda Oliveira</option><option value="Gabriel Pereira">Gabriel Pereira</option></select></div>
         <div class="fp ff"><label>Tipo de dispositivo *</label>
           <select id="dev_tipo" onchange="onDevTipo()">
             <option value="">Selecione</option>
@@ -1552,7 +1599,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       <div class="brow"><button class="btn bp" onclick="subDevice()">Enviar registro →</button></div>
     </div>
   </div>
-  <div id="device-dash">
+  <div id="device-dash" style="display: block;">
     <div class="srow srow3" style="margin-bottom:.875rem;">
       <div class="sc"><div class="sl">Celulares</div><div class="sv" id="dev-cel-cnt">0</div></div>
       <div class="sc"><div class="sl">Tablets</div><div class="sv" id="dev-tab-cnt">0</div></div>
@@ -1565,19 +1612,19 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <input type="text" id="dev-search" placeholder="🔍 Nome, tipo, modelo, IMEI, data, status..." style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);width:280px;" oninput="rDevice()">
           <select id="dev-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rDevice()">
             <option value="">Todos os cargos</option>
-          </select>
+          <option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select>
           <select id="dev-exp-mes" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os meses</option>
             <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option>
           </select>
           <select id="dev-exp-ano" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os anos</option>
-            <option>2025</option><option selected>2026</option><option>2027</option>
+            <option>2025</option><option selected="">2026</option><option>2027</option>
           </select>
           <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expDevices('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expDevices('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div>
       </div>
-      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Tipo</th><th>Marca</th><th>Modelo</th><th>IMEI/Série</th><th>Nº/DDD</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead><tbody id="device-tbody"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Tipo</th><th>Marca</th><th>Modelo</th><th>IMEI/Série</th><th>Nº/DDD</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead><tbody id="device-tbody"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:1rem;">Nenhum dispositivo registrado.</td></tr></tbody></table></div>
     </div>
   </div>
 </div>
@@ -1594,12 +1641,12 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
     <div class="card" style="background:var(--b50);border-color:var(--b100);">
       <div style="font-size:12px;font-weight:600;color:var(--b800);margin-bottom:.4rem;">🔗 Link — Confirmação de Recebimento</div>
       <p style="font-size:10px;color:var(--b800);margin-bottom:.4rem;">Para colaborador informar o que recebeu no início da contratação.</p>
-      <div class="lbox"><input type="text" readonly id="lk-uni-rec"/><button onclick="cpUniLink('rec')">Copiar</button></div>
+      <div class="lbox"><input type="text" readonly="" id="lk-uni-rec"><button onclick="cpUniLink('rec')">Copiar</button></div>
     </div>
     <div class="card" style="background:var(--b50);border-color:var(--b100);">
       <div style="font-size:12px;font-weight:600;color:var(--b800);margin-bottom:.4rem;">🔗 Link — Solicitação de Peças</div>
       <p style="font-size:10px;color:var(--b800);margin-bottom:.4rem;">Para colaborador solicitar novas peças de uniforme.</p>
-      <div class="lbox"><input type="text" readonly id="lk-uni-sol"/><button onclick="cpUniLink('sol')">Copiar</button></div>
+      <div class="lbox"><input type="text" readonly="" id="lk-uni-sol"><button onclick="cpUniLink('sol')">Copiar</button></div>
     </div>
   </div>
   <!-- form recebimento -->
@@ -1607,8 +1654,8 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
     <div class="card">
       <div class="ctitle">Confirmar Uniforme Recebido (início da contratação)</div>
       <div class="fg">
-        <div class="fp ff"><label>Cargo *</label><select id="uni_rec_cargo" onchange="filterNameByCargo('uni_rec_cargo','uni_rec_nome')"><option value="">— Selecione o cargo —</option></select></div>
-        <div class="fp ff"><label>Seu nome *</label><select id="uni_rec_nome"><option value="">— Selecione seu nome —</option></select></div>
+        <div class="fp ff"><label>Cargo *</label><select id="uni_rec_cargo" onchange="filterNameByCargo('uni_rec_cargo','uni_rec_nome')"><option value="">— Selecione o cargo —</option><option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select></div>
+        <div class="fp ff"><label>Seu nome *</label><select id="uni_rec_nome"><option value="">— Selecione seu nome —</option><option value="Lucas Sena de Souza">Lucas Sena de Souza</option><option value="Hermano Marques Fernandes">Hermano Marques Fernandes</option><option value="Carolina Gonçalves">Carolina Gonçalves</option><option value="Ana Paula Ferreira">Ana Paula Ferreira</option><option value="Bruno Alves Costa">Bruno Alves Costa</option><option value="Carla Santos Lima">Carla Santos Lima</option><option value="Diego Rodrigues">Diego Rodrigues</option><option value="Eduardo Mota">Eduardo Mota</option><option value="Fernanda Oliveira">Fernanda Oliveira</option><option value="Gabriel Pereira">Gabriel Pereira</option></select></div>
         <div class="fp"><label>Data de recebimento *</label><input type="date" id="uni_rec_data"></div>
         <div class="fp"><label>Gênero *</label>
           <select id="uni_rec_genero" onchange="onUniRecGenero()">
@@ -1664,7 +1711,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
         <div class="fp ff"><label>Endereço (local de entrega no TCU)</label><input type="text" id="sol_end" placeholder="Ex: Setor de Contratos, Sala 301"></div>
         <div class="fp"><label>CEP</label><input type="text" id="sol_cep" placeholder="70000-000"></div>
         <div class="fp"><label>Cidade</label><input type="text" id="sol_cidade" placeholder="Brasília"></div>
-        <div class="fp"><label>Estado</label><select id="sol_uf"><option value="">UF</option><option selected>DF</option><option>SP</option><option>RJ</option><option>MG</option><option>GO</option></select></div>
+        <div class="fp"><label>Estado</label><select id="sol_uf"><option value="">UF</option><option selected="">DF</option><option>SP</option><option>RJ</option><option>MG</option><option>GO</option></select></div>
         <div class="fp"><label>Gênero *</label>
           <select id="sol_genero" onchange="onUniGenero()">
             <option value="">Selecione</option>
@@ -1699,30 +1746,30 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
     </div>
   </div>
   <!-- dashboard gestor -->
-  <div id="uni-dash">
+  <div id="uni-dash" style="display: block;">
     <div class="card" style="margin-bottom:.875rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
         <div class="ctitle" style="margin:0;">Controle de Uniformes por Colaborador</div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
           <select id="uni-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rUni()">
             <option value="">Todos os cargos</option>
-          </select>
+          <option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select>
           <select id="uni-exp-mes" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os meses</option>
             <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option>
           </select>
           <select id="uni-exp-ano" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os anos</option>
-            <option>2025</option><option selected>2026</option><option>2027</option>
+            <option>2025</option><option selected="">2026</option><option>2027</option>
           </select>
           <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expUni('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expUni('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div>
       </div>
-      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Gênero</th><th>Camisa</th><th>Calça</th><th>Sapato</th><th>Extras</th><th>Dt. Recebimento</th><th>Status</th><th>Situação</th><th>Ação</th></tr></thead><tbody id="uni-tbody"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Gênero</th><th>Camisa</th><th>Calça</th><th>Sapato</th><th>Extras</th><th>Dt. Recebimento</th><th>Status</th><th>Situação</th><th>Ação</th></tr></thead><tbody id="uni-tbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:1rem;">Nenhum registro de recebimento.</td></tr></tbody></table></div>
     </div>
     <div class="card">
       <div class="ctitle">Solicitações de Peças</div>
-      <div class="tw"><table><thead><tr><th>Nome</th><th>Gênero</th><th>Peças</th><th>Data</th><th>Status</th></tr></thead><tbody id="sol-tbody"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>Nome</th><th>Gênero</th><th>Peças</th><th>Data</th><th>Status</th></tr></thead><tbody id="sol-tbody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1rem;">Nenhuma solicitação.</td></tr></tbody></table></div>
     </div>
   </div>
 </div>
@@ -1875,7 +1922,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       </select>
       <select id="mal-fil-ano" onchange="rMaleta()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
         <option value="">Todos os anos</option>
-        <option>2025</option><option selected>2026</option><option>2027</option>
+        <option>2025</option><option selected="">2026</option><option>2027</option>
       </select>
       <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expMaleta('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expMaleta('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
     </div>
@@ -1900,7 +1947,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
   <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
       <div><div style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link — Envio de Folha de Ponto</div><p style="font-size:10px;color:var(--b800);">Envie ao colaborador para subir a folha de ponto.</p></div>
-      <div style="display:flex;gap:.5rem;"><div class="lbox" style="margin-top:0;min-width:280px;"><input type="text" readonly id="lk-ponto"/><button onclick="cpPontoLink()">Copiar</button></div><button class="btn bp" onclick="cpPontoLink(true)">📤 Enviar</button></div>
+      <div style="display:flex;gap:.5rem;"><div class="lbox" style="margin-top:0;min-width:280px;"><input type="text" readonly="" id="lk-ponto"><button onclick="cpPontoLink()">Copiar</button></div><button class="btn bp" onclick="cpPontoLink(true)">📤 Enviar</button></div>
     </div>
   </div>
   <!-- form collab -->
@@ -1938,11 +1985,11 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           </select>
           <select id="ponto-f-ano" onchange="rPonto()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os anos</option>
-            <option selected>2026</option><option>2027</option><option>2028</option><option>2029</option><option>2030</option><option>2031</option><option>2032</option><option>2033</option><option>2034</option><option>2035</option><option>2036</option>
+            <option selected="">2026</option><option>2027</option><option>2028</option><option>2029</option><option>2030</option><option>2031</option><option>2032</option><option>2033</option><option>2034</option><option>2035</option><option>2036</option>
           </select>
           <select id="ponto-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rPonto()">
             <option value="">Todos os cargos</option>
-          </select>
+          <option value="BSB">Analista de suporte (BSB)</option><option value="EST">Analista de suporte (EST)</option><option value="AC">Analista de suporte especializado (AC)</option><option value="AE">Analista de suporte especializado (AE)</option><option value="AP">Analista de suporte especializado (AP)</option><option value="CE">Analista de suporte especializado (CE)</option><option value="TEL">Analista de suporte telefônico (TEL)</option><option value="GCON">Gestor de conhecimento (GCON)</option><option value="GSD">Gestor de Service desk (GSD)</option><option value="SAE">Supervisor de suporte (SAE)</option><option value="SBSB">Supervisor de suporte (SBSB)</option><option value="SCHA">Supervisor de suporte (SCHA)</option><option value="SEST">Supervisor de suporte (SEST)</option><option value="STEL">Supervisor de suporte telefônico (STEL)</option></select>
           <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expPonto('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expPonto('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div>
       </div>
@@ -1964,7 +2011,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
           <label style="font-size:11px;font-weight:600;color:var(--muted);">Ano</label>
           <select id="grade-f-ano" onchange="renderPontoGrade()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos</option>
-            <option selected>2026</option><option>2027</option><option>2028</option>
+            <option selected="">2026</option><option>2027</option><option>2028</option>
             <option>2029</option><option>2030</option><option>2031</option><option>2032</option>
             <option>2033</option><option>2034</option><option>2035</option><option>2036</option>
           </select>
@@ -2024,7 +2071,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
     <p style="font-size:10px;color:var(--b800);margin-bottom:.5rem;">A mensagem abaixo será enviada automaticamente via link para o card do Teams no dia do aniversário do colaborador. Para automação via Power Automate, use o webhook do canal do Teams.</p>
     <div class="fg">
       <div class="fp ff"><label>Modelo de mensagem (use {nome} para o nome do colaborador)</label>
-        <textarea id="aniv-msg-template" rows="4" placeholder="Ex: 🎂 Parabéns, {nome}! A equipe T&S deseja um feliz aniversário! 🎉 Que este dia seja especial para você!"></textarea>
+        <textarea id="aniv-msg-template" rows="4" placeholder="Ex: 🎂 Parabéns, {nome}! A equipe T&amp;S deseja um feliz aniversário! 🎉 Que este dia seja especial para você!"></textarea>
       </div>
       <div class="fp ff"><label>Webhook do Teams (Power Automate)</label>
         <input type="text" id="aniv-webhook" placeholder="https://outlook.office.com/webhook/...">
@@ -2052,7 +2099,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
 <!-- ════════════════════════════════════════════════════
      PÁGINA — PORTAL DE LINKS
 ════════════════════════════════════════════════════ -->
-<div class="page" id="pg-links">
+<div class="page on" id="pg-links">
 <div class="dash-page">
   <div class="dh2"><div class="dhic" style="background:var(--g50);">🔗</div>Portal de Links — Acesso Colaboradores</div>
   <div id="sites-iframe-banner" style="display:none;background:var(--a50);border:.5px solid var(--a600);border-radius:8px;padding:.75rem 1rem;margin-bottom:.875rem;font-size:12px;color:var(--a600);">
@@ -2091,14 +2138,13 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
       O dashboard atualiza automaticamente a cada 15s buscando os dados do Sheets.
     </div>
     <div style="display:flex;gap:.5rem;margin-top:.75rem;align-items:center;flex-wrap:wrap;">
-      <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/..." 
-        value="" style="flex:1;font-size:11px;min-width:200px;" oninput="">
+      <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/..." value="" style="flex:1;font-size:11px;min-width:200px;" oninput="">
       <button class="btn bp" onclick="setGasUrl(document.getElementById('gas-url-input').value)" style="white-space:nowrap;">💾 Salvar URL</button>
       <button class="btn bs" onclick="testGasConnection()" style="white-space:nowrap;">🔗 Testar</button>
     </div>
     <div id="gas-status" style="font-size:10px;color:var(--muted);margin-top:6px;"></div>
     <!-- Botão de download sempre visível quando URL configurada -->
-    <div id="gas-download-btn" class="gestor-only" style="margin-top:.75rem;background:var(--g50);border:.5px solid var(--g600);border-radius:8px;padding:.75rem 1rem;">
+    <div id="gas-download-btn" class="gestor-only" style="margin-top: 0.75rem; background: var(--g50); border: .5px solid var(--g600); border-radius: 8px; padding: 0.75rem 1rem; display: block;">
       <div style="font-size:11px;font-weight:700;color:var(--g800);margin-bottom:.375rem;">⬇️ Próximo passo — embutir URL no portal</div>
       <p style="font-size:10px;color:var(--g800);margin-bottom:.625rem;">Para funcionar em <strong>qualquer dispositivo</strong>, baixe o portal com a URL já embutida e suba no GitHub.</p>
       <button class="btn bp" onclick="downloadPortalWithGasUrl()" style="font-size:11px;background:var(--g600);border-color:var(--g600);">⬇️ Baixar index.html com URL embutida</button>
@@ -2110,7 +2156,7 @@ body[data-role="colaborador"] .gestor-only { display:none !important; }
     <p style="font-size:10px;color:var(--muted);margin-bottom:.75rem;">Copie este código, cole no Google Apps Script e implante como Web App.</p>
     <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:monospace;font-size:10px;overflow-x:auto;max-height:200px;overflow-y:auto;position:relative;">
       <button onclick="navigator.clipboard.writeText(document.getElementById('gas-code-txt').textContent);toast('Código copiado!','ok')" class="btn bs" style="position:absolute;top:6px;right:6px;font-size:10px;padding:3px 8px;">Copiar</button>
-      <pre id="gas-code-txt" style="white-space:pre;color:var(--text);">// Portal T&S — Google Apps Script
+      <pre id="gas-code-txt" style="white-space:pre;color:var(--text);">// Portal T&amp;S — Google Apps Script
 // Cole em script.google.com → Implantar → App da Web
 // Executar como: Eu  |  Acesso: Qualquer pessoa
 
@@ -2146,13 +2192,13 @@ function doPost(e) {
 
 // GET — retorna dados para o gestor (suporta JSONP para funcionar sem CORS)
 function doGet(e) {
-  var params = (e && e.parameter) ? e.parameter : {};
+  var params = (e &amp;&amp; e.parameter) ? e.parameter : {};
   var action = params.action || '';
   var callback = params.callback || '';
   var result;
 
   if (action !== 'pull') {
-    result = {status:'ok', message:'Portal T&S API ativa'};
+    result = {status:'ok', message:'Portal T&amp;S API ativa'};
   } else {
     try {
       var ss = getOrCreateSS();
@@ -2166,7 +2212,7 @@ function doGet(e) {
         var entries = [];
         rows.forEach(function(row) {
           if (!row[1]) return;
-          try { var entry = JSON.parse(String(row[1])); if (entry && entry.id) entries.push(entry); } catch(ex) {}
+          try { var entry = JSON.parse(String(row[1])); if (entry &amp;&amp; entry.id) entries.push(entry); } catch(ex) {}
         });
         result[name] = entries;
       });
@@ -2187,7 +2233,163 @@ function doGet(e) {
     </div>
   </div>
 
-  <div id="links-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.875rem;"></div>
+  <div id="links-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.875rem;"><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">📋</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Cadastro — Dados Pessoais</div>
+          <div style="font-size:10px;color:var(--muted);">Fase 1 do onboarding</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('collab1')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=collab1" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=collab1').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">📄</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Documentação por Cargo</div>
+          <div style="font-size:10px;color:var(--muted);">Upload de documentos por cargo</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('collab2')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=collab2" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=collab2').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">🤝</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Termos de Acesso</div>
+          <div style="font-size:10px;color:var(--muted);">Aceite de termos obrigatórios</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('collab3')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=collab3" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=collab3').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">⏱</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Controle de Pausas (N1)</div>
+          <div style="font-size:10px;color:var(--muted);">Registrar pausa ou ocorrência</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('pau')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=pau" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=pau').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">🌴</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Solicitação de Férias</div>
+          <div style="font-size:10px;color:var(--muted);">Solicitar período de férias</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('fer')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=fer" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=fer').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">⏰</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Banco de Horas</div>
+          <div style="font-size:10px;color:var(--muted);">Registrar horas positivas ou negativas</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('bh')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=bh" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=bh').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">🏥</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Atestado Médico / Comparecimento</div>
+          <div style="font-size:10px;color:var(--muted);">Enviar atestado</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('ates')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=ates" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=ates').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">📱</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Celular / Tablet</div>
+          <div style="font-size:10px;color:var(--muted);">Registrar dispositivo recebido</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('device')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=device" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=device').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">👔</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Uniforme — Recebimento</div>
+          <div style="font-size:10px;color:var(--muted);">Confirmar uniforme recebido</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('uni-rec')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=uni-rec" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=uni-rec').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">👔</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Uniforme — Solicitação</div>
+          <div style="font-size:10px;color:var(--muted);">Solicitar novas peças</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('uni-sol')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=uni-sol" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=uni-sol').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">📅</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Folha de Ponto</div>
+          <div style="font-size:10px;color:var(--muted);">Enviar folha de ponto mensal</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('ponto')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=ponto" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=ponto').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div><div class="card" style="display:flex;flex-direction:column;gap:.625rem;cursor:pointer;border:.5px solid var(--brd);" onclick="navigator.clipboard?.writeText(url).then(()=&gt;toast('Link copiado!','ok'))">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:26px;width:38px;text-align:center;flex-shrink:0;">🧰</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:12px;">Maleta de Ferramentas</div>
+          <div style="font-size:10px;color:var(--muted);">Confirmar recebimento e assinar digitalmente</div>
+        </div>
+        <button class="btn bp" style="font-size:10px;padding:4px 10px;white-space:nowrap;" onclick="event.stopPropagation();openForm('maleta')">Abrir →</button>
+      </div>
+      <div class="lbox" style="margin-top:0;">
+        <input type="text" readonly="" value="https://portal510.github.io/portal-ts/?form=maleta" style="font-size:9px;">
+        <button onclick="event.stopPropagation();navigator.clipboard?.writeText('https://portal510.github.io/portal-ts/?form=maleta').then(()=&gt;toast('Copiado!','ok'))" style="white-space:nowrap;">📋</button>
+      </div>
+    </div></div>
 </div>
 </div>
 
@@ -2207,7 +2409,7 @@ function doGet(e) {
         <label style="font-size:11px;font-weight:600;color:var(--muted);">Mês</label>
         <select id="ger-mes" onchange="rGerencial()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
           <option>Janeiro</option><option>Fevereiro</option><option>Março</option>
-          <option selected>Abril</option><option>Maio</option><option>Junho</option>
+          <option selected="">Abril</option><option>Maio</option><option>Junho</option>
           <option>Julho</option><option>Agosto</option><option>Setembro</option>
           <option>Outubro</option><option>Novembro</option><option>Dezembro</option>
         </select>
@@ -2215,7 +2417,7 @@ function doGet(e) {
       <div style="display:flex;align-items:center;gap:.4rem;">
         <label style="font-size:11px;font-weight:600;color:var(--muted);">Ano</label>
         <select id="ger-ano" onchange="rGerencial()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
-          <option>2025</option><option selected>2026</option><option>2027</option><option>2028</option>
+          <option>2025</option><option selected="">2026</option><option>2027</option><option>2028</option>
         </select>
       </div>
       <div style="display:flex;align-items:center;gap:.4rem;">
@@ -2331,7 +2533,7 @@ function doGet(e) {
       </select>
       <select id="fb-fil-ano" onchange="rFeedback()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
         <option value="">Todos os anos</option>
-        <option>2025</option><option selected>2026</option><option>2027</option>
+        <option>2025</option><option selected="">2026</option><option>2027</option>
       </select>
       <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expFeedback('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expFeedback('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
     </div>
@@ -2352,7 +2554,7 @@ function doGet(e) {
   <div id="modal-body" style="background:#fff;border-radius:16px;padding:1.5rem;max-width:620px;width:100%;max-height:90vh;overflow-y:auto;position:relative;">
   </div>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast ok" id="toast">✅ index.html baixado com URL embutida! Suba no GitHub.</div>
 
 <!-- ════════════════════════════════════════════════════
      JAVASCRIPT
@@ -2775,7 +2977,7 @@ f) o TCU se resguarda o direito de suspender meu acesso a qualquer momento.</p>
 <div class="sub">${doc.sub}</div>
 ${doc.body}
 <script>window.onload=function(){window.print();};<\/script>
-</body></html>`;
+<script>var _GAS_HARDCODED = 'https://script.google.com/macros/s/AKfycbxgZt2N3q8zI-Ru4cM0jYwwxqMcFJRp_vrcZfLy6G32jfjo0kiDax5n0vI08u7j89ju/exec';</script></body></html>`;
   const blob=new Blob([html],{type:'text/html;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const win=window.open(url,'_blank');
@@ -6878,5 +7080,6 @@ function expFeedback() {
   toast('Feedbacks exportados! '+data.length+' registros.','ok');
 }
 </script>
-</body>
-</html>
+
+
+</body></html>
