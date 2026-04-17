@@ -3651,7 +3651,7 @@ function downloadPortalWithGasUrl(){
   var escaped = url.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   var updated = html.replace(
     /var _GAS_HARDCODED = '[^']*';/,
-    "var _GAS_HARDCODED = 'https://script.google.com/macros/s/AKfycbxgZt2N3q8zI-Ru4cM0jYwwxqMcFJRp_vrcZfLy6G32jfjo0kiDax5n0vI08u7j89ju/exec';"
+    "var _GAS_HARDCODED = '" + escaped + "';"
   );
 
   if(updated === html){
