@@ -267,11 +267,93 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
 #modal-body input,#modal-body select,#modal-body textarea{font-family:'IBM Plex Sans',sans-serif;font-size:13px;padding:7px 9px;border:.5px solid var(--brd);border-radius:var(--rad);background:var(--card);color:var(--text);outline:none;width:100%;transition:border-color .15s;-webkit-appearance:none;}
 #modal-body select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M0 0l5 7 5-7z' fill='%235F5E5A'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;cursor:pointer;}
 #modal-body input:focus,#modal-body select:focus{border-color:var(--b600);box-shadow:0 0 0 2px rgba(24,95,165,.1);}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{
+  position:fixed;inset:0;z-index:99999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+}
+#login-screen.hidden{display:none!important;}
+.login-card{
+  background:#fff;border-radius:20px;
+  box-shadow:0 8px 40px rgba(4,44,83,.18);
+  padding:2.5rem 2rem;width:100%;max-width:380px;
+  text-align:center;
+}
+.login-logo{
+  width:56px;height:56px;border-radius:14px;
+  background:var(--b900);display:flex;align-items:center;
+  justify-content:center;font-size:26px;margin:0 auto 1.25rem;
+}
+.login-title{font-size:20px;font-weight:800;color:var(--b900);margin-bottom:.25rem;}
+.login-sub{font-size:12px;color:var(--muted);margin-bottom:1.75rem;}
+.login-field{
+  position:relative;margin-bottom:1rem;text-align:left;
+}
+.login-field label{
+  display:block;font-size:11px;font-weight:600;
+  color:var(--b800);margin-bottom:.375rem;
+}
+.login-field input{
+  width:100%;padding:10px 14px;
+  border:1.5px solid var(--brd);border-radius:10px;
+  font-size:13px;font-family:inherit;
+  transition:border-color .15s;
+  box-sizing:border-box;
+}
+.login-field input:focus{outline:none;border-color:var(--b600);}
+.login-field input.error{border-color:var(--r600);}
+#login-error{
+  font-size:11px;color:var(--r600);
+  min-height:16px;margin-bottom:.75rem;
+  text-align:left;
+}
+.login-btn{
+  width:100%;padding:12px;border:none;border-radius:10px;
+  background:var(--b900);color:#fff;font-size:14px;
+  font-weight:700;cursor:pointer;font-family:inherit;
+  transition:background .15s;
+}
+.login-btn:hover{background:var(--b800);}
+.login-btn:disabled{background:var(--gy400);cursor:not-allowed;}
+.login-footer{font-size:10px;color:var(--muted);margin-top:1.25rem;}
+
 </style>
 </head>
 <body>
 
 <!-- ════════════ NAV ════════════ -->
+
+<!-- ══════════════════════════════════
+     TELA DE LOGIN
+══════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🏛</div>
+    <div class="login-title">Portal T&S</div>
+    <div class="login-sub">Gestão de Terceirizados — Hepta / SESUC</div>
+    <div class="login-field">
+      <label for="login-user">Usuário</label>
+      <input type="text" id="login-user" placeholder="Digite seu usuário"
+        autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pwd').focus()">
+    </div>
+    <div class="login-field">
+      <label for="login-pwd">Senha</label>
+      <input type="password" id="login-pwd" placeholder="Digite sua senha"
+        autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="login-error"></div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Entrar →</button>
+    <div class="login-footer">Portal T&S · Acesso restrito a usuários autorizados</div>
+    <div style="margin-top:.75rem;background:#f8f8f6;border-radius:8px;padding:.75rem;font-size:10px;color:var(--muted);text-align:left;">
+      <div style="font-weight:700;margin-bottom:.375rem;color:var(--b800);">Perfis de acesso:</div>
+      <div>👔 <strong>Gestor</strong> — acesso total ao portal</div>
+      <div>🔗 <strong>Colaborador</strong> — apenas formulários e links</div>
+    </div>
+  </div>
+</div>
+
 <nav class="nav">
   <div class="nav-l">
     <div class="nav-logo">🏛</div>
@@ -297,6 +379,7 @@ tr.miss td{background:var(--r50)!important;color:var(--r800);}
   <div class="nav-r">
     <span class="mpill" id="mpill">GESTOR</span>
     <button class="bsm" id="btog" onclick="toggleMode()">Modo colaborador</button>
+    <button class="bsm" onclick="doLogout()" title="Sair" style="background:rgba(163,45,45,.2);color:#f7c1c1;border-color:rgba(163,45,45,.4);">⏻ Sair</button>
   </div>
 </nav>
 
@@ -3423,26 +3506,32 @@ async function gasPull(){
       done = true; cleanup();
       if(!d || d.status==='error'){ resolve(false); return; }
       try{
-        var merged = 0;
-        if(d.Ferias)      { mergeById(FERIAS,        d.Ferias);      merged++; }
-        if(d.Pausas)      { mergeById(PAUSAS,        d.Pausas);      merged++; }
-        if(d.PendPausas)  { mergeById(PEND_PAUSAS,   d.PendPausas);  merged++; }
-        if(d.BH)          { mergeById(BH_DATA,        d.BH);          merged++; }
-        if(d.Atestados)   { mergeById(ATES_DATA,      d.Atestados);   merged++; }
-        if(d.Dispositivos){ mergeById(DEVICE_DATA,    d.Dispositivos);merged++; }
-        if(d.Uniformes)   { mergeById(UNI_DATA,       d.Uniformes);   merged++; }
-        if(d.Ponto)       { mergeById(PONTO_DATA,     d.Ponto);       merged++; }
-        if(d.Maleta)      { mergeById(MALETA_DATA,    d.Maleta);      merged++; }
-        if(d.Feedback)    { mergeById(FEEDBACK_DATA,  d.Feedback);    merged++; }
-        if(merged > 0){ saveAll(); refreshAll(); }
+        var totalAdded = 0;
+        if(d.Ferias)      { totalAdded += mergeById(FERIAS,        d.Ferias)      ||0; }
+        if(d.Pausas)      { totalAdded += mergeById(PAUSAS,        d.Pausas)      ||0; }
+        if(d.PendPausas)  { totalAdded += mergeById(PEND_PAUSAS,   d.PendPausas)  ||0; }
+        if(d.BH)          { totalAdded += mergeById(BH_DATA,        d.BH)          ||0; }
+        if(d.Atestados)   { totalAdded += mergeById(ATES_DATA,      d.Atestados)   ||0; }
+        if(d.Dispositivos){ totalAdded += mergeById(DEVICE_DATA,    d.Dispositivos)||0; }
+        if(d.Uniformes)   { totalAdded += mergeById(UNI_DATA,       d.Uniformes)   ||0; }
+        if(d.Ponto)       { totalAdded += mergeById(PONTO_DATA,     d.Ponto)       ||0; }
+        if(d.Maleta)      { totalAdded += mergeById(MALETA_DATA,    d.Maleta)      ||0; }
+        if(d.Feedback)    { totalAdded += mergeById(FEEDBACK_DATA,  d.Feedback)    ||0; }
+        // Always save and refresh after a successful pull (not just when new items added)
+        saveAll();
+        refreshAll();
         var ind = document.getElementById('sync-indicator');
         if(ind){
           var now = new Date();
           var p = function(n){ return String(n).padStart(2,'0'); };
-          ind.textContent = '☁️ Sync '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
-          ind.style.color = 'var(--g600)';
-          setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; }, 4000);
+          var label = totalAdded > 0
+            ? '☁️ +'+totalAdded+' novos — '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds())
+            : '☁️ Sync '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
+          ind.textContent = label;
+          ind.style.color = totalAdded > 0 ? 'var(--g600)' : 'var(--muted)';
+          if(totalAdded > 0) setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; }, 5000);
         }
+        if(totalAdded > 0) toast('✅ '+totalAdded+' novo(s) envio(s) recebido(s)!','ok');
         resolve(true);
       }catch(ex){ resolve(false); }
     };
@@ -3826,7 +3915,7 @@ function subFer(){
   if(!nome||!dias||!ini||!mes){toast('Preencha todos os campos obrigatórios.','warn');return;}
   const fim=document.getElementById('fer_fim').value;
   const collab=COLL.find(c=>c.nome.toLowerCase()===nome.toLowerCase());
-  FERIAS.push({nome,cargo:ferCargo||collab?.cargo||'—',mes,ano,ini:new Date(ini).toLocaleDateString('pt-BR'),fim,dias,vender,status:'solicitado'});
+  FERIAS.push({id:Date.now(),nome,cargo:ferCargo||collab?.cargo||'—',mes,ano,ini:new Date(ini).toLocaleDateString('pt-BR'),fim,dias,vender,status:'solicitado',acao:'Aguardando'});
   rFerias();refreshGeral();saveAll();
   var _ferEntry=FERIAS[FERIAS.length-1]; if(_ferEntry) gasPost('Ferias',[_ferEntry.id,_ferEntry.nome,_ferEntry.cargo,_ferEntry.mes,_ferEntry.ano,_ferEntry.ini,_ferEntry.fim,_ferEntry.dias,_ferEntry.vender?'Sim':'Não',_ferEntry.status],{entry:_ferEntry});
   const fNome2=document.getElementById('fer_nome_sel')?.value||document.getElementById('fer_nome')?.value||'';
@@ -5358,15 +5447,214 @@ function gerarPortalLinks(){
   if(!pwLinks){toast('Popup bloqueado \u2014 permita popups para este site.','warn');return;}
 }
 
+
+/* ══════════════════════════════════════════════
+   AUTENTICAÇÃO — Portal T&S
+   Credenciais padrão: admin / Portal@2026
+   Altere em: Portal Links → ⚙️ Configurações de Acesso
+══════════════════════════════════════════════ */
+
+// Default credentials (SHA-256 hashed password)
+var _AUTH_USERS = (function(){
+  try{
+    var stored = _ls.getItem('portal_auth_users');
+    if(stored) return JSON.parse(stored);
+  }catch(e){}
+  // Default: admin / Portal@2026
+  return [
+    {user:'admin',        hash:'0a1795e99ab4fa0caef3996ff21149ece676a6a91eabd116d88973dea816ea0b', nome:'Administrador', role:'gestor'},
+    {user:'colaborador',  hash:'bae71e3d612661fbb777134ab4aef2cc52a2a9cade638b17c50e5936a0c79951', nome:'Colaborador', role:'colaborador'}
+  ];
+})();
+
+// Session: authenticated if sessionStorage has valid token
+var _AUTH_SESSION = (function(){
+  try{ return sessionStorage.getItem('portal_auth_token'); }catch(e){ return null; }
+})();
+
+function _sha256(msg){
+  // Simple async SHA-256 using SubtleCrypto
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg))
+    .then(function(buf){
+      return Array.from(new Uint8Array(buf))
+        .map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+    });
+}
+
+function doLogin(){
+  var user = (document.getElementById('login-user')?.value||'').trim().toLowerCase();
+  var pwd  = document.getElementById('login-pwd')?.value||'';
+  var errEl = document.getElementById('login-error');
+  var btn   = document.getElementById('login-btn');
+  
+  if(!user||!pwd){
+    if(errEl) errEl.textContent = '⚠ Preencha usuário e senha.';
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+  if(errEl) errEl.textContent = '';
+  
+  _sha256(pwd).then(function(hash){
+    var found = _AUTH_USERS.find(function(u){
+      return u.user.toLowerCase()===user && u.hash===hash;
+    });
+    
+    if(found){
+      // Login OK — create session token
+      var token = found.user+'_'+Date.now();
+      try{ sessionStorage.setItem('portal_auth_token', token); }catch(e){}
+      try{ sessionStorage.setItem('portal_auth_user', found.nome||found.user); }catch(e){}
+      try{ sessionStorage.setItem('portal_auth_role',  found.role||'gestor'); }catch(e){}
+      _AUTH_SESSION = token;
+      
+      // Hide login screen
+      var ls = document.getElementById('login-screen');
+      if(ls) ls.classList.add('hidden');
+      toast('Bem-vindo, '+found.nome+'!','ok');
+    } else {
+      if(errEl) errEl.textContent = '✗ Usuário ou senha incorretos.';
+      var pwd_el = document.getElementById('login-pwd');
+      if(pwd_el){ pwd_el.value=''; pwd_el.classList.add('error'); pwd_el.focus(); }
+    }
+    btn.disabled = false;
+    btn.textContent = 'Entrar →';
+  });
+}
+
+function isAuthenticated(){
+  if(!_AUTH_SESSION) return false;
+  try{ return !!sessionStorage.getItem('portal_auth_token'); }catch(e){ return false; }
+}
+
+function doLogout(){
+  try{ sessionStorage.removeItem('portal_auth_token'); }catch(e){}
+  try{ sessionStorage.removeItem('portal_auth_user'); }catch(e){}
+  try{ sessionStorage.removeItem('portal_auth_role'); }catch(e){}
+  _AUTH_SESSION = null;
+  var ls = document.getElementById('login-screen');
+  if(ls){ ls.classList.remove('hidden'); }
+  // Clear fields
+  var u=document.getElementById('login-user'); if(u)u.value='';
+  var p=document.getElementById('login-pwd');  if(p){p.value='';p.classList.remove('error');}
+  var err=document.getElementById('login-error'); if(err)err.textContent='';
+  toast('Sessão encerrada.','ok');
+}
+
+// Change password
+function changePassword(user, newPwd){
+  return _sha256(newPwd).then(function(hash){
+    var idx = _AUTH_USERS.findIndex(function(u){return u.user.toLowerCase()===user.toLowerCase();});
+    if(idx<0){ toast('Usuário não encontrado.','warn'); return false; }
+    _AUTH_USERS[idx].hash = hash;
+    try{ _ls.setItem('portal_auth_users', JSON.stringify(_AUTH_USERS)); }catch(e){}
+    toast('Senha alterada com sucesso!','ok');
+    return true;
+  });
+}
+
+// Add user
+function addAuthUser(user, pwd, nome, role){
+  return _sha256(pwd).then(function(hash){
+    _AUTH_USERS.push({user:user.toLowerCase(), hash:hash, nome:nome||user, role:role||'gestor'});
+    try{ _ls.setItem('portal_auth_users', JSON.stringify(_AUTH_USERS)); }catch(e){}
+    toast('Usuário '+user+' criado!','ok');
+    return true;
+  });
+}
+
+// Remove user
+function removeAuthUser(user){
+  _AUTH_USERS = _AUTH_USERS.filter(function(u){return u.user.toLowerCase()!==user.toLowerCase();});
+  try{ _ls.setItem('portal_auth_users', JSON.stringify(_AUTH_USERS)); }catch(e){}
+  toast('Usuário removido.','ok');
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
+  // ── AUTH CHECK: show login screen unless authenticated or collab form ──
+  var _urlParams = new URLSearchParams(window.location.search);
+  var _formParam  = _urlParams.get('form') || '';
+  var _isCollabForm = !!_formParam; // collab forms bypass login
+  if(!_isCollabForm && !isAuthenticated()){
+    // Show login, hide portal content
+    var _ls_el = document.getElementById('login-screen');
+    if(_ls_el) _ls_el.classList.remove('hidden');
+    // Don't initialize portal until login
+    document.getElementById('login-user')?.focus();
+    // Wait for login — portal init happens after successful login in doLogin()
+    // But we still need to init after login — use mutation observer
+    var _lo = new MutationObserver(function(muts){
+      muts.forEach(function(m){
+        if(m.target.classList.contains('hidden')){
+          _lo.disconnect();
+          _initPortal();
+        }
+      });
+    });
+    var _lsEl2 = document.getElementById('login-screen');
+    if(_lsEl2) _lo.observe(_lsEl2, {attributes:true, attributeFilter:['class']});
+    return;
+  }
+  _initPortal();
+});
+
+function _initPortal(){
   // ── STEP 0: Load persisted data
   try{ loadAll(); }catch(e){}
-  // ── Always start in GESTOR mode
-  document.body.classList.remove('collab');
-  ST.collab=false;
-  try{document.getElementById('mpill').textContent='GESTOR';}catch(e){}
-  try{document.getElementById('mpill').className='mpill';}catch(e){}
-  try{document.getElementById('btog').textContent='Modo colaborador';}catch(e){}
+  // ── Apply role-based access ──
+  var _userRole = (function(){ try{ return sessionStorage.getItem('portal_auth_role')||'gestor'; }catch(e){ return 'gestor'; } })();
+  var _userName = (function(){ try{ return sessionStorage.getItem('portal_auth_user')||''; }catch(e){ return ''; } })();
+
+  if(_userRole === 'colaborador'){
+    // Perfil COLABORADOR — acessa apenas o Portal de Links
+    setCollabMode();
+    ST.collab = false; // keep nav visible but limited
+    document.body.classList.remove('collab');
+    // Force navigate to links page after init
+    window._forceLinksPage = true;
+    // Hide all tabs except Portal Links
+    try{
+      var allTabs = document.querySelectorAll('.tab');
+      allTabs.forEach(function(t){
+        if(!t.textContent.includes('Portal Links') && !t.textContent.includes('🔗')){
+          t.style.display = 'none';
+        }
+      });
+    }catch(ex){}
+    // Hide mode toggle and logout button — colaborador sees only links
+    try{ document.getElementById('btog').style.display='none'; }catch(ex){}
+    // Update pill
+    try{ document.getElementById('mpill').textContent='COLABORADOR'; }catch(ex){}
+    try{ document.getElementById('mpill').className='mpill c'; }catch(ex){}
+    // Show user name in nav
+    try{
+      var nav = document.querySelector('.nav-r');
+      if(nav && _userName){
+        var span = document.createElement('span');
+        span.style.cssText='font-size:11px;color:var(--b100);padding:0 8px;';
+        span.textContent = '👤 '+_userName;
+        nav.insertBefore(span, nav.firstChild);
+      }
+    }catch(ex){}
+  } else {
+    // Perfil GESTOR — acesso total
+    document.body.classList.remove('collab');
+    ST.collab=false;
+    try{document.getElementById('mpill').textContent='GESTOR';}catch(e){}
+    try{document.getElementById('mpill').className='mpill';}catch(e){}
+    try{document.getElementById('btog').textContent='Modo colaborador';}catch(e){}
+    // Show user name
+    try{
+      var nav2 = document.querySelector('.nav-r');
+      if(nav2 && _userName){
+        var span2 = document.createElement('span');
+        span2.style.cssText='font-size:11px;color:var(--b100);padding:0 8px;';
+        span2.textContent = '👤 '+_userName;
+        nav2.insertBefore(span2, nav2.firstChild);
+      }
+    }catch(ex){}
+  }
   // ── STEP 1: Set all defaults for GESTOR mode first
   [1,2,3,4,5].forEach(n=>{const cr=document.getElementById('crow'+n);if(cr)cr.style.display='none';});
   // forms hidden by default
@@ -5415,7 +5703,19 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('pg-geral').classList.add('on');
     document.querySelector('.tab.on') || document.querySelector('.tab').classList.add('on');
   }
-});
+  // Colaborador — force Portal Links page
+  if(window._forceLinksPage){
+    delete window._forceLinksPage;
+    var linksTab = document.querySelector('.tab[onclick*="links"]');
+    try{ pg('links', linksTab); }catch(ex){}
+    // Show only Portal Links tab as active, hide all others
+    try{
+      document.querySelectorAll('.page.on').forEach(function(p){ p.classList.remove('on'); });
+      var pgLinks = document.getElementById('pg-links');
+      if(pgLinks) pgLinks.classList.add('on');
+    }catch(ex){}
+  }
+}
 
 /* ══════════════════════════════════════════════════════════
    PLANILHA GERENCIAL — Frequência mensal
