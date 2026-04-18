@@ -706,11 +706,13 @@ body.portal-ready #login-screen{display:none!important;}
       <div class="tw" style="overflow-x:auto;">
         <table>
           <thead><tr>
-            <th>Nome</th><th>Cargo</th><th>Enviado</th>
-            <th style="text-align:center;">Dados</th>
+            <th>Nome / Contato</th>
+            <th>Cargo</th>
+            <th>Enviado</th>
+            <th>Dados Pessoais</th>
             <th style="text-align:center;">Docs</th>
             <th style="text-align:center;">Termos</th>
-            <th style="text-align:center;">Boas-Vindas</th>
+            <th style="text-align:center;">BV</th>
             <th style="text-align:center;">Acesso</th>
             <th>Status / Ação</th>
           </tr></thead>
@@ -2890,17 +2892,23 @@ function loadCargoForCollab(cargo){
   ck2();
 }
 function docUp(i,el){
-  if(el.files&&el.files.length>0){
-    ST.docs[i]=true;
-    var fname=el.files[0].name.substring(0,24);
-    var l=document.getElementById('du'+i)||document.getElementById('du-'+i);
-    if(l){
-      l.classList.add('done');
-      var ref=typeof i==='number'?i:"'"+i+"'";
-      l.innerHTML='<input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('+ref+',this)">✓ '+fname;
+  if(!el.files||!el.files.length) return;
+  var file=el.files[0];
+  var fname=file.name.substring(0,24);
+  var ref=typeof i==='number'?i:"'"+i+"'";
+  var lbl=document.getElementById('du'+i)||document.getElementById('du-'+i);
+  if(lbl){ lbl.classList.remove('done'); lbl.textContent='⏳ Enviando...'; }
+  ST.docs[i]=true;
+  ST.docUrls=ST.docUrls||{};
+
+  supaUpload(file,'docs').then(function(url){
+    if(url) ST.docUrls[i]=url;
+    if(lbl){
+      lbl.classList.add('done');
+      lbl.textContent='✓ '+fname+(url?' ☁':'');
     }
     ck2();
-  }
+  });
 }
 function ck2(){
   const cargo=document.getElementById('cargo-link')?.value||'';
@@ -3025,14 +3033,63 @@ function toggleAceite(id){
   document.getElementById('pcsi-cb').textContent=ST.pcsiOk?'✓':'';
   ck3();
 }
-function fUp(id,el){
-  if(el.files.length>0){
-    ST.files[id]=true;
-    const l=document.getElementById('ul-'+id);
-    l.classList.add('done');
-    l.innerHTML='<input type="file" accept=".pdf,.jpg,.png" onchange="fUp(\''+id+'\',this)"> ✓ Anexado';
-    ck3();
+/* ═══════════════════════════════════════════════════════
+   SUPABASE STORAGE — Upload de documentos
+   Bucket: documentos | Pasta por tipo de formulário
+   ═══════════════════════════════════════════════════════ */
+async function supaUpload(file, folder){
+  var url = _SUPA_URL;
+  var key = _SUPA_KEY;
+  if(!url||!key||key.length<20) return null;
+
+  var ts   = Date.now();
+  var safe = file.name.replace(/[^a-zA-Z0-9._-]/g,'_').substring(0,40);
+  var path = (folder||'geral')+'/'+ts+'_'+safe;
+
+  try{
+    var resp = await fetch(url+'/storage/v1/object/documentos/'+path, {
+      method:'POST',
+      headers:{
+        'apikey':         key,
+        'Authorization': 'Bearer '+key,
+        'Content-Type':   file.type||'application/octet-stream',
+        'x-upsert':      'true'
+      },
+      body: file
+    });
+    if(resp.ok){
+      return url+'/storage/v1/object/public/documentos/'+path;
+    }
+    var err = await resp.text();
+    console.warn('[T&S] Upload falhou:',resp.status,err);
+    return null;
+  }catch(e){
+    console.warn('[T&S] Upload erro:',e);
+    return null;
   }
+}
+
+function fUp(id,el){
+  if(!el.files||!el.files.length) return;
+  var file=el.files[0];
+  var fname=file.name.substring(0,28);
+  var lbl=document.getElementById('ul-'+id);
+  if(lbl){ lbl.classList.remove('done'); lbl.textContent='⏳ Enviando...'; }
+  ST.files[id]=true;
+  ST.fileUrls=ST.fileUrls||{};
+
+  supaUpload(file,'termos').then(function(url){
+    if(url) ST.fileUrls[id]=url;
+    var ok=document.getElementById(id+'-file-ok');
+    if(ok) ok.style.display='flex';
+    var badge=document.getElementById(id+'-status-badge');
+    if(badge) badge.innerHTML='<span style="background:#e8f5e9;color:#1b5e20;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;">&#10003; '+(url?'Salvo':'Registrado')+'</span>';
+    if(lbl){
+      lbl.classList.add('done');
+      lbl.textContent='✓ '+fname+(url?' ☁':'');
+    }
+    ck3();
+  });
 }
 function ck3(){
   const ok=!!(ST.pcsiOk&&ST.files.cad&&ST.files.termo);
@@ -3723,8 +3780,13 @@ async function gasPost(sheet, rowData, extraFields){
         headers:{'Content-Type':'application/json','apikey':supaKey,'Authorization':'Bearer '+supaKey,'Prefer':'return=minimal'},
         body:JSON.stringify(payload)
       });
-      if(r.ok||r.status===201){sent=true;}
-      else{var t=await r.text();console.warn('[T&S] Supabase erro:',r.status,t);}
+      if(r.ok||r.status===201||r.status===200){
+        sent=true;
+        console.log('[T&S] Supabase POST OK — sheet:',sheet);
+      } else {
+        var t=await r.text();
+        console.warn('[T&S] Supabase POST erro HTTP',r.status,':',t);
+      }
     }catch(e){console.warn('[T&S] Supabase falhou:',e);}
   }
 
@@ -5945,6 +6007,44 @@ function buildEstadoSelect(selId, selectedVal){
   });
 }
 
+
+/* ── Diagnóstico Supabase (chame supaTest() no console do browser) ── */
+async function supaTest(){
+  var url=_SUPA_URL, key=_SUPA_KEY;
+  console.group('[T&S] Supabase Diagnóstico');
+  console.log('URL:', url);
+  console.log('Key OK:', key&&key.length>20);
+  console.log('Origin:', location.origin);
+  if(location.protocol==='file:'){
+    console.warn('⚠ Rodando em file:// — Supabase bloqueia CORS. Use GitHub Pages ou servidor local.');
+    console.groupEnd(); return;
+  }
+  try{
+    var r=await fetch(url+'/rest/v1/envios?limit=1',{
+      headers:{'apikey':key,'Authorization':'Bearer '+key}
+    });
+    console.log('GET /envios status:', r.status, r.ok?'✓ OK':'✗ ERRO');
+    if(r.ok){
+      var d=await r.json();
+      console.log('Registros encontrados:', d.length);
+    } else {
+      console.warn('Resposta:', await r.text());
+    }
+  }catch(e){
+    console.error('Fetch falhou:', e.message);
+  }
+  try{
+    var r2=await fetch(url+'/storage/v1/bucket',{
+      headers:{'apikey':key,'Authorization':'Bearer '+key}
+    });
+    console.log('Storage status:', r2.status, r2.ok?'✓ OK':'✗ ERRO');
+  }catch(e2){
+    console.error('Storage falhou:', e2.message);
+  }
+  console.groupEnd();
+}
+window.supaTest = supaTest;
+
 window.addEventListener('DOMContentLoaded',()=>{
   // ── AUTH CHECK: show login screen unless authenticated or collab form ──
   var _urlParams = new URLSearchParams(window.location.search);
@@ -7077,6 +7177,7 @@ function rOnboarding(){
   var kWait=document.getElementById('ont-k-wait');
   var kDone=document.getElementById('ont-k-done');
   if(!tbody) return;
+
   var total=COLL_ONBOARDING.length;
   var wait=COLL_ONBOARDING.filter(function(r){return r.status==='aguardando'||r.status==='em_andamento';}).length;
   var done=COLL_ONBOARDING.filter(function(r){return r.status==='concluido';}).length;
@@ -7084,41 +7185,141 @@ function rOnboarding(){
   if(kWait)  kWait.textContent=wait;
   if(kDone)  kDone.textContent=done;
   try{sv('g-cad',wait);}catch(e){}
+
   tbody.innerHTML='';
   if(!total){
     tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted);">Nenhum candidato em processo de admissão.</td></tr>';
     return;
   }
+
   COLL_ONBOARDING.slice().reverse().forEach(function(r,i){
     var idx2=COLL_ONBOARDING.length-1-i;
     var cargo=(CD[r.cargo]||{}).label||r.cargo||'—';
+
+    // ── Fase badge ──
     function fase(key,label){
-      var d2=r.val&&r.val[key];
+      var isDone=r.val&&r.val[key];
       var can=ontCanValidate(r,key);
-      if(d2) return '<span style="background:#e8f5e9;color:#1b5e20;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;">&#10003; '+label+'</span>';
-      if(can) return '<button onclick="ontValidate('+idx2+',\''+key+'\')" style="background:var(--b600);color:#fff;border:none;border-radius:7px;padding:3px 8px;font-size:9px;font-weight:700;cursor:pointer;">Validar</button>';
-      return '<span style="color:#ccc;font-size:11px;">&#9675;</span>';
+      if(isDone) return '<span style="background:#e8f5e9;color:#1b5e20;font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;">&#10003; '+label+'</span>';
+      if(can)    return '<button onclick="ontValidate('+idx2+',\''+key+'\')" style="background:var(--b600);color:#fff;border:none;border-radius:7px;padding:4px 10px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;">&#10003; Validar</button>';
+      return '<span style="color:#ccc;font-size:14px;">&#9675;</span>';
     }
-    var ss=r.status==='concluido'?'background:#e8f5e9;color:#1b5e20;':r.status==='aguardando'?'background:#fff3e0;color:#e65100;':'background:#e3f2fd;color:#0d47a1;';
-    var bg=i%2===0?'':'background:#fafaf8;';
+
+    // ── Dados pessoais cell ──
+    var dados='';
+    if(r.cpf)     dados+='<div style="font-size:10px;"><span style="color:var(--muted);">CPF:</span> '+r.cpf+'</div>';
+    if(r.rg)      dados+='<div style="font-size:10px;"><span style="color:var(--muted);">RG:</span> '+r.rg+'</div>';
+    if(r.nasc)    dados+='<div style="font-size:10px;"><span style="color:var(--muted);">Nasc:</span> '+r.nasc+'</div>';
+    if(r.tel)     dados+='<div style="font-size:10px;"><span style="color:var(--muted);">Tel:</span> '+r.tel+'</div>';
+    if(r.end)     dados+='<div style="font-size:10px;"><span style="color:var(--muted);">End:</span> '+r.end+(r.cidade?', '+r.cidade:'')+'</div>';
+    if(r.ctps)    dados+='<div style="font-size:10px;"><span style="color:var(--muted);">CTPS:</span> '+r.ctps+'</div>';
+    if(r.banco)   dados+='<div style="font-size:10px;"><span style="color:var(--muted);">Banco:</span> '+r.banco+(r.agencia?' / '+r.agencia:'')+'</div>';
+    if(!dados)    dados='<span style="color:var(--muted);font-size:10px;">—</span>';
+
+    // ── Docs cell: lista os documentos enviados com link ──
+    var docNames={rg:'🪪 RG',cpf:'📄 CPF',ctps:'📒 CTPS',foto:'📷 Foto',res:'🏠 Residência',tit:'🗳️ Título',escol:'🎓 Escolaridade',banco:'🏦 Banco'};
+    var docsHtml='';
+    // Universal docs from ST.docUrls (saved in entry.docUrls)
+    var docUrls=r.docUrls||{};
+    Object.keys(docNames).forEach(function(k){
+      var url=docUrls[k];
+      var label=docNames[k];
+      if(url){
+        docsHtml+='<div style="font-size:10px;"><a href="'+url+'" target="_blank" style="color:var(--b600);text-decoration:none;">&#128279; '+label+'</a></div>';
+      } else if(r.docs&&r.docs[k]){
+        docsHtml+='<div style="font-size:10px;color:var(--g600);">&#10003; '+label+'</div>';
+      }
+    });
+    // Cargo-specific docs
+    var cargoUrls=r.cargoDocUrls||{};
+    Object.keys(cargoUrls).forEach(function(k){
+      docsHtml+='<div style="font-size:10px;"><a href="'+cargoUrls[k]+'" target="_blank" style="color:var(--b600);text-decoration:none;">&#128279; Doc cargo</a></div>';
+    });
+    if(!docsHtml) docsHtml='<span style="color:var(--muted);font-size:10px;">Aguardando</span>';
+
+    // ── Termos cell: links para os docs assinados ──
+    var termoNames={pcsi:'🔐 PCSI',cad:'📝 Cadastro',termo:'🖥 Termo TI'};
+    var termoUrls=r.fileUrls||{};
+    var termosHtml='';
+    Object.keys(termoNames).forEach(function(k){
+      var url=termoUrls[k];
+      var label=termoNames[k];
+      if(url){
+        termosHtml+='<div style="font-size:10px;"><a href="'+url+'" target="_blank" style="color:var(--b600);text-decoration:none;">&#128279; '+label+'</a></div>';
+      }
+    });
+    if(!termosHtml){
+      termosHtml = fase('termos','Termos');
+    }
+
+    // ── Status style ──
+    var ss=r.status==='concluido'?'background:#e8f5e9;color:#1b5e20;'
+      :r.status==='aguardando'?'background:#fff3e0;color:#e65100;'
+      :'background:#e3f2fd;color:#0d47a1;';
+    var bg=i%2===0?'#fff':'#fafaf8';
+
     var tr=document.createElement('tr');
-    if(bg) tr.style.background='#fafaf8';
+    tr.style.background=bg;
+    tr.style.verticalAlign='top';
     tr.innerHTML=
-      '<td style="padding:9px 12px;border-bottom:.5px solid #f0ede5;"><div style="font-weight:600;font-size:12px;">'+r.nome+'</div><div style="font-size:10px;color:var(--muted);">'+(r.email||'')+'</div></td>'
-      +'<td style="padding:9px 12px;font-size:11px;border-bottom:.5px solid #f0ede5;max-width:130px;">'+cargo+'</td>'
-      +'<td style="padding:9px 12px;font-size:11px;color:var(--muted);border-bottom:.5px solid #f0ede5;white-space:nowrap;">'+(r.dataEnvio||'')+'</td>'
-      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('dados','Dados')+'</td>'
-      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('docs','Docs')+'</td>'
-      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('termos','Termos')+'</td>'
-      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('bv','BV')+'</td>'
-      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('acesso','Acesso')+'</td>'
-      +'<td style="padding:9px 12px;border-bottom:.5px solid #f0ede5;">'
-        +'<span style="'+ss+'padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;display:inline-block;margin-bottom:3px;">'+r.status+'</span><br>'
-        +'<button onclick="ontObs('+idx2+')" style="font-size:9px;padding:2px 7px;background:transparent;border:.5px solid var(--brd);border-radius:5px;cursor:pointer;color:var(--muted);">Obs</button>'
+      // Col 1: Nome + Contato
+      '<td style="padding:10px 12px;border-bottom:.5px solid #f0ede5;min-width:160px;">'
+        +'<div style="font-weight:700;font-size:12px;color:var(--b900);margin-bottom:2px;">'+r.nome+'</div>'
+        +'<div style="font-size:10px;color:var(--b600);">'+( r.email||'')+'</div>'
+        +(r.tel?'<div style="font-size:10px;color:var(--muted);">'+r.tel+'</div>':'')
+      +'</td>'
+      // Col 2: Cargo
+      +'<td style="padding:10px 12px;border-bottom:.5px solid #f0ede5;font-size:11px;max-width:120px;">'+cargo+'</td>'
+      // Col 3: Data
+      +'<td style="padding:10px 12px;border-bottom:.5px solid #f0ede5;font-size:10px;color:var(--muted);white-space:nowrap;">'+(r.dataEnvio||'')+'</td>'
+      // Col 4: Dados pessoais (expandível)
+      +'<td style="padding:10px 12px;border-bottom:.5px solid #f0ede5;min-width:170px;">'
+        +'<div id="dados-hdr-'+idx2+'" style="cursor:pointer;font-size:10px;color:var(--b600);font-weight:600;margin-bottom:3px;" onclick="toggleDados('+idx2+')">'
+          +(r.tabs&&r.tabs.dados?'&#9660; Ver dados':'&#9658; Aguardando')
+        +'</div>'
+        +'<div id="dados-body-'+idx2+'" style="display:none;">'+dados+'</div>'
+      +'</td>'
+      // Col 5: Docs
+      +'<td style="padding:10px 12px;border-bottom:.5px solid #f0ede5;min-width:120px;">'+docsHtml+'</td>'
+      // Col 6: Termos
+      +'<td style="padding:10px 12px;border-bottom:.5px solid #f0ede5;min-width:100px;">'+termosHtml+'</td>'
+      // Col 7: BV
+      +'<td style="padding:10px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('bv','BV')+'</td>'
+      // Col 8: Acesso
+      +'<td style="padding:10px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('acesso','Acesso')+'</td>'
+      // Col 9: Status + ações
+      +'<td style="padding:10px 12px;border-bottom:.5px solid #f0ede5;white-space:nowrap;">'
+        +'<span style="'+ss+'padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;display:inline-block;margin-bottom:4px;">'+r.status+'</span><br>'
+        +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;">'
+          +'<button onclick="ontObs('+idx2+')" style="font-size:9px;padding:2px 7px;background:transparent;border:.5px solid var(--brd);border-radius:5px;cursor:pointer;color:var(--muted);">&#128221; Obs</button>'
+          +'<button onclick="ontDelete('+idx2+')" style="font-size:9px;padding:2px 7px;background:transparent;border:.5px solid #fcc;border-radius:5px;cursor:pointer;color:#c00;">&#128465;</button>'
+        +'</div>'
       +'</td>';
     tbody.appendChild(tr);
   });
 }
+
+// Toggle dados pessoais expand
+function toggleDados(idx2){
+  var body=document.getElementById('dados-body-'+idx2);
+  var hdr=document.getElementById('dados-hdr-'+idx2);
+  if(!body) return;
+  var open=body.style.display==='none';
+  body.style.display=open?'block':'none';
+  if(hdr) hdr.innerHTML=(open?'&#9660;':'&#9658;')+' '+(open?'Ocultar':'Ver dados');
+}
+
+// Delete candidato
+function ontDelete(idx2){
+  var r=COLL_ONBOARDING[idx2];
+  if(!r) return;
+  if(!confirm('Remover '+r.nome+' do processo de admissão?')) return;
+  COLL_ONBOARDING.splice(idx2,1);
+  saveAll(); rOnboarding();
+  toast('Candidato removido.','ok');
+}
+
+
 
 function expOnboarding(){
   if(!COLL_ONBOARDING.length){toast('Nenhum candidato para exportar.','warn');return;}
