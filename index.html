@@ -795,11 +795,11 @@ body.portal-ready #login-screen{display:none!important;}
         <div class="ctitle">Identificação</div>
         <div class="fg">
           <div class="fp ff"><label>Nome completo *</label><input type="text" id="f_nome" placeholder="Nome conforme documento" oninput="ck1()"></div>
-          <div class="fp"><label>CPF *</label><input type="text" id="f_cpf" placeholder="000.000.000-00" oninput="ck1()"></div>
+          <div class="fp"><label>CPF *</label><input type="text" id="f_cpf" maxlength="14" oninput="maskCPF(this)" placeholder="000.000.000-00" oninput="ck1()"></div>
           <div class="fp"><label>RG *</label><input type="text" id="f_rg" placeholder="0000000-0 SSP/UF" oninput="ck1()"></div>
           <div class="fp"><label>Nº CTPS *</label><input type="text" id="f_ctps" placeholder="000000" oninput="ck1()"></div>
           <div class="fp"><label>Série CTPS *</label><input type="text" id="f_serie" placeholder="00000" oninput="ck1()"></div>
-          <div class="fp"><label>Data de nascimento *</label><input type="date" id="f_nasc" oninput="ck1()"></div>
+          <div class="fp"><label>Data de nascimento *</label><input type="text" id="f_nasc" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this);ck1()" oninput="ck1()"></div>
           <div class="fp"><label>Gênero</label><select><option>Selecione</option><option>Masculino</option><option>Feminino</option><option>Não-binário</option><option>Prefiro não informar</option></select></div>
           <div class="fp"><label>Cor / Raça (IBGE)</label><select><option>Selecione</option><option>Branca</option><option>Preta</option><option>Parda</option><option>Amarela</option><option>Indígena</option><option>Prefiro não informar</option></select></div>
           <div class="fp"><label>Estado civil *</label><select id="f_civil" onchange="ck1()"><option value="">Selecione</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>União estável</option></select></div>
@@ -811,7 +811,7 @@ body.portal-ready #login-screen{display:none!important;}
         <div class="fg fg3">
           <div class="fp"><label>Nacionalidade *</label><select id="f_nac" onchange="ck1()"><option value="">Selecione</option><option>Brasileira</option><option>Outra</option></select></div>
           <div class="fp"><label>Naturalidade (cidade) *</label><input type="text" id="f_natural" placeholder="Ex: Brasília" oninput="ck1()"></div>
-          <div class="fp"><label>UF</label><select><option>UF</option><option selected>DF</option><option>SP</option><option>RJ</option><option>MG</option><option>GO</option><option>RS</option><option>BA</option><option>PR</option><option>PE</option><option>CE</option></select></div>
+          <div class="fp"><label>UF</label><select id="f_uf_nat"><option value="">UF</option></select></div>
         </div>
       </div>
       <div class="card">
@@ -819,9 +819,9 @@ body.portal-ready #login-screen{display:none!important;}
         <div class="fg">
           <div class="fp ff"><label>E-mail particular *</label><input type="email" id="f_email" placeholder="seu@email.com" oninput="ck1()"></div>
           <div class="fp ff"><label>Endereço completo *</label><input type="text" id="f_end" placeholder="Rua, número, complemento" oninput="ck1()"></div>
-          <div class="fp"><label>CEP *</label><input type="text" id="f_cep" placeholder="00000-000" oninput="ck1()"></div>
+          <div class="fp"><label>CEP *</label><input type="text" id="f_cep" maxlength="9" oninput="maskCEP(this)" placeholder="00000-000" oninput="ck1()"></div>
           <div class="fp"><label>Cidade *</label><input type="text" id="f_cidade" placeholder="Ex: Brasília" oninput="ck1()"></div>
-          <div class="fp"><label>Estado *</label><select id="f_uf" onchange="ck1()"><option value="">Selecione</option><option selected>DF</option><option>SP</option><option>RJ</option><option>MG</option><option>GO</option></select></div>
+          <div class="fp"><label>Estado *</label><select id="f_uf" onchange="ck1()"><option value="">UF</option></select></div>
         </div>
       </div>
       <div id="ok1" class="al al-ok" style="display:none;"><span>✓</span><div class="alb"><strong>Campos completos</strong>Clique em Enviar para concluir a Fase 1.</div></div>
@@ -1187,7 +1187,7 @@ body.portal-ready #login-screen{display:none!important;}
         <!-- Banco de Horas -->
         <div class="fp ff ptype-extra" id="pt-bh">
           <div class="fg">
-            <div class="fp"><label>Data</label><input type="date" id="pau_data_bh"></div>
+            <div class="fp"><label>Data</label><input type="text" id="pau_data_bh" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)"></div>
             <div class="fp"><label>Tempo</label><input type="text" id="pau_tempo_bh" placeholder="Ex: 01h30min"></div>
             <div class="fp"><label>Motivo</label><input type="text" id="pau_mot_bh" placeholder="Descreva o motivo"></div>
             <div class="fp"><label>Chamado</label><input type="text" id="pau_cham_bh" placeholder="Nº do chamado"></div>
@@ -1290,7 +1290,7 @@ body.portal-ready #login-screen{display:none!important;}
         <select id="fer_ano"><option>2025</option><option selected>2026</option><option>2027</option></select>
       </div>
       <div class="fp"><label>Quantidade de dias *</label><input type="number" id="fer_dias" min="1" max="30" placeholder="Ex: 15" oninput="calcFer()"></div>
-      <div class="fp"><label>Data de início *</label><input type="date" id="fer_ini" oninput="calcFer()"></div>
+      <div class="fp"><label>Data de início *</label><input type="text" id="fer_ini" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this);calcFer()" oninput="calcFer()"></div>
       <div class="fp"><label>Data de fim (calculada)</label><input type="text" id="fer_fim" readonly class="ro" placeholder="Automático"></div>
       <div class="fp ff">
         <label>Deseja vender 10 dias do período de descanso?</label>
@@ -1401,7 +1401,7 @@ body.portal-ready #login-screen{display:none!important;}
       <!-- Campos extras após seleção do tipo -->
       <div id="bh-fields" style="display:none;margin-top:.875rem;">
         <div class="fg">
-          <div class="fp"><label>Data *</label><input type="date" id="bh_data"></div>
+          <div class="fp"><label>Data *</label><input type="text" id="bh_data" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)"></div>
           <div class="fp"><label>Horário</label><input type="text" id="bh_hora" placeholder="Ex: 08:00" maxlength="5" oninput="fmtHora(this)"></div>
           <div class="fp"><label>Tempo (horas) *</label><input type="text" id="bh_tempo" placeholder="Ex: 01h30" oninput="parseBHTime()"></div>
           <div class="fp"><label>Chamado</label><input type="text" id="bh_chamado" placeholder="Nº do chamado"></div>
@@ -1533,7 +1533,7 @@ body.portal-ready #login-screen{display:none!important;}
         <div class="al al-info" style="margin-bottom:.75rem;"><span>ℹ</span><div class="alb"><strong>Processo de homologação</strong>Atestados médicos com afastamento superior a 15 dias precisam de homologação no sindicato. Telefone da empresa homologadora: <strong>(61) 3xxx-xxxx</strong> &nbsp;|&nbsp; E-mail: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="177f787a787b787076747678577f726763763974787a397565">[email&#160;protected]</a></strong></div></div>
         <div class="fg">
           <div class="fp"><label>Quantidade de dias de afastamento *</label><input type="number" id="at_dias" min="1" placeholder="Ex: 3" oninput="calcAtFim()"></div>
-          <div class="fp"><label>Data de início do afastamento *</label><input type="date" id="at_ini" oninput="calcAtFim()"></div>
+          <div class="fp"><label>Data de início do afastamento *</label><input type="text" id="at_ini" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this);calcAtFim()" oninput="calcAtFim()"></div>
           <div class="fp"><label>Data de retorno (calculada)</label><input type="text" id="at_fim" readonly class="ro" placeholder="Automático"></div>
           <div class="fp ff"><label>Anexar atestado médico *</label><label class="ulb" id="ul-at-med"><input type="file" accept=".pdf,.jpg,.png" onchange="atFileUp('med',this)">📎 Anexar</label></div>
         </div>
@@ -1542,9 +1542,9 @@ body.portal-ready #login-screen{display:none!important;}
       <div id="at-comp-fields" style="display:none;margin-top:.875rem;">
         <div class="al al-w" style="margin-bottom:.75rem;"><span>⚠</span><div class="alb"><strong>Atenção</strong>O atestado de comparecimento não abona faltas pela legislação trabalhista brasileira. Ele apenas comprova que o empregado esteve em consulta ou exame em determinado dia e horário. Nessas situações, as horas de ausência serão inseridas automaticamente em banco de horas negativo.</div></div>
         <div class="fg">
-          <div class="fp"><label>Data do atestado *</label><input type="date" id="at_comp_data"></div>
-          <div class="fp"><label>Hora inicial *</label><input type="time" id="at_comp_ini"></div>
-          <div class="fp"><label>Hora final *</label><input type="time" id="at_comp_fim"></div>
+          <div class="fp"><label>Data do atestado *</label><input type="text" id="at_comp_data" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)"></div>
+          <div class="fp"><label>Hora inicial *</label><input type="text" id="at_comp_ini" placeholder="HH:MM" maxlength="5" oninput="maskTime(this)"></div>
+          <div class="fp"><label>Hora final *</label><input type="text" id="at_comp_fim" placeholder="HH:MM" maxlength="5" oninput="maskTime(this)"></div>
           <div class="fp ff"><label>Anexar atestado de comparecimento *</label><label class="ulb" id="ul-at-comp"><input type="file" accept=".pdf,.jpg,.png" onchange="atFileUp('comp',this)">📎 Anexar</label></div>
         </div>
       </div>
@@ -1632,7 +1632,7 @@ body.portal-ready #login-screen{display:none!important;}
           <div class="fp"><label>Número com DDD</label><input type="text" id="dev_num" placeholder="(61) 9xxxx-xxxx"></div>
           <div class="fp"><label>Nº de série do carregador</label><input type="text" id="dev_carregador" placeholder="Série do carregador"></div>
           <div class="fp ff"><label>Observação (demais itens inclusos)</label><textarea id="dev_obs" rows="2" placeholder="Descreva outros itens inclusos (capinha, fone, etc.)"></textarea></div>
-          <div class="fp"><label>Data de recebimento *</label><input type="date" id="dev_data"></div>
+          <div class="fp"><label>Data de recebimento *</label><input type="text" id="dev_data" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)"></div>
           <div class="fp"><label>📷 Foto do IMEI do aparelho</label><label class="ulb" id="ul-dev-imei-cel"><input type="file" accept="image/*" onchange="devFileUp('ul-dev-imei-cel',this)">📎 Anexar foto</label></div>
           <div class="fp"><label>📷 Foto da etiqueta da caixa</label><label class="ulb" id="ul-dev-caixa-cel"><input type="file" accept="image/*" onchange="devFileUp('ul-dev-caixa-cel',this)">📎 Anexar foto</label></div>
         </div>
@@ -1645,7 +1645,7 @@ body.portal-ready #login-screen{display:none!important;}
           <div class="fp"><label>IMEI / Nº de série *</label><input type="text" id="tab_imei" placeholder="IMEI ou número de série"></div>
           <div class="fp"><label>Nº de série do carregador</label><input type="text" id="tab_carregador" placeholder="Série do carregador"></div>
           <div class="fp ff"><label>Observação (demais itens inclusos)</label><textarea id="tab_obs" rows="2" placeholder="Descreva outros itens inclusos"></textarea></div>
-          <div class="fp"><label>Data de recebimento *</label><input type="date" id="tab_data"></div>
+          <div class="fp"><label>Data de recebimento *</label><input type="text" id="tab_data" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)"></div>
           <div class="fp"><label>📷 Foto do IMEI / nº de série</label><label class="ulb" id="ul-dev-imei-tab"><input type="file" accept="image/*" onchange="devFileUp('ul-dev-imei-tab',this)">📎 Anexar foto</label></div>
           <div class="fp"><label>📷 Foto da etiqueta da caixa</label><label class="ulb" id="ul-dev-caixa-tab"><input type="file" accept="image/*" onchange="devFileUp('ul-dev-caixa-tab',this)">📎 Anexar foto</label></div>
         </div>
@@ -1710,7 +1710,7 @@ body.portal-ready #login-screen{display:none!important;}
       <div class="fg">
         <div class="fp ff"><label>Cargo *</label><select id="uni_rec_cargo" onchange="filterNameByCargo('uni_rec_cargo','uni_rec_nome')"><option value="">— Selecione o cargo —</option></select></div>
         <div class="fp ff"><label>Seu nome *</label><select id="uni_rec_nome"><option value="">— Selecione seu nome —</option></select></div>
-        <div class="fp"><label>Data de recebimento *</label><input type="date" id="uni_rec_data"></div>
+        <div class="fp"><label>Data de recebimento *</label><input type="text" id="uni_rec_data" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)"></div>
         <div class="fp"><label>Gênero *</label>
           <select id="uni_rec_genero" onchange="onUniRecGenero()">
             <option value="">Selecione</option>
@@ -1892,7 +1892,7 @@ body.portal-ready #login-screen{display:none!important;}
         </div>
         <div style="flex:1;min-width:140px;">
           <label style="display:block;font-size:11px;font-weight:600;color:var(--b800);margin-bottom:.25rem;">Data de Entrega *</label>
-          <input type="date" id="mal_data" style="width:100%;padding:9px 12px;border:1.5px solid #e0ddd5;border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;">
+          <input type="text" id="mal_data" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)" style="width:100%;padding:9px 12px;border:1.5px solid #e0ddd5;border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;">
         </div>
         <div style="flex:1;min-width:140px;">
           <label style="display:block;font-size:11px;font-weight:600;color:var(--b800);margin-bottom:.25rem;">Nº Maleta / Patrimônio</label>
@@ -2239,8 +2239,8 @@ body.portal-ready #login-screen{display:none!important;}
     <p style="font-size:10px;color:var(--muted);margin-bottom:.75rem;">Copie este código, cole no Google Apps Script e implante como Web App.</p>
     <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:monospace;font-size:10px;overflow-x:auto;max-height:200px;overflow-y:auto;position:relative;">
       <button onclick="navigator.clipboard.writeText(document.getElementById('gas-code-txt').textContent);toast('Código copiado!','ok')" class="btn bs" style="position:absolute;top:6px;right:6px;font-size:10px;padding:3px 8px;">Copiar</button>
-      <pre id="gas-code-txt" style="white-space:pre;color:var(--text);">// Portal T&S — Google Apps Script
-// Cole em script.google.com → Implantar → App da Web
+      <pre id="gas-code-txt" style="white-space:pre;color:var(--text);">// Portal T&S — Google Apps Script (versão JSONP completa)
+// Cole em script.google.com → Ctrl+S → Implantar → Nova versão
 // Executar como: Eu  |  Acesso: Qualquer pessoa
 
 const SS_NAME = 'Portal_TS_Dados';
@@ -2250,21 +2250,19 @@ function getOrCreateSS() {
   if (files.hasNext()) return SpreadsheetApp.open(files.next());
   return SpreadsheetApp.create(SS_NAME);
 }
-
 function getOrCreateSheet(ss, name) {
   var sh = ss.getSheetByName(name);
   if (!sh) sh = ss.insertSheet(name);
   return sh;
 }
 
-// POST — recebe envios dos colaboradores
+// POST — recebe envios (fallback para browsers que suportam CORS)
 function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
-    var ss = getOrCreateSS();
-    var sh = getOrCreateSheet(ss, data.sheet || 'Dados');
-    var entry = data.entry || {};
-    sh.appendRow([data.ts || new Date().toISOString(), JSON.stringify(entry)]);
+    var data  = JSON.parse(e.postData.contents);
+    var ss    = getOrCreateSS();
+    var sh    = getOrCreateSheet(ss, data.sheet || 'Dados');
+    sh.appendRow([data.ts || new Date().toISOString(), JSON.stringify(data.entry||{})]);
     return ContentService.createTextOutput(JSON.stringify({status:'ok'}))
       .setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
@@ -2273,39 +2271,56 @@ function doPost(e) {
   }
 }
 
-// GET — retorna dados para o gestor (suporta JSONP para funcionar sem CORS)
+// GET — leitura E escrita via JSONP (funciona em QUALQUER rede/dispositivo)
 function doGet(e) {
-  var params = (e && e.parameter) ? e.parameter : {};
-  var action = params.action || '';
+  var params   = (e && e.parameter) ? e.parameter : {};
+  var action   = params.action   || '';
   var callback = params.callback || '';
   var result;
 
-  if (action !== 'pull') {
-    result = {status:'ok', message:'Portal T&S API ativa'};
-  } else {
+  // APPEND via GET+JSONP (usado pelo celular/outras redes)
+  if (action === 'append') {
+    try {
+      var dataStr = params.data || '{}';
+      var data    = JSON.parse(decodeURIComponent(dataStr));
+      var ss      = getOrCreateSS();
+      var sh      = getOrCreateSheet(ss, data.sheet || 'Dados');
+      sh.appendRow([data.ts || new Date().toISOString(), JSON.stringify(data.entry||{})]);
+      result = { status: 'ok', action: 'append' };
+    } catch(err) {
+      result = { status: 'error', message: err.message };
+    }
+
+  // PULL — retorna todos os dados
+  } else if (action === 'pull') {
     try {
       var ss = getOrCreateSS();
-      result = {status:'ok', ts: new Date().toISOString()};
-      var sheets = ['Ferias','Pausas','PendPausas','BH','Atestados',
-                    'Dispositivos','Uniformes','Ponto','Maleta','Feedback'];
-      sheets.forEach(function(name) {
+      result = { status: 'ok', ts: new Date().toISOString() };
+      ['Ferias','Pausas','PendPausas','BH','Atestados',
+       'Dispositivos','Uniformes','Ponto','Maleta',
+       'Feedback','Onboarding'].forEach(function(name) {
         var sh = ss.getSheetByName(name);
         if (!sh) { result[name] = []; return; }
         var rows = sh.getDataRange().getValues();
         var entries = [];
         rows.forEach(function(row) {
           if (!row[1]) return;
-          try { var entry = JSON.parse(String(row[1])); if (entry && entry.id) entries.push(entry); } catch(ex) {}
+          try {
+            var entry = JSON.parse(String(row[1]));
+            if (entry && entry.id) entries.push(entry);
+          } catch(ex) {}
         });
         result[name] = entries;
       });
     } catch(err) {
-      result = {status:'error', message:err.message};
+      result = { status: 'error', message: err.message };
     }
+
+  } else {
+    result = { status: 'ok', message: 'Portal T&S API ativa' };
   }
 
   var json = JSON.stringify(result);
-  // JSONP — contorna CORS sem precisar de configuração extra
   if (callback) {
     return ContentService.createTextOutput(callback + '(' + json + ')')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
@@ -2487,7 +2502,7 @@ function doGet(e) {
       </div>
       <div style="flex:1;min-width:120px;">
         <label style="display:block;font-size:11px;font-weight:600;color:var(--b800);margin-bottom:.25rem;">Data *</label>
-        <input type="date" id="fb_data" style="width:100%;padding:8px 10px;border:1.5px solid #e0ddd5;border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;">
+        <input type="text" id="fb_data" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)" style="width:100%;padding:8px 10px;border:1.5px solid #e0ddd5;border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;">
       </div>
       <div style="flex:1;min-width:130px;">
         <label style="display:block;font-size:11px;font-weight:600;color:var(--b800);margin-bottom:.25rem;">Status</label>
@@ -2500,7 +2515,7 @@ function doGet(e) {
       </div>
       <div style="flex:1;min-width:120px;">
         <label style="display:block;font-size:11px;font-weight:600;color:var(--b800);margin-bottom:.25rem;">Prazo</label>
-        <input type="date" id="fb_prazo" style="width:100%;padding:8px 10px;border:1.5px solid #e0ddd5;border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;">
+        <input type="text" id="fb_prazo" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)" style="width:100%;padding:8px 10px;border:1.5px solid #e0ddd5;border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;">
       </div>
     </div>
 
@@ -3532,8 +3547,8 @@ function openSubModal(c){
       <div class="fp ff" id="sub-periodo-wrap" style="display:none;">
         <label>Período da substituição</label>
         <div class="fg" style="margin-top:.3rem;">
-          <div class="fp"><label>Início</label><input type="date" id="sub_ini"></div>
-          <div class="fp"><label>Fim</label><input type="date" id="sub_fim"></div>
+          <div class="fp"><label>Início</label><input type="text" id="sub_ini" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)"></div>
+          <div class="fp"><label>Fim</label><input type="text" id="sub_fim" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)"></div>
         </div>
       </div>
       <div class="fp ff" id="sub-outro-wrap" style="display:none;"><label>Especificar motivo</label><input type="text" id="sub_outro" placeholder="Descreva o motivo"></div>
@@ -3680,49 +3695,98 @@ var _gasUrl = (function(){
 })();
 
 function getGasUrl(){
-  // Prioridade: 1) hardcoded no HTML, 2) localStorage, 3) variável em memória
-  if(_GAS_HARDCODED) return _GAS_HARDCODED;
-  try{ return _ls.getItem('gas_url')||_gasUrl||''; }catch(e){ return _gasUrl||''; }
+  // _GAS_HARDCODED is always the canonical URL (embedded in HTML)
+  // Falls back to localStorage for backwards compatibility
+  var url = _GAS_HARDCODED||'';
+  if(!url){ try{ url=_ls.getItem('gas_url')||_gasUrl||''; }catch(e){ url=_gasUrl||''; } }
+  return url;
 }
 
 // Envia uma linha para uma aba do Sheets
 async function gasPost(sheet, rowData, extraFields){
   var url = getGasUrl();
   if(!url){
-    // No GAS configured — data only in localStorage
+    console.warn('[Portal T&S] gasPost: URL não configurada');
     return false;
   }
+
+  var body = {sheet:sheet, row:rowData, ts:new Date().toISOString(), action:'append'};
+  if(extraFields) Object.assign(body, extraFields);
+
+  // Show sending indicator
+  var ind = document.getElementById('sync-indicator');
+  if(ind){ ind.textContent='☁️ Enviando...'; ind.style.color='var(--b600)'; }
+
+  // Strategy: try JSONP GET first (works on ALL devices/networks)
+  // Fallback: POST no-cors
+  var sent = await gasPostJSONP(url, body);
+  if(!sent) sent = await gasPostFetch(url, body);
+
+  if(sent){
+    // Pull after 3s to confirm and update dashboard
+    setTimeout(function(){
+      gasPull().then(function(ok){
+        var ind2=document.getElementById('sync-indicator');
+        if(ind2){
+          var now=new Date(), p=function(n){return String(n).padStart(2,'0');};
+          ind2.textContent=(ok?'☁️ Sync ':'⚠️ ')+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
+          ind2.style.color=ok?'var(--g600)':'var(--a600)';
+          setTimeout(function(){if(ind2)ind2.style.color='var(--muted)';},4000);
+        }
+      });
+    }, 3000);
+  } else {
+    if(ind){ ind.textContent='⚠️ Falha ao enviar — verifique conexão'; ind.style.color='var(--r600)'; }
+    toast('⚠️ Não foi possível enviar. Tente novamente.','warn');
+  }
+  return sent;
+}
+
+// JSONP POST (via GET) — funciona em QUALQUER dispositivo/rede sem CORS
+function gasPostJSONP(url, body){
+  return new Promise(function(resolve){
+    var cbName = '_gasPost_'+Date.now();
+    var done   = false;
+    var timer  = setTimeout(function(){
+      if(!done){ done=true; cleanup(); resolve(false); }
+    }, 8000);
+
+    function cleanup(){
+      clearTimeout(timer);
+      try{ delete window[cbName]; }catch(e){}
+      var s=document.getElementById(cbName);
+      if(s&&s.parentNode) s.parentNode.removeChild(s);
+    }
+
+    window[cbName] = function(d){
+      if(done) return;
+      done=true; cleanup();
+      resolve(!!(d && d.status==='ok'));
+    };
+
+    var sc = document.createElement('script');
+    sc.id  = cbName;
+    // Encode body as URL param — Apps Script doGet reads params.data
+    var encoded = encodeURIComponent(JSON.stringify(body));
+    sc.src = url+'?action=append&callback='+cbName+'&data='+encoded+'&t='+Date.now();
+    sc.onerror = function(){ if(!done){ done=true; cleanup(); resolve(false); } };
+    (document.head||document.body).appendChild(sc);
+  });
+}
+
+// Fetch POST fallback (works when CORS is allowed)
+async function gasPostFetch(url, body){
   try{
-    var body = {action:'append', sheet:sheet, row:rowData, ts:new Date().toISOString()};
-    if(extraFields) Object.assign(body, extraFields);
-    await fetch(url, {
+    await fetch(url,{
       method:'POST', mode:'no-cors',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)
     });
-    // Show cloud sync indicator
-    var ind = document.getElementById('sync-indicator');
-    if(ind){
-      ind.textContent = '☁️ Enviando...';
-      ind.style.color = 'var(--b600)';
-    }
-    // Pull after short delay to confirm data arrived in Sheets
-    setTimeout(function(){
-      gasPull().then(function(ok){
-        var ind2 = document.getElementById('sync-indicator');
-        if(ind2){
-          var now = new Date();
-          var p = function(n){ return String(n).padStart(2,'0'); };
-          ind2.textContent = ok
-            ? '☁️ Sync '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds())
-            : '⚠️ Verifique conexão';
-          ind2.style.color = ok ? 'var(--g600)' : 'var(--a600)';
-          setTimeout(function(){ if(ind2) ind2.style.color='var(--muted)'; }, 4000);
-        }
-      });
-    }, 2000); // wait 2s for Sheets to process
-    return true;
-  }catch(e){ console.warn('GAS post failed:',e); return false; }
+    return true; // no-cors is opaque — assume OK
+  }catch(e){
+    console.warn('[Portal T&S] gasPostFetch failed:', e);
+    return false;
+  }
 }
 
 // Lê todos os dados do Sheets e sincroniza com o estado local
@@ -5837,6 +5901,77 @@ function removeAuthUser(user){
   toast('Usuário removido.','ok');
 }
 
+
+/* ── MÁSCARAS DE ENTRADA ── */
+function maskCPF(el){
+  var v = el.value.replace(/\D/g,'').substring(0,11);
+  if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/,'$1.$2.$3-$4');
+  else if(v.length>6) v=v.replace(/(\d{3})(\d{3})(\d{0,3})/,'$1.$2.$3');
+  else if(v.length>3) v=v.replace(/(\d{3})(\d{0,3})/,'$1.$2');
+  el.value=v;
+}
+function maskDate(el){
+  var v=el.value.replace(/\D/g,'').substring(0,8);
+  if(v.length>4) v=v.replace(/(\d{2})(\d{2})(\d{0,4})/,'$1/$2/$3');
+  else if(v.length>2) v=v.replace(/(\d{2})(\d{0,2})/,'$1/$2');
+  el.value=v;
+}
+function maskTime(el){
+  var v=el.value.replace(/\D/g,'').substring(0,4);
+  if(v.length>2) v=v.replace(/(\d{2})(\d{0,2})/,'$1:$2');
+  el.value=v;
+}
+function maskPhone(el){
+  var v=el.value.replace(/\D/g,'').substring(0,11);
+  if(v.length>6) v=v.replace(/(\d{2})(\d{1})(\d{4})(\d{0,4})/,'($1) $2 $3-$4');
+  else if(v.length>2) v=v.replace(/(\d{2})(\d{0,5})/,'($1) $2');
+  el.value=v;
+}
+function maskCEP(el){
+  var v=el.value.replace(/\D/g,'').substring(0,8);
+  if(v.length>5) v=v.replace(/(\d{5})(\d{0,3})/,'$1-$2');
+  el.value=v;
+}
+/* Converte dd/mm/yyyy → yyyy-mm-dd para campos type=date */
+function parseDateBR(s){
+  if(!s) return '';
+  var p=s.split('/');
+  if(p.length===3&&p[2].length===4) return p[2]+'-'+p[1]+'-'+p[0];
+  return s;
+}
+/* Converte yyyy-mm-dd → dd/mm/yyyy para exibição */
+function fmtDateBR(s){
+  if(!s) return '';
+  var p=s.split('-');
+  if(p.length===3) return p[2]+'/'+p[1]+'/'+p[0];
+  return s;
+}
+
+/* Lista de todos os estados brasileiros */
+var ESTADOS_BR = [
+  {v:'AC',l:'Acre'},{v:'AL',l:'Alagoas'},{v:'AP',l:'Amapá'},
+  {v:'AM',l:'Amazonas'},{v:'BA',l:'Bahia'},{v:'CE',l:'Ceará'},
+  {v:'DF',l:'Distrito Federal'},{v:'ES',l:'Espírito Santo'},
+  {v:'GO',l:'Goiás'},{v:'MA',l:'Maranhão'},{v:'MT',l:'Mato Grosso'},
+  {v:'MS',l:'Mato Grosso do Sul'},{v:'MG',l:'Minas Gerais'},
+  {v:'PA',l:'Pará'},{v:'PB',l:'Paraíba'},{v:'PR',l:'Paraná'},
+  {v:'PE',l:'Pernambuco'},{v:'PI',l:'Piauí'},{v:'RJ',l:'Rio de Janeiro'},
+  {v:'RN',l:'Rio Grande do Norte'},{v:'RS',l:'Rio Grande do Sul'},
+  {v:'RO',l:'Rondônia'},{v:'RR',l:'Roraima'},{v:'SC',l:'Santa Catarina'},
+  {v:'SP',l:'São Paulo'},{v:'SE',l:'Sergipe'},{v:'TO',l:'Tocantins'}
+];
+function buildEstadoSelect(selId, selectedVal){
+  var sel=document.getElementById(selId);
+  if(!sel) return;
+  sel.innerHTML='<option value="">UF</option>';
+  ESTADOS_BR.forEach(function(e){
+    var o=document.createElement('option');
+    o.value=e.v; o.textContent=e.v+' — '+e.l;
+    if(e.v===(selectedVal||'DF')) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
   // ── AUTH CHECK: show login screen unless authenticated or collab form ──
   var _urlParams = new URLSearchParams(window.location.search);
@@ -5871,6 +6006,9 @@ function _initPortal(){
   document.body.classList.add('portal-ready');
   // ── STEP 0: Load persisted data
   try{ loadAll(); }catch(e){}
+  // Populate estado selects
+  try{ buildEstadoSelect('f_uf','DF'); }catch(e){}
+  try{ buildEstadoSelect('f_uf_nat','DF'); }catch(e){}
   // ── Apply role-based access ──
   var _userRole = (function(){ try{ return sessionStorage.getItem('portal_auth_role')||'gestor'; }catch(e){ return 'gestor'; } })();
   var _userName = (function(){ try{ return sessionStorage.getItem('portal_auth_user')||''; }catch(e){ return ''; } })();
@@ -6389,7 +6527,7 @@ function openMaletaCollabForm(){
         +'<div class="fp ff"><label>Seu nome *</label>'
           +'<select id="mc_nome" style="width:100%"><option value="">— Selecione —</option></select></div>'
         +'<div class="fp"><label>Data *</label>'
-          +'<input type="date" id="mc_data" style="width:100%;"></div>'
+          +'<input type="text" id="mc_data" placeholder="dd/mm/aaaa" maxlength="10" oninput="maskDate(this)" style="width:100%;"></div>'
         +'<div class="fp"><label>Nº Maleta / Patrimônio</label>'
           +'<input type="text" id="mc_num" placeholder="Ex: MAL-001" style="width:100%;"></div>'
       +'</div>'
