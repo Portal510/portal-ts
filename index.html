@@ -872,16 +872,39 @@ body.portal-ready #login-screen{display:none!important;}
 
       <!-- COLABORADOR: selecionar cargo + campos de upload -->
       <div class="card" id="p2-collab-view">
-        <div class="ctitle">Documentos por Cargo</div>
-        <!-- Cargo selector (shown if no cargo in link) -->
-        <div id="p2-cargo-sel-wrap" style="margin-bottom:.875rem;">
-          <label style="font-size:11px;font-weight:600;display:block;margin-bottom:.375rem;">Selecione seu cargo para ver os documentos exigidos:</label>
-          <select id="p2-cargo-sel" onchange="loadCargoForCollab(this.value);document.getElementById('cargo-link').value=this.value;ck2();" style="width:100%;padding:8px;border:.5px solid var(--brd);border-radius:8px;font-size:12px;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.875rem;">
+          <div style="width:26px;height:26px;background:var(--a50);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;">📄</div>
+          <span style="font-size:13px;font-weight:700;color:var(--b900);">Documentos Obrigatórios</span>
+        </div>
+
+        <!-- Seletor de cargo -->
+        <div id="p2-cargo-sel-wrap" style="background:#f0f4f9;border-radius:10px;padding:.875rem;margin-bottom:1rem;">
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--b800);margin-bottom:.375rem;">Selecione seu cargo *</label>
+          <select id="p2-cargo-sel" onchange="loadCargoForCollab(this.value);document.getElementById('cargo-link').value=this.value;ck2();" style="width:100%;padding:9px 12px;border:1.5px solid #e0ddd5;border-radius:8px;font-size:12px;font-family:inherit;">
             <option value="">— Selecione o cargo —</option>
           </select>
         </div>
-        <div id="cargo-display" style="background:var(--b50);border:.5px solid var(--b100);border-radius:7px;padding:9px 12px;margin-bottom:.875rem;font-size:12px;color:var(--b800);display:none;">Cargo será exibido aqui ao acessar o link.</div>
-        <div class="dfw" id="docs-list"></div>
+
+        <!-- Cargo fixo (quando vem do link) -->
+        <div id="cargo-display" style="display:none;background:var(--b50);border:.5px solid var(--b100);border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:var(--b800);">Cargo será exibido aqui.</div>
+
+        <!-- Documentos universais (todos os cargos) -->
+        <div style="margin-bottom:.75rem;">
+          <div style="font-size:10px;font-weight:700;color:var(--b800);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.625rem;">📋 Documentos obrigatórios para todos os cargos</div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;" id="docs-universal">
+            <div class="dfld"><div class="dfl"><div class="dfi" style="background:var(--gy50);">🪪</div><div><div class="dfn">RG — Identidade</div><div class="dfd">Frente e verso</div></div></div><label class="ulb" id="du-rg"><input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('rg',this)">📎 Anexar</label></div>
+            <div class="dfld"><div class="dfl"><div class="dfi" style="background:var(--gy50);">📄</div><div><div class="dfn">CPF</div><div class="dfd">Cópia legível</div></div></div><label class="ulb" id="du-cpf"><input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('cpf',this)">📎 Anexar</label></div>
+            <div class="dfld"><div class="dfl"><div class="dfi" style="background:var(--gy50);">📒</div><div><div class="dfn">CTPS — Carteira de Trabalho</div><div class="dfd">Página com foto e qualificação civil</div></div></div><label class="ulb" id="du-ctps"><input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('ctps',this)">📎 Anexar</label></div>
+            <div class="dfld"><div class="dfl"><div class="dfi" style="background:var(--gy50);">📷</div><div><div class="dfn">Foto 3×4</div><div class="dfd">Recente, fundo branco</div></div></div><label class="ulb" id="du-foto"><input type="file" accept=".jpg,.jpeg,.png" onchange="docUp('foto',this)">📎 Anexar</label></div>
+            <div class="dfld"><div class="dfl"><div class="dfi" style="background:var(--gy50);">🏠</div><div><div class="dfn">Comprovante de Residência</div><div class="dfd">Últimos 90 dias</div></div></div><label class="ulb" id="du-res"><input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('res',this)">📎 Anexar</label></div>
+            <div class="dfld"><div class="dfl"><div class="dfi" style="background:var(--gy50);">🗳️</div><div><div class="dfn">Título de Eleitor</div><div class="dfd">Frente e verso</div></div></div><label class="ulb" id="du-tit"><input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('tit',this)">📎 Anexar</label></div>
+            <div class="dfld"><div class="dfl"><div class="dfi" style="background:var(--gy50);">🎓</div><div><div class="dfn">Certificado de Escolaridade</div><div class="dfd">Diploma ou declaração</div></div></div><label class="ulb" id="du-escol"><input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('escol',this)">📎 Anexar</label></div>
+            <div class="dfld"><div class="dfl"><div class="dfi" style="background:var(--gy50);">🏦</div><div><div class="dfn">Dados Bancários</div><div class="dfd">Comprovante conta corrente</div></div></div><label class="ulb" id="du-banco"><input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('banco',this)">📎 Anexar</label></div>
+          </div>
+        </div>
+
+        <!-- Documentos específicos do cargo -->
+        <div id="docs-list"></div>
       </div>
 
       <div id="ok2" class="al al-ok" style="display:none;"><span>✓</span><div class="alb"><strong>Todos os documentos anexados</strong>Clique em Enviar.</div></div>
@@ -2726,6 +2749,7 @@ function pg(id,tabEl){
   try{if(id==='feedback'){rFeedback();initFbSelects();}}catch(e){}
   try{if(id==='maleta'){rMaleta();}}catch(e){}
   try{if(id==='links') rLinks();}catch(e){}
+  try{if(id==='cad') rOnboarding();}catch(e){}
 }
 
 /* ═══ MODE ═══ */
@@ -2852,7 +2876,17 @@ function loadCargoForCollab(cargo){
   ck2();
 }
 function docUp(i,el){
-  if(el.files.length>0){ST.docs[i]=true;const l=document.getElementById('du'+i);l.classList.add('done');l.innerHTML='<input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('+i+',this)"> ✓ '+el.files[0].name.substring(0,22);ck2();}
+  if(el.files&&el.files.length>0){
+    ST.docs[i]=true;
+    var fname=el.files[0].name.substring(0,24);
+    var l=document.getElementById('du'+i)||document.getElementById('du-'+i);
+    if(l){
+      l.classList.add('done');
+      var ref=typeof i==='number'?i:"'"+i+"'";
+      l.innerHTML='<input type="file" accept=".pdf,.jpg,.png,.jpeg" onchange="docUp('+ref+',this)">✓ '+fname;
+    }
+    ck2();
+  }
 }
 function ck2(){
   const cargo=document.getElementById('cargo-link')?.value||'';
@@ -3726,6 +3760,7 @@ async function gasPull(){
         if(d.Ponto)       { totalAdded += mergeById(PONTO_DATA,     d.Ponto)       ||0; }
         if(d.Maleta)      { totalAdded += mergeById(MALETA_DATA,    d.Maleta)      ||0; }
         if(d.Feedback)    { totalAdded += mergeById(FEEDBACK_DATA,  d.Feedback)    ||0; }
+        if(d.Onboarding)   totalAdded += mergeById(COLL_ONBOARDING, d.Onboarding)  ||0;
         // Always save and refresh after a successful pull (not just when new items added)
         saveAll();
         refreshAll();
@@ -4427,7 +4462,7 @@ function saveAll(){
       COLL, PAUSAS, PEND_PAUSAS, FERIAS, BH_DATA,
       ATES_DATA, DEVICE_DATA, UNI_DATA, SOL_DATA,
       ACESSO_DATA, BV_ACORDOS, PONTO_DATA, ANIV_CONFIG,
-      FEEDBACK_DATA, GER_DATA, MALETA_DATA, COLL_ONBOARDING
+      FEEDBACK_DATA, GER_DATA, MALETA_DATA, COLL_ONBOARDING, COLL_ONBOARDING
     });
     _ls.setItem(STORE_KEY, payload);
     // Write a sync timestamp so other tabs/sessions detect the change
