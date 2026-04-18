@@ -682,9 +682,8 @@ body.portal-ready #login-screen{display:none!important;}
         <div class="dhic" style="background:var(--b50);">📋</div>
         Admissão de Colaboradores
       </div>
-      <button class="btn bp" style="font-size:11px;display:flex;align-items:center;gap:6px;" onclick="cpOnboardingLink(true)">
-        🔗 Enviar Formulário de Onboarding
-      </button>
+      <button class="btn bp" style="font-size:11px;display:flex;align-items:center;gap:6px;" onclick="cpOnboardingLink(true)" style="font-size:11px;">🔗 Enviar Formulário</button>
+        <button class="btn bp" style="font-size:11px;background:var(--g600);border-color:var(--g600);" onclick="expOnboarding()">⬇ Exportar XLS</button>
     </div>
 
     <!-- KPIs + Link inline -->
@@ -3702,155 +3701,129 @@ function getGasUrl(){
   return url;
 }
 
-// Envia uma linha para uma aba do Sheets
+/* ── SUPABASE CONFIG ── */
+var _SUPA_URL = 'https://enwrvccsazrocqzsqdjs.supabase.co';
+var _SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVud3J2Y2NzYXpyb2NxenNxZGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzAxNjUsImV4cCI6MjA5MjA0NjE2NX0.EEqdTdH9Yl7A7iQp7y-bBB1VaNLM8oJtvrBmck0dHHw';
+
+/* ── gasPost: Supabase primário + Apps Script backup ── */
 async function gasPost(sheet, rowData, extraFields){
-  var url = getGasUrl();
-  if(!url){
-    console.warn('[Portal T&S] gasPost: URL não configurada');
-    return false;
-  }
+  var supaUrl=_SUPA_URL,supaKey=_SUPA_KEY,gasUrl=getGasUrl();
+  var entry=(extraFields&&extraFields.entry)?extraFields.entry:{row:rowData};
+  entry.sheet=sheet;
+  var payload={id:entry.id||Date.now(),sheet:sheet,entry:entry,ts:new Date().toISOString()};
+  var ind=document.getElementById('sync-indicator');
+  if(ind){ind.textContent='☁️ Enviando...';ind.style.color='var(--b600)';}
+  var sent=false;
 
-  var body = {sheet:sheet, row:rowData, ts:new Date().toISOString(), action:'append'};
-  if(extraFields) Object.assign(body, extraFields);
-
-  // Show sending indicator
-  var ind = document.getElementById('sync-indicator');
-  if(ind){ ind.textContent='☁️ Enviando...'; ind.style.color='var(--b600)'; }
-
-  // Strategy: try JSONP GET first (works on ALL devices/networks)
-  // Fallback: POST no-cors
-  var sent = await gasPostJSONP(url, body);
-  if(!sent) sent = await gasPostFetch(url, body);
-
-  if(sent){
-    // Pull after 3s to confirm and update dashboard
-    setTimeout(function(){
-      gasPull().then(function(ok){
-        var ind2=document.getElementById('sync-indicator');
-        if(ind2){
-          var now=new Date(), p=function(n){return String(n).padStart(2,'0');};
-          ind2.textContent=(ok?'☁️ Sync ':'⚠️ ')+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
-          ind2.style.color=ok?'var(--g600)':'var(--a600)';
-          setTimeout(function(){if(ind2)ind2.style.color='var(--muted)';},4000);
-        }
+  /* 1. Supabase REST — funciona em QUALQUER rede/dispositivo */
+  if(supaUrl&&supaKey&&supaKey.length>20){
+    try{
+      var r=await fetch(supaUrl+'/rest/v1/envios',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':supaKey,'Authorization':'Bearer '+supaKey,'Prefer':'return=minimal'},
+        body:JSON.stringify(payload)
       });
-    }, 3000);
-  } else {
-    if(ind){ ind.textContent='⚠️ Falha ao enviar — verifique conexão'; ind.style.color='var(--r600)'; }
-    toast('⚠️ Não foi possível enviar. Tente novamente.','warn');
+      if(r.ok||r.status===201){sent=true;}
+      else{var t=await r.text();console.warn('[T&S] Supabase erro:',r.status,t);}
+    }catch(e){console.warn('[T&S] Supabase falhou:',e);}
   }
+
+  /* 2. Apps Script JSONP — backup para Google Sheets */
+  if(gasUrl){
+    try{
+      var b2={action:'append',sheet:sheet,row:rowData,ts:new Date().toISOString()};
+      if(extraFields)Object.assign(b2,extraFields);
+      gasPostJSONP(gasUrl,b2).catch(function(){});
+    }catch(e){}
+  }
+
+  /* Atualiza indicador e puxa dados */
+  setTimeout(function(){
+    gasPull().then(function(ok){
+      var i=document.getElementById('sync-indicator');
+      if(i){
+        var now=new Date(),p=function(n){return String(n).padStart(2,'0');};
+        i.textContent=sent?'☁️ Sync '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds()):'⚠️ Backup Apps Script';
+        i.style.color=sent?'var(--g600)':'var(--a600)';
+        setTimeout(function(){if(i)i.style.color='var(--muted)';},4000);
+      }
+    });
+  },2000);
   return sent;
 }
 
-// JSONP POST (via GET) — funciona em QUALQUER dispositivo/rede sem CORS
-function gasPostJSONP(url, body){
+/* ── JSONP POST (backup Apps Script) ── */
+function gasPostJSONP(url,body){
   return new Promise(function(resolve){
-    var cbName = '_gasPost_'+Date.now();
-    var done   = false;
-    var timer  = setTimeout(function(){
-      if(!done){ done=true; cleanup(); resolve(false); }
-    }, 8000);
-
-    function cleanup(){
-      clearTimeout(timer);
-      try{ delete window[cbName]; }catch(e){}
-      var s=document.getElementById(cbName);
-      if(s&&s.parentNode) s.parentNode.removeChild(s);
-    }
-
-    window[cbName] = function(d){
-      if(done) return;
-      done=true; cleanup();
-      resolve(!!(d && d.status==='ok'));
-    };
-
-    var sc = document.createElement('script');
-    sc.id  = cbName;
-    // Encode body as URL param — Apps Script doGet reads params.data
-    var encoded = encodeURIComponent(JSON.stringify(body));
-    sc.src = url+'?action=append&callback='+cbName+'&data='+encoded+'&t='+Date.now();
-    sc.onerror = function(){ if(!done){ done=true; cleanup(); resolve(false); } };
+    var cbName='_gasPost_'+Date.now(),done=false;
+    var timer=setTimeout(function(){if(!done){done=true;cleanup();resolve(false);}},8000);
+    function cleanup(){clearTimeout(timer);try{delete window[cbName];}catch(e){}var s=document.getElementById(cbName);if(s&&s.parentNode)s.parentNode.removeChild(s);}
+    window[cbName]=function(d){if(done)return;done=true;cleanup();resolve(!!(d&&d.status==='ok'));};
+    var sc=document.createElement('script');sc.id=cbName;
+    var enc=encodeURIComponent(JSON.stringify(body));
+    sc.src=url+'?action=append&callback='+cbName+'&data='+enc+'&t='+Date.now();
+    sc.onerror=function(){if(!done){done=true;cleanup();resolve(false);}};
     (document.head||document.body).appendChild(sc);
   });
 }
 
-// Fetch POST fallback (works when CORS is allowed)
-async function gasPostFetch(url, body){
-  try{
-    await fetch(url,{
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
-    return true; // no-cors is opaque — assume OK
-  }catch(e){
-    console.warn('[Portal T&S] gasPostFetch failed:', e);
-    return false;
-  }
-}
-
-// Lê todos os dados do Sheets e sincroniza com o estado local
+/* ── gasPull: Supabase primário + Apps Script fallback ── */
 async function gasPull(){
-  var url = getGasUrl();
-  if(!url) return false;
+  var supaUrl=_SUPA_URL,supaKey=_SUPA_KEY,gasUrl=getGasUrl();
+
+  /* 1. Supabase */
+  if(supaUrl&&supaKey&&supaKey.length>20){
+    try{
+      var r=await fetch(supaUrl+'/rest/v1/envios?select=sheet,entry,id&order=ts.asc&limit=5000',{
+        headers:{'apikey':supaKey,'Authorization':'Bearer '+supaKey}
+      });
+      if(r.ok){var rows=await r.json();return _processPullData(rows);}
+    }catch(e){console.warn('[T&S] Supabase pull falhou:',e);}
+  }
+
+  /* 2. Apps Script JSONP fallback */
+  if(!gasUrl) return false;
   return new Promise(function(resolve){
-    // Use JSONP to avoid CORS — Apps Script supports ?callback=fnName
-    var cbName = '_gasCb_'+Date.now();
-    var done = false;
-    var timer = setTimeout(function(){
-      if(!done){ done=true; cleanup(); resolve(false); }
-    }, 10000);
-
-    function cleanup(){
-      clearTimeout(timer);
-      delete window[cbName];
-      var s = document.getElementById(cbName);
-      if(s) s.remove();
-    }
-
-    window[cbName] = function(d){
-      if(done) return;
-      done = true; cleanup();
-      if(!d || d.status==='error'){ resolve(false); return; }
-      try{
-        var totalAdded = 0;
-        if(d.Ferias)      { totalAdded += mergeById(FERIAS,        d.Ferias)      ||0; }
-        if(d.Pausas)      { totalAdded += mergeById(PAUSAS,        d.Pausas)      ||0; }
-        if(d.PendPausas)  { totalAdded += mergeById(PEND_PAUSAS,   d.PendPausas)  ||0; }
-        if(d.BH)          { totalAdded += mergeById(BH_DATA,        d.BH)          ||0; }
-        if(d.Atestados)   { totalAdded += mergeById(ATES_DATA,      d.Atestados)   ||0; }
-        if(d.Dispositivos){ totalAdded += mergeById(DEVICE_DATA,    d.Dispositivos)||0; }
-        if(d.Uniformes)   { totalAdded += mergeById(UNI_DATA,       d.Uniformes)   ||0; }
-        if(d.Ponto)       { totalAdded += mergeById(PONTO_DATA,     d.Ponto)       ||0; }
-        if(d.Maleta)      { totalAdded += mergeById(MALETA_DATA,    d.Maleta)      ||0; }
-        if(d.Feedback)    { totalAdded += mergeById(FEEDBACK_DATA,  d.Feedback)    ||0; }
-        if(d.Onboarding)   totalAdded += mergeById(COLL_ONBOARDING, d.Onboarding)  ||0;
-        // Always save and refresh after a successful pull (not just when new items added)
-        saveAll();
-        refreshAll();
-        var ind = document.getElementById('sync-indicator');
-        if(ind){
-          var now = new Date();
-          var p = function(n){ return String(n).padStart(2,'0'); };
-          var label = totalAdded > 0
-            ? '☁️ +'+totalAdded+' novos — '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds())
-            : '☁️ Sync '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
-          ind.textContent = label;
-          ind.style.color = totalAdded > 0 ? 'var(--g600)' : 'var(--muted)';
-          if(totalAdded > 0) setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; }, 5000);
-        }
-        if(totalAdded > 0) toast('✅ '+totalAdded+' novo(s) envio(s) recebido(s)!','ok');
-        resolve(true);
-      }catch(ex){ resolve(false); }
+    var cbName='_gasCb_'+Date.now(),done=false;
+    var timer=setTimeout(function(){if(!done){done=true;cleanup();resolve(false);}},10000);
+    function cleanup(){clearTimeout(timer);try{delete window[cbName];}catch(e){}var s=document.getElementById(cbName);if(s&&s.parentNode)s.parentNode.removeChild(s);}
+    window[cbName]=function(d){
+      if(done)return;done=true;cleanup();
+      if(!d||d.status==='error'){resolve(false);return;}
+      var rows=[],sheets=['Ferias','Pausas','PendPausas','BH','Atestados','Dispositivos','Uniformes','Ponto','Maleta','Feedback','Onboarding'];
+      sheets.forEach(function(k){if(d[k])d[k].forEach(function(e){rows.push({sheet:k,entry:e,id:e.id});});});
+      resolve(_processPullData(rows));
     };
-
-    var script = document.createElement('script');
-    script.id = cbName;
-    script.src = url+'?action=pull&callback='+cbName+'&t='+Date.now();
-    script.onerror = function(){ if(!done){ done=true; cleanup(); resolve(false); } };
-    document.head.appendChild(script);
+    var sc=document.createElement('script');sc.id=cbName;
+    sc.src=gasUrl+'?action=pull&callback='+cbName+'&t='+Date.now();
+    sc.onerror=function(){if(!done){done=true;cleanup();resolve(false);}};
+    (document.head||document.body).appendChild(sc);
   });
 }
+
+/* ── Processa linhas do Supabase/GAS e atualiza arrays ── */
+function _processPullData(rows){
+  try{
+    var totalAdded=0,bySheet={};
+    rows.forEach(function(r){if(!r.sheet||!r.entry)return;if(!bySheet[r.sheet])bySheet[r.sheet]=[];bySheet[r.sheet].push(r.entry);});
+    var map={'Ferias':FERIAS,'Pausas':PAUSAS,'N1-Pausas':PEND_PAUSAS,'PendPausas':PEND_PAUSAS,
+      'BH':BH_DATA,'Atestados':ATES_DATA,'Dispositivos':DEVICE_DATA,
+      'Uniformes':UNI_DATA,'Ponto':PONTO_DATA,'Maleta':MALETA_DATA,
+      'Feedback':FEEDBACK_DATA,'Onboarding':COLL_ONBOARDING};
+    Object.keys(bySheet).forEach(function(sheet){var arr=map[sheet];if(arr)totalAdded+=mergeById(arr,bySheet[sheet])||0;});
+    saveAll();refreshAll();
+    var ind=document.getElementById('sync-indicator');
+    if(ind){
+      var now=new Date(),p=function(n){return String(n).padStart(2,'0');};
+      ind.textContent=totalAdded>0?'☁️ +'+totalAdded+' novos — '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds()):'☁️ Sync '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
+      ind.style.color=totalAdded>0?'var(--g600)':'var(--muted)';
+      if(totalAdded>0){setTimeout(function(){var i=document.getElementById('sync-indicator');if(i)i.style.color='var(--muted)';},5000);toast('✅ '+totalAdded+' novo(s) envio(s) recebido(s)!','ok');}
+    }
+    return true;
+  }catch(ex){console.error('[T&S] _processPullData:',ex);return false;}
+}
+
+
 
 // Merge: adds remote items not yet in local array (by .id)
 function mergeById(localArr, remoteArr){
@@ -4526,7 +4499,7 @@ function saveAll(){
       COLL, PAUSAS, PEND_PAUSAS, FERIAS, BH_DATA,
       ATES_DATA, DEVICE_DATA, UNI_DATA, SOL_DATA,
       ACESSO_DATA, BV_ACORDOS, PONTO_DATA, ANIV_CONFIG,
-      FEEDBACK_DATA, GER_DATA, MALETA_DATA, COLL_ONBOARDING, COLL_ONBOARDING
+      FEEDBACK_DATA, GER_DATA, MALETA_DATA, COLL_ONBOARDING
     });
     _ls.setItem(STORE_KEY, payload);
     // Write a sync timestamp so other tabs/sessions detect the change
@@ -6006,6 +5979,7 @@ function _initPortal(){
   document.body.classList.add('portal-ready');
   // ── STEP 0: Load persisted data
   try{ loadAll(); }catch(e){}
+  try{ rOnboarding(); }catch(e){}
   // Populate estado selects
   try{ buildEstadoSelect('f_uf','DF'); }catch(e){}
   try{ buildEstadoSelect('f_uf_nat','DF'); }catch(e){}
@@ -7098,33 +7072,75 @@ function ontSubmit(){
 
 // ── Dashboard de onboarding para o gestor ──
 function rOnboarding(){
-  var tbody = document.getElementById('ont-tbody');
-  var kTotal = document.getElementById('ont-k-total');
-  var kWait = document.getElementById('ont-k-wait');
-  var kDone = document.getElementById('ont-k-done');
-
+  var tbody=document.getElementById('ont-tbody');
+  var kTotal=document.getElementById('ont-k-total');
+  var kWait=document.getElementById('ont-k-wait');
+  var kDone=document.getElementById('ont-k-done');
   if(!tbody) return;
-
-  var total = COLL_ONBOARDING.length;
-  var wait  = COLL_ONBOARDING.filter(function(r){ return r.status==='aguardando'||r.status==='em_andamento'; }).length;
-  var done  = COLL_ONBOARDING.filter(function(r){ return r.status==='concluido'; }).length;
-
-  if(kTotal) kTotal.textContent = total;
-  if(kWait)  kWait.textContent  = wait;
-  if(kDone)  kDone.textContent  = done;
-
-  tbody.innerHTML = '';
-  if(!COLL_ONBOARDING.length){
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--muted);">Nenhum candidato em processo de admissão.</td></tr>';
+  var total=COLL_ONBOARDING.length;
+  var wait=COLL_ONBOARDING.filter(function(r){return r.status==='aguardando'||r.status==='em_andamento';}).length;
+  var done=COLL_ONBOARDING.filter(function(r){return r.status==='concluido';}).length;
+  if(kTotal) kTotal.textContent=total;
+  if(kWait)  kWait.textContent=wait;
+  if(kDone)  kDone.textContent=done;
+  try{sv('g-cad',wait);}catch(e){}
+  tbody.innerHTML='';
+  if(!total){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted);">Nenhum candidato em processo de admissão.</td></tr>';
     return;
   }
-
-    COLL_ONBOARDING.forEach(function(r, idx){
-    var tr = document.createElement('tr');
-    tr.innerHTML = ontBuildRow(r, idx);
+  COLL_ONBOARDING.slice().reverse().forEach(function(r,i){
+    var idx2=COLL_ONBOARDING.length-1-i;
+    var cargo=(CD[r.cargo]||{}).label||r.cargo||'—';
+    function fase(key,label){
+      var d2=r.val&&r.val[key];
+      var can=ontCanValidate(r,key);
+      if(d2) return '<span style="background:#e8f5e9;color:#1b5e20;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;">&#10003; '+label+'</span>';
+      if(can) return '<button onclick="ontValidate('+idx2+',\''+key+'\')" style="background:var(--b600);color:#fff;border:none;border-radius:7px;padding:3px 8px;font-size:9px;font-weight:700;cursor:pointer;">Validar</button>';
+      return '<span style="color:#ccc;font-size:11px;">&#9675;</span>';
+    }
+    var ss=r.status==='concluido'?'background:#e8f5e9;color:#1b5e20;':r.status==='aguardando'?'background:#fff3e0;color:#e65100;':'background:#e3f2fd;color:#0d47a1;';
+    var bg=i%2===0?'':'background:#fafaf8;';
+    var tr=document.createElement('tr');
+    if(bg) tr.style.background='#fafaf8';
+    tr.innerHTML=
+      '<td style="padding:9px 12px;border-bottom:.5px solid #f0ede5;"><div style="font-weight:600;font-size:12px;">'+r.nome+'</div><div style="font-size:10px;color:var(--muted);">'+(r.email||'')+'</div></td>'
+      +'<td style="padding:9px 12px;font-size:11px;border-bottom:.5px solid #f0ede5;max-width:130px;">'+cargo+'</td>'
+      +'<td style="padding:9px 12px;font-size:11px;color:var(--muted);border-bottom:.5px solid #f0ede5;white-space:nowrap;">'+(r.dataEnvio||'')+'</td>'
+      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('dados','Dados')+'</td>'
+      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('docs','Docs')+'</td>'
+      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('termos','Termos')+'</td>'
+      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('bv','BV')+'</td>'
+      +'<td style="padding:9px 12px;text-align:center;border-bottom:.5px solid #f0ede5;">'+fase('acesso','Acesso')+'</td>'
+      +'<td style="padding:9px 12px;border-bottom:.5px solid #f0ede5;">'
+        +'<span style="'+ss+'padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;display:inline-block;margin-bottom:3px;">'+r.status+'</span><br>'
+        +'<button onclick="ontObs('+idx2+')" style="font-size:9px;padding:2px 7px;background:transparent;border:.5px solid var(--brd);border-radius:5px;cursor:pointer;color:var(--muted);">Obs</button>'
+      +'</td>';
     tbody.appendChild(tr);
   });
 }
+
+function expOnboarding(){
+  if(!COLL_ONBOARDING.length){toast('Nenhum candidato para exportar.','warn');return;}
+  var cols=['Nome','E-mail','Cargo','CPF','RG','Telefone','Endereço','CEP','Cidade','CTPS','PIS','Banco','Agência','Enviado','Status','Dados','Docs','Termos','BV','Acesso','Obs'];
+  var rows=[cols];
+  COLL_ONBOARDING.forEach(function(r){
+    var v=r.val||{};
+    rows.push([r.nome||'',r.email||'',(CD[r.cargo]||{}).label||r.cargo||'',r.cpf||'',r.rg||'',r.tel||'',r.end||'',r.cep||'',r.cidade||'',r.ctps||'',r.pis||'',r.banco||'',r.agencia||'',r.dataEnvio||'',r.status||'',v.dados?'Sim':'',v.docs?'Sim':'',v.termos?'Sim':'',v.bv?'Sim':'',v.acesso?'Sim':'',r.obs||'']);
+  });
+  var html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"/></head><body><table>';
+  rows.forEach(function(row){html+='<tr>';row.forEach(function(cell){html+='<td>'+String(cell||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</td>';});html+='</tr>';});
+  html+='</table></body></html>';
+  var blob=new Blob([html],{type:'application/vnd.ms-excel'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Onboarding_'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.xls';
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+  toast('XLS exportado!','ok');
+}
+
+
 
 function ontGetPhase(r){
   var phases = ['dados','docs','termos','bv','acesso'];
