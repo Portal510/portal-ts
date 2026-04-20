@@ -679,76 +679,46 @@ td.tc{text-align:center;}
 ════════════════════════════════════════════════════ -->
 <div class="page" id="pg-cad">
 
-  <!-- ── TOPO: Dashboard + Link (fora do flex, ocupa largura toda) ── -->
-  <div class="cad-top g-only">
+  <!-- ── TOPO: Controle de Cadastro ── -->
+  <div class="cad-top g-only" style="padding:1rem 1.5rem;border-bottom:1px solid var(--brd);">
 
-    <!-- Header da página -->
-    <div class="dh2" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;">
+    <!-- Header + Botões -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.875rem;">
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="dhic" style="background:var(--b50);">📋</div>
-        Admissão de Colaboradores
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--b900);">Controle de Admissão</div>
+          <div style="font-size:10px;color:var(--muted);">Candidatos em processo de credenciamento</div>
+        </div>
       </div>
-      <button class="btn bp" style="font-size:11px;display:flex;align-items:center;gap:6px;" onclick="cpOnboardingLink(true)" style="font-size:11px;">🔗 Enviar Formulário</button>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn bp" style="font-size:11px;" onclick="cpOnboardingLink(true)">🔗 Enviar Formulário</button>
         <button class="btn bp" style="font-size:11px;background:var(--g600);border-color:var(--g600);" onclick="expOnboarding()">⬇ Exportar XLS</button>
+      </div>
     </div>
 
-    <!-- KPIs + Link inline -->
-    <div style="display:flex;flex-wrap:wrap;gap:.875rem;margin-bottom:1rem;align-items:stretch;">
-      <!-- KPIs -->
-      <div style="display:flex;gap:.625rem;flex:1;min-width:300px;">
-        <div class="kcard" style="flex:1;"><div class="kval" id="ont-k-total">0</div><div class="klbl">Total</div></div>
-        <div class="kcard" style="flex:1;"><div class="kval" style="color:var(--a600);" id="ont-k-wait">0</div><div class="klbl">Aguardando</div></div>
-        <div class="kcard" style="flex:1;"><div class="kval" style="color:var(--g600);" id="ont-k-done">0</div><div class="klbl">Concluídos</div></div>
-      </div>
-      <!-- Link copy -->
-      <div style="background:var(--b50);border:.5px solid var(--b100);border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.625rem;flex-wrap:wrap;min-width:260px;">
-        <span style="font-size:10px;color:var(--b800);font-weight:600;">🔗 Link de Onboarding</span>
-        <div class="lbox" style="margin:0;flex:1;min-width:180px;"><input type="text" readonly id="lk-onboarding"/><button onclick="cpOnboardingLink()">Copiar</button></div>
-      </div>
+    <!-- KPIs -->
+    <div style="display:flex;gap:.625rem;margin-bottom:.875rem;">
+      <div class="kcard" style="flex:1;"><div class="kval" id="ont-k-total">0</div><div class="klbl">Total</div></div>
+      <div class="kcard" style="flex:1;"><div class="kval" style="color:var(--a600);" id="ont-k-wait">0</div><div class="klbl">Aguardando</div></div>
+      <div class="kcard" style="flex:1;"><div class="kval" style="color:var(--g600);" id="ont-k-done">0</div><div class="klbl">Concluídos</div></div>
     </div>
 
     <!-- Tabela de candidatos -->
-    <div class="card" style="margin-bottom:0;border-radius:12px 12px 0 0;">
-      <div class="tw" style="overflow-x:auto;">
-        <table>
-          <thead><tr>
-            <th>Nome / Contato</th>
-            <th>Cargo</th>
-            <th>Enviado</th>
-            <th>Dados Pessoais</th>
-            <th>Documentos Anexados</th>
-            <th>Termos</th>
-            <th style="text-align:center;">Boas-Vindas</th>
-            <th>Status / Ação</th>
-          </tr></thead>
-          <tbody id="ont-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Barra de progresso collab (só visível para o colaborador) ── -->
-  <div class="collab-only" id="collab-progress-bar" style="background:#fff;border-bottom:1px solid var(--brd);padding:.875rem 1.5rem;display:none;">
-    <div style="display:flex;align-items:center;gap:.5rem;max-width:680px;margin:0 auto;">
-      <div id="cp-step1" style="display:flex;align-items:center;gap:.375rem;font-size:12px;font-weight:700;color:var(--b900);">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--b900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">1</div>
-        Dados
-      </div>
-      <div style="flex:1;height:3px;background:var(--brd);border-radius:2px;"><div id="cp-bar1" style="height:100%;width:0%;background:var(--b600);border-radius:2px;transition:width .4s;"></div></div>
-      <div id="cp-step2" style="display:flex;align-items:center;gap:.375rem;font-size:12px;font-weight:600;color:var(--muted);">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--gy100);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;">2</div>
-        Documentos
-      </div>
-      <div style="flex:1;height:3px;background:var(--brd);border-radius:2px;"><div id="cp-bar2" style="height:100%;width:0%;background:var(--b600);border-radius:2px;transition:width .4s;"></div></div>
-      <div id="cp-step3" style="display:flex;align-items:center;gap:.375rem;font-size:12px;font-weight:600;color:var(--muted);">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--gy100);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;">3</div>
-        Termos
-      </div>
-      <div style="flex:1;height:3px;background:var(--brd);border-radius:2px;"><div id="cp-bar3" style="height:100%;width:0%;background:var(--g600);border-radius:2px;transition:width .4s;"></div></div>
-      <div id="cp-step4" style="display:flex;align-items:center;gap:.375rem;font-size:12px;font-weight:600;color:var(--muted);">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--gy100);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:16px;">🎉</div>
-        Boas-Vindas
-      </div>
+    <div class="tw" style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th>Nome / Contato</th>
+          <th>Cargo</th>
+          <th>Enviado</th>
+          <th>Dados Pessoais</th>
+          <th>Documentos Anexados</th>
+          <th>Termos</th>
+          <th style="text-align:center;">Boas-Vindas</th>
+          <th>Status / Ação</th>
+        </tr></thead>
+        <tbody id="ont-tbody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -788,10 +758,7 @@ td.tc{text-align:center;}
     <!-- Divider -->
     <div style="height:1px;background:rgba(255,255,255,.08);margin:.625rem 1.125rem;"></div>
 
-    <div class="sbi" onclick="gp(6)" id="nav6">
-      <div class="sbn" style="font-size:13px;">📊</div>
-      <div class="sb-text">Dashboard<small>Visão geral do processo</small></div>
-    </div>
+    
 
     <!-- Progress -->
     <div class="sb-prog">
@@ -1114,33 +1081,7 @@ td.tc{text-align:center;}
     </div>
 
     <!-- ── P6: Dashboard Cadastro ── -->
-    <div class="panel" id="p6">
-      <div class="ph"><div class="phic" style="background:var(--t50);">📊</div><div><h1>Dashboard — Fase do Cadastro</h1><p>Acompanhe e valide cada fase do credenciamento.</p></div></div>
-      <div class="steps">
-        <div class="std" id="sd1"><div class="stc" id="sc1">1</div><small>Dados</small></div><div class="stl" id="sl1"></div>
-        <div class="std" id="sd2"><div class="stc" id="sc2">2</div><small>Docs</small></div><div class="stl" id="sl2"></div>
-        <div class="std" id="sd3"><div class="stc" id="sc3">3</div><small>Termos</small></div><div class="stl" id="sl3"></div>
-        <div class="std" id="sd4"><div class="stc" id="sc4">4</div><small>Boas-vindas</small></div><div class="stl" id="sl4"></div>
-        <div class="std" id="sd5"><div class="stc" id="sc5">5</div><small>Acesso</small></div><div class="stl" id="sl5"></div>
-        <div class="std active"><div class="stc">✓</div><small>Concluído</small></div>
-      </div>
-      <div class="srow" style="grid-template-columns:repeat(3,1fr);">
-        <div class="sc"><div class="sl">Status</div><div class="sv" id="d-st" style="font-size:13px;color:var(--a600);">Em andamento</div></div>
-        <div class="sc"><div class="sl">Fases validadas</div><div class="sv" id="d-cnt">0 / 5</div></div>
-        <div class="sc"><div class="sl">Aguardando validação</div><div class="sv" id="d-pnd" style="color:var(--a600);">0</div></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">Status por Fase</div>
-        <div class="ckl">
-          <div class="cki" id="dc1"><div class="ckc" id="di1">1</div><div style="flex:1;"><div class="ckn" id="dl1">Dados cadastrais — aguardando preenchimento</div></div><button onclick="gp(1)" style="font-size:9px;background:none;border:.5px solid var(--brd);padding:2px 7px;border-radius:4px;cursor:pointer;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;flex-shrink:0;">Ver →</button></div>
-          <div class="cki" id="dc2"><div class="ckc" id="di2">2</div><div style="flex:1;"><div class="ckn" id="dl2">Documentação — aguardando Fase 1</div></div><button onclick="gp(2)" style="font-size:9px;background:none;border:.5px solid var(--brd);padding:2px 7px;border-radius:4px;cursor:pointer;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;flex-shrink:0;">Ver →</button></div>
-          <div class="cki" id="dc3"><div class="ckc" id="di3">3</div><div style="flex:1;"><div class="ckn" id="dl3">Termos de acesso — aguardando Fase 2</div></div><button onclick="gp(3)" style="font-size:9px;background:none;border:.5px solid var(--brd);padding:2px 7px;border-radius:4px;cursor:pointer;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;flex-shrink:0;">Ver →</button></div>
-          <div class="cki" id="dc4"><div class="ckc" id="di4">4</div><div style="flex:1;"><div class="ckn" id="dl4">Boas-vindas — aguardando Fase 3</div></div><button onclick="gp(4)" style="font-size:9px;background:none;border:.5px solid var(--brd);padding:2px 7px;border-radius:4px;cursor:pointer;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;flex-shrink:0;">Ver →</button></div>
-          <div class="cki" id="dc5"><div class="ckc" id="di5">5</div><div style="flex:1;"><div class="ckn" id="dl5">Acesso ao sistema — aguardando Fase 4</div></div><button onclick="gp(5)" style="font-size:9px;background:none;border:.5px solid var(--brd);padding:2px 7px;border-radius:4px;cursor:pointer;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;flex-shrink:0;">Ver →</button></div>
-        </div>
-      </div>
-      <div id="d-final" style="display:none;"><div class="al al-ok"><span>🎊</span><div class="alb"><strong>Onboarding concluído!</strong>Equipe SETIC/SESUC notificada para criação de acesso.</div></div></div>
-    </div>
+    
 
   </main>
 </div><!-- end cad-wrap -->
@@ -4662,6 +4603,24 @@ function checkHash(){
     showPanel(fase);
     const cc=h.match(/cargo=([A-Z]+)/);
     if(cc) loadCargoForCollab(cc[1]);
+    // Pre-fill from ?prefill= token
+    var prefillToken=new URLSearchParams(window.location.search).get('prefill');
+    if(prefillToken){
+      try{
+        var pd=JSON.parse(decodeURIComponent(escape(atob(prefillToken))));
+        setTimeout(function(){
+          if(pd.nome){var el=document.getElementById('f_nome');if(el)el.value=pd.nome;}
+          if(pd.email){var el2=document.getElementById('f_email');if(el2)el2.value=pd.email;}
+          if(pd.tel){var el3=document.getElementById('f_tel');if(el3)el3.value=pd.tel;}
+          if(pd.cpf){var el4=document.getElementById('f_cpf');if(el4){el4.value=pd.cpf;}}
+          if(pd.rg){var el5=document.getElementById('f_rg');if(el5)el5.value=pd.rg;}
+          if(pd.cargo){
+            var sel=document.getElementById('f_cargo');
+            if(sel){sel.value=pd.cargo;onCollabCargoChange();}
+          }
+        },300);
+      }catch(e){}
+    }
     return;
   }
   // férias
@@ -7021,6 +6980,63 @@ function onCollabCargoChange(){
   ck1();
 }
 
+
+/* ── Gera link de retomada para colaborador completar pendências ── */
+function gerarLinkPendente(idx2){
+  var r=COLL_ONBOARDING[idx2];
+  if(!r){toast('Registro não encontrado.','warn');return;}
+
+  // Determine which phase has pendencies
+  var fase=1;
+  var R1_FIELDS=['nome','cpf','rg','ctps','serie','nasc','email','end','cep','cidade','uf','civil','nac','natural'];
+  var dadosPendente=R1_FIELDS.some(function(k){return !r[k];});
+  var docPendente=!r.docUrls||Object.keys(r.docUrls).length===0;
+  var termoPendente=!r.pcsiOk&&!(r.fileUrls&&Object.keys(r.fileUrls).length);
+
+  if(!dadosPendente&&docPendente) fase=2;
+  else if(!dadosPendente&&!docPendente&&termoPendente) fase=3;
+  else fase=1; // default: start from dados
+
+  // Encode pre-fill data as base64 JSON
+  var prefill={
+    nome:r.nome||'',
+    cargo:r.cargo||'',
+    email:r.email||'',
+    tel:r.tel||'',
+    cpf:r.cpf||'',
+    rg:r.rg||'',
+    fase:fase
+  };
+  var token=btoa(unescape(encodeURIComponent(JSON.stringify(prefill))));
+  var url=_baseUrl()+'?form=collab'+fase+'&prefill='+token;
+  if(r.cargo) url+='&cargo='+r.cargo;
+
+  // Copy + show
+  navigator.clipboard&&navigator.clipboard.writeText(url).catch(function(){});
+  // Show modal with link
+  var modal=document.getElementById('prefill-modal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='prefill-modal';
+    modal.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    document.body.appendChild(modal);
+  }
+  var faseLabel=['','Fase 1 — Dados','Fase 2 — Documentação','Fase 3 — Termos'][fase]||'Fase '+fase;
+  modal.innerHTML='<div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);">'
+    +'<div style="font-size:16px;font-weight:700;color:var(--b900);margin-bottom:.5rem;">🔗 Link de Retomada</div>'
+    +'<p style="font-size:12px;color:var(--muted);margin-bottom:1rem;">Envie este link para <strong>'+r.nome+'</strong> completar a pendência na <strong>'+faseLabel+'</strong>.</p>'
+    +'<div style="background:#f0f4f9;border-radius:8px;padding:.75rem;margin-bottom:1rem;word-break:break-all;font-size:11px;font-family:monospace;color:var(--b800);">'+url+'</div>'
+    +'<div style="display:flex;gap:.5rem;justify-content:flex-end;">'
+      +'<button onclick="navigator.clipboard&&navigator.clipboard.writeText(\''+url.replace(/'/g,"\\'")+'\'||\'\'}).catch(function(){});toast(\'Link copiado!\',\'ok\')" style="background:var(--b600);color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">📋 Copiar Link</button>'
+      +'<button onclick="window.open(\''+url.replace(/'/g,"\\'")+'\',\'_blank\')" style="background:var(--g600);color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">↗ Abrir</button>'
+      +'<button onclick="document.getElementById(\'prefill-modal\').style.display=\'none\'" style="background:#eee;color:#333;border:1px solid #ccc;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;">✕ Fechar</button>'
+    +'</div>'
+  +'</div>';
+  modal.style.display='flex';
+  modal.onclick=function(e){if(e.target===modal)modal.style.display='none';};
+  toast('Link gerado e copiado!','ok');
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
   // ── AUTH CHECK: show login screen unless authenticated or collab form ──
   var _urlParams = new URLSearchParams(window.location.search);
@@ -8341,6 +8357,7 @@ function rOnboarding(){
       +'<td style="padding:10px 12px;border-bottom:.5px solid #f0ede5;white-space:nowrap;">'
         +'<span style="'+ss+'padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;display:inline-block;margin-bottom:4px;">'+r.status+'</span><br>'
         +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;">'
+          +'<button onclick="gerarLinkPendente('+idx2+')" style="font-size:9px;padding:2px 7px;background:var(--b50);border:.5px solid var(--b400);border-radius:5px;cursor:pointer;color:var(--b700);white-space:nowrap;">🔗 Link</button>'
           +'<button onclick="ontObs('+idx2+')" style="font-size:9px;padding:2px 7px;background:transparent;border:.5px solid var(--brd);border-radius:5px;cursor:pointer;color:var(--muted);">📝 Obs</button>'
           +'<button onclick="ontDelete('+idx2+')" style="font-size:9px;padding:2px 7px;background:transparent;border:.5px solid #fcc;border-radius:5px;cursor:pointer;color:#c00;">🗑</button>'
         +'</div>'
