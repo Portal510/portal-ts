@@ -338,6 +338,18 @@ body.portal-ready #login-screen{display:none!important;}
 /* ── COLABORADOR: mostra só Portal de Links ── */
 body[data-role="colaborador"] .nav-tabs .tab:not([data-keep]) { display:none !important; }
 body[data-role="colaborador"] #pg-docs .card.g-only { display:none !important; }
+
+/* Fiscal: hide all nav, top bar, collab switcher */
+body[data-role="fiscal"] .tabs-wrap,
+body[data-role="fiscal"] .nav-tabs,
+body[data-role="fiscal"] nav,
+body[data-role="fiscal"] .top-nav,
+body[data-role="fiscal"] .mpill,
+body[data-role="fiscal"] #login-bar,
+body[data-role="fiscal"] .collab-switch,
+body[data-role="fiscal"] .tab { display:none !important; }
+body[data-role="fiscal"] .page:not(#pg-fiscal) { display:none !important; }
+body[data-role="fiscal"] #pg-fiscal { display:block !important; }
 body[data-role="colaborador"]:not(.collab-form) #pg-geral,
 body[data-role="colaborador"]:not(.collab-form) #pg-cad,
 body[data-role="colaborador"]:not(.collab-form) #pg-ctrl,
@@ -391,6 +403,76 @@ body.collab-form .g-only { display: none !important; }
 body.collab .g-only { display: none !important; }
 body.collab #btn-voltar-form { display: flex !important; }
 </style>
+
+<script>
+/* ── Auto-update: verifica nova versão no servidor a cada 5 minutos ── */
+(function(){
+  var CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutos
+  var currentEtag = null;
+  var checking = false;
+
+  function checkUpdate(){
+    if(checking) return;
+    checking = true;
+    fetch(window.location.href, {method:'HEAD', cache:'no-store'})
+      .then(function(res){
+        var etag   = res.headers.get('ETag') || res.headers.get('Last-Modified') || '';
+        var size   = res.headers.get('Content-Length') || '';
+        var sig    = etag || size;
+        if(!sig){ checking=false; return; }
+        if(currentEtag === null){
+          // Primeira verificação — apenas armazena a assinatura
+          currentEtag = sig;
+        } else if(currentEtag !== sig){
+          // Versão nova detectada!
+          currentEtag = sig;
+          showUpdateBanner();
+        }
+        checking = false;
+      })
+      .catch(function(){ checking=false; });
+  }
+
+  function showUpdateBanner(){
+    // Evita múltiplos banners
+    if(document.getElementById('auto-update-banner')) return;
+    var banner = document.createElement('div');
+    banner.id = 'auto-update-banner';
+    banner.style.cssText = [
+      'position:fixed','bottom:16px','left:50%','transform:translateX(-50%)',
+      'background:#1d4ed8','color:#fff','padding:10px 20px',
+      'border-radius:10px','box-shadow:0 4px 20px rgba(0,0,0,.25)',
+      'font-family:inherit','font-size:12px','font-weight:600',
+      'display:flex','align-items:center','gap:12px',
+      'z-index:99999','white-space:nowrap','max-width:90vw'
+    ].join(';');
+    banner.innerHTML =
+      '<span>🔄 Nova versão disponível!</span>'
+      + '<button id="au-update-btn" style="background:#fff;color:#1d4ed8;border:none;padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Atualizar agora</button>'
+      + '<button id="au-dismiss-btn" style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;">Depois</button>';
+    document.body.appendChild(banner);
+
+    document.getElementById('au-update-btn').addEventListener('click', function(){
+      window.location.reload(true);
+    });
+    document.getElementById('au-dismiss-btn').addEventListener('click', function(){
+      banner.remove();
+    });
+  }
+
+  // Primeira verificação após 10 segundos (página carregada)
+  setTimeout(checkUpdate, 10000);
+  // Verificações subsequentes a cada 5 minutos
+  setInterval(checkUpdate, CHECK_INTERVAL);
+
+  // Verificar também ao retornar para a aba (visibilidade)
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible'){
+      setTimeout(checkUpdate, 2000);
+    }
+  });
+})();
+</script>
 </head>
 <body>
 
@@ -445,6 +527,7 @@ body.collab #btn-voltar-form { display: flex !important; }
     <button class="tab"     onclick="pg('abono'  ,this)">💰 Abono</button>
     <button class="tab"     onclick="pg('links'  ,this)" data-keep="true">🔗 Portal Links</button>
     <button class="tab"     onclick="pg('presenca' ,this)">📍 Presença TEL</button>
+    <button class="tab"     onclick="pg('turno'    ,this)">🔄 Passagem de Turno</button>
     <button class="tab"     onclick="pg('gerencial',this)">📊 Gerencial</button>
     <button class="tab"     onclick="pg('feedback',this)">💬 Feedback</button>
   </div>
@@ -1488,8 +1571,7 @@ body.collab #btn-voltar-form { display: flex !important; }
       <div class="ctitle">Registrar Atestado</div>
       <div class="fg">
         <div class="fp ff"><label>Cargo *</label><select id="at_cargo" onchange="filterNameByCargo('at_cargo','at_nome')"><option value="">— Selecione o cargo —</option></select></div>
-      <div class="fp ff"><label>Seu nome *</label><select id="fer_nome_sel" onchange="document.getElementById('fer_nome').value=this.value"><option value="">— Selecione seu nome —</option></select></div>
-      <div class="fp ff"><label>Seu nome *</label><select id="fer_nome_sel" onchange="document.getElementById('fer_nome').value=this.value"><option value="">— Selecione seu nome —</option></select></div>
+        <div class="fp ff"><label>Seu nome *</label><select id="at_nome"><option value="">— Selecione seu nome —</option></select></div>
         <div class="fp ff"><label>Tipo de atestado *</label>
           <select id="at_tipo" onchange="onAtTipo()">
             <option value="">Selecione</option>
@@ -1596,15 +1678,22 @@ body.collab #btn-voltar-form { display: flex !important; }
       </div>
       <div id="dev-celular-fields" style="display:none;margin-top:.875rem;">
         <div class="fg">
-          <div class="fp"><label>Marca *</label><input type="text" id="dev_marca" placeholder="Ex: Samsung, Apple"></div>
           <div class="fp"><label>Número com DDD</label><input type="text" id="dev_num" placeholder="(61) 9xxxx-xxxx"></div>
-          <div class="fp"><label>Data de recebimento *</label><input type="date" placeholder="dd/mm/aaaa" id="dev_data"></div>
         </div>
       </div>
       <div id="dev-tablet-fields" style="display:none;margin-top:.875rem;">
         <div class="fg">
-          <div class="fp"><label>Marca *</label><input type="text" id="tab_marca" placeholder="Ex: Samsung, Apple"></div>
-          <div class="fp"><label>Data de recebimento *</label><input type="date" placeholder="dd/mm/aaaa" id="tab_data"></div>
+          <div class="fp ff"><label>Possui tablet? *</label>
+            <select id="tab_possui" onchange="onTabPossui()">
+              <option value="">— Selecione —</option>
+              <option value="Sim">Sim</option>
+              <option value="Não">Não</option>
+            </select>
+          </div>
+          <div id="tab-previsao-field" class="fp ff" style="display:none;">
+            <label>Previsão de aquisição</label>
+            <input type="text" id="tab_previsao" placeholder="dd/mm/aaaa" oninput="maskDate(this)">
+          </div>
         </div>
       </div>
       <div class="brow"><button class="btn bp" onclick="subDevice()">Enviar registro →</button></div>
@@ -1825,21 +1914,31 @@ body.collab #btn-voltar-form { display: flex !important; }
 
   <!-- Formulário -->
   <div class="card" style="margin-bottom:.875rem;">
-    <div class="ctitle" style="margin-bottom:.875rem;">📋 Confirmação de Recebimento</div>
+  <div class="g-only">
+    <!-- Collapsible header -->
+    <div onclick="var b=document.getElementById('mal-form-body');var ic=document.getElementById('mal-form-ic');var open=b.style.display!=='none';b.style.display=open?'none':'block';ic.style.transform=open?'':'rotate(90deg)';"
+      style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:.25rem 0;">
+      <div class="ctitle" style="margin-bottom:0;">📋 Confirmação de Recebimento</div>
+      <span id="mal-form-ic" style="font-size:13px;color:var(--muted);transition:transform .2s;display:inline-block;">▶</span>
+    </div>
+    <div id="mal-form-body" style="display:none;margin-top:.875rem;">
     <div class="fg" style="margin-bottom:.75rem;">
       <div class="fp"><label>Cargo *</label>
-        <select id="mal_cargo" onchange="filterNameByCargo('mal_cargo','mal_nome')" style="width:100%">
+        <select id="mal_cargo" onchange="filterNameByCargo('mal_cargo','mal_nome');malUpdateDecl()" style="width:100%">
           <option value="">— Cargo —</option>
         </select>
       </div>
       <div class="fp ff"><label>Colaborador *</label>
-        <select id="mal_nome" style="width:100%"><option value="">— Selecione —</option></select>
+        <select id="mal_nome" style="width:100%" onchange="malUpdateDecl()"><option value="">— Selecione —</option></select>
+      </div>
+      <div class="fp ff collab-only" style="display:none;"><label>Nome do Representante TCU *</label>
+        <input type="text" id="mal_repr_nome" placeholder="Nome completo do representante do TCU" oninput="malUpdateDecl()" style="width:100%;">
       </div>
       <div class="fp"><label>Data de Entrega *</label>
         <input type="date" placeholder="dd/mm/aaaa" id="mal_data">
       </div>
-      <div class="fp"><label>Nº Maleta / Patrimônio</label>
-        <input type="text" id="mal_num" placeholder="Ex: MAL-001">
+      <div class="fp collab-only" style="display:none;"><label>UF *</label>
+        <select id="mal_uf" onchange="malUpdateDecl()" style="width:100%;"><option value="">— Selecione —</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option selected>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select>
       </div>
     </div>
 
@@ -1913,11 +2012,38 @@ body.collab #btn-voltar-form { display: flex !important; }
         <textarea id="mal_obs" rows="2" placeholder="Descreva itens faltantes, avariados ou qualquer observação..." style="width:100%;padding:8px;border:.5px solid var(--brd);border-radius:var(--rad);font-family:inherit;font-size:12px;resize:vertical;"></textarea>
       </div>
     </div>
-    <div class="brow" style="margin-top:.75rem;">
+
+    <!-- Declaração dinâmica -->
+    <div id="mal-declaracao-box" class="collab-only" style="display:none;background:#f8fafc;border:.5px solid var(--brd);border-radius:var(--radlg);padding:1rem 1.25rem;margin-top:.875rem;">
+      <div style="font-size:11px;font-weight:700;color:var(--b800);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem;">📄 Declaração de Recebimento</div>
+      <div id="mal-decl-text" style="font-size:12px;color:var(--text);line-height:1.9;background:#fff;border:.5px solid var(--brd);border-radius:8px;padding:.875rem 1rem;margin-bottom:.875rem;">
+        Eu, <strong id="mal-decl-repr">_______________________________________________</strong>,
+        representante do TCU no estado de <strong id="mal-decl-uf">________</strong>,
+        declaro, para os devidos fins, que a empresa <strong>T&amp;S Engenharia</strong> forneceu
+        a maleta de ferramentas destinada ao posto de trabalho de
+        <strong id="mal-decl-cargo">_______________________________________________</strong>,
+        contendo os itens obrigatórios conforme especificação contratual.
+      </div>
+      <label style="font-size:11px;font-weight:600;color:var(--text);display:block;margin-bottom:.375rem;">✍️ Assinatura do Representante TCU *</label>
+      <div style="position:relative;border:1.5px solid var(--b300);border-radius:8px;background:#fff;overflow:hidden;margin-bottom:.75rem;">
+        <canvas id="mal-sig-repr-canvas" width="700" height="120" style="display:block;width:100%;height:120px;cursor:crosshair;touch-action:none;"></canvas>
+        <button type="button" onclick="malReprSigClear()" style="position:absolute;top:6px;right:8px;background:rgba(0,0,0,.08);border:none;border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer;font-family:inherit;">✕ Limpar</button>
+        <div id="mal-repr-sig-ph" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;color:#bbb;pointer-events:none;">Assine aqui</div>
+      </div>
+      <div class="fg" style="margin-top:.5rem;">
+        <div class="fp"><label>Local (cidade/UF)</label><input type="text" id="mal_local" placeholder="Ex: Brasília/DF"></div>
+        <div class="fp"><label>Data da assinatura</label><input type="text" id="mal_data_assinatura" placeholder="dd/mm/aaaa" oninput="maskDate(this)"></div>
+      </div>
+    </div>
+
+    <div class="brow" style="margin-top:.875rem;">
       <button class="btn bp" onclick="subMaleta()">💾 Confirmar Recebimento</button>
       <button class="btn bs" onclick="clearMaletaForm()">✕ Limpar</button>
     </div>
+    </div><!-- /mal-form-body -->
+  </div><!-- /g-only -->
   </div>
+</div><!-- /g-only admin form -->
 
   <!-- Tabela registros -->
   <div class="card">
@@ -1941,7 +2067,7 @@ body.collab #btn-voltar-form { display: flex !important; }
     </div>
     <div class="tw"><table>
       <thead><tr>
-        <th>Data</th><th>Colaborador</th><th>Cargo</th><th>Nº Maleta</th>
+        <th>Data</th><th>Colaborador</th><th>Cargo</th><th>UF</th>
         <th>Itens ✓</th><th>Total</th><th>Situação</th><th>Itens Faltantes</th><th>Obs.</th><th>Anexo Assinado</th><th>Status</th><th>Ação</th>
       </tr></thead>
       <tbody id="mal-tbody"></tbody>
@@ -2269,6 +2395,133 @@ function doGet(e) {
 <!-- ════════════════════════════════════════════════════
      PLANILHA GERENCIAL
 ════════════════════════════════════════════════════ -->
+
+<!-- ════════════ PASSAGEM DE TURNO ════════════ -->
+<div class="page" id="pg-turno">
+<div class="dash-page">
+  <div class="dh2"><div class="dhic" style="background:#fef3c7;">🔄</div>Passagem de Turno — Suporte Telefônico TEL</div>
+
+  <!-- Cabeçalho: data + turno + ações -->
+  <div class="card" style="margin-bottom:.875rem;">
+    <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:.5rem;">
+        <label style="font-size:11px;font-weight:600;">📅 Data:</label>
+        <input type="text" id="turno-data" placeholder="dd/mm/aaaa" oninput="maskDate(this)" onchange="loadTurno()"
+          style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);width:130px;">
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem;">
+        <label style="font-size:11px;font-weight:600;">⏰ Período:</label>
+        <select id="turno-periodo" onchange="loadTurno();toggleOcPeriodo()"
+          style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);">
+          <option value="manha">🌅 Manhã</option>
+          <option value="tarde">🌇 Tarde</option>
+        </select>
+      </div>
+      <button class="btn bp" onclick="setTurnoHoje()" style="font-size:11px;padding:5px 12px;">📅 Hoje</button>
+      <div style="display:flex;gap:.375rem;margin-left:auto;">
+        <button class="btn bp" onclick="saveTurno()" style="font-size:11px;padding:5px 14px;">💾 Salvar</button>
+        <button class="btn" onclick="enviarTurnoPorEmail()" style="font-size:11px;padding:5px 14px;border:.5px solid var(--b400);color:var(--b600);">📧 Enviar por e-mail</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;">
+
+    <!-- ── INDICADORES OPERACIONAIS (TEL-01) ── -->
+    <div class="card">
+      <div class="ctitle" style="color:var(--b800);">📊 Indicadores Operacionais de Performance — TCU Nível I</div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;">TEL-01 — Índice de início de atendimento em até 15 segundos</div>
+      <div class="fg">
+        <div class="fp"><label>Total de chamadas recebidas (Diário)</label>
+          <input type="number" id="ti_rec_dia" min="0" placeholder="0" oninput="calcTurno()"></div>
+        <div class="fp"><label>Chamadas atendidas em até 15s (Diário)</label>
+          <input type="number" id="ti_atend15_dia" min="0" placeholder="0" oninput="calcTurno()"></div>
+        <div class="fp"><label>Total de chamadas recebidas (Mensal acum.)</label>
+          <input type="number" id="ti_rec_mes" min="0" placeholder="0" oninput="calcTurno()"></div>
+        <div class="fp"><label>Chamadas atendidas em até 15s (Mensal acum.)</label>
+          <input type="number" id="ti_atend15_mes" min="0" placeholder="0" oninput="calcTurno()"></div>
+      </div>
+      <!-- TEL-02 -->
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:1rem 0 .5rem;">TEL-02 — Índice de chamados resolvidos em até 2 horas</div>
+      <div class="fg">
+        <div class="fp"><label>Chamados resolvidos em até 2h</label>
+          <input type="number" id="ti_res2h" min="0" placeholder="0" oninput="calcTurno()"></div>
+        <div class="fp"><label>Total de chamados recebidos</label>
+          <input type="number" id="ti_total_ch" min="0" placeholder="0" oninput="calcTurno()"></div>
+      </div>
+      <!-- Indicadores de controle interno -->
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:1rem 0 .5rem;">Indicadores para Controle Interno</div>
+      <div class="fg">
+        <div class="fp"><label>Chamadas abandonadas (Diário)</label>
+          <input type="number" id="ti_aband_dia" min="0" placeholder="0" oninput="calcTurno()"></div>
+        <div class="fp"><label>Total de chamadas abandonadas (Mensal acum.)</label>
+          <input type="number" id="ti_aband_mes" min="0" placeholder="0" oninput="calcTurno()"></div>
+      </div>
+      <!-- Painel calculado -->
+      <div id="turno-calc" style="display:none;background:var(--b50);border-radius:8px;padding:.75rem 1rem;margin-top:.625rem;">
+        <div id="turno-calc-text" style="font-size:11px;"></div>
+      </div>
+    </div>
+
+    <!-- ── OCORRÊNCIAS (MANHÃ / TARDE) ── -->
+    <div class="card">
+      <div class="ctitle">📝 Ocorrências</div>
+      <div class="fg">
+        <div class="fp ff" id="oc-manha-wrap">
+          <label>🌅 Ocorrências — Manhã</label>
+          <textarea id="ti_oc_manha" rows="5" placeholder="Descreva ocorrências da manhã, incidentes, problemas técnicos...
+Ex: • Hora inicial: 08:00 | Hora final: 10:00
+Consequência: Equipe desfalcada." style="font-size:11px;resize:vertical;width:100%;padding:6px 8px;border:.5px solid var(--brd);border-radius:var(--rad);font-family:inherit;"></textarea>
+        </div>
+        <div class="fp ff" id="oc-tarde-wrap" style="display:none;">
+          <label>🌇 Ocorrências — Tarde</label>
+          <textarea id="ti_oc_tarde" rows="5" placeholder="Descreva ocorrências da tarde..." style="font-size:11px;resize:vertical;width:100%;padding:6px 8px;border:.5px solid var(--brd);border-radius:var(--rad);font-family:inherit;"></textarea>
+        </div>
+        <div class="fp ff">
+          <label>Pendências para o próximo turno</label>
+          <textarea id="ti_pendencias" rows="3" placeholder="O que precisa ser acompanhado..." style="font-size:11px;resize:vertical;width:100%;padding:6px 8px;border:.5px solid var(--brd);border-radius:var(--rad);font-family:inherit;"></textarea>
+        </div>
+        <div class="fp ff">
+          <label>Responsável pelo preenchimento</label>
+          <input type="text" id="ti_responsavel" placeholder="Nome do analista/supervisor">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHAMADOS SUSPENSOS ── -->
+    <div class="card" style="grid-column:1/-1;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
+        <div class="ctitle" style="margin:0;">⏸ Chamados Suspensos</div>
+        <button class="btn bp" onclick="adicionarChamadoSuspenso()" style="font-size:10px;padding:4px 12px;">+ Adicionar chamado</button>
+      </div>
+      <!-- Cabeçalho colunas -->
+      <div style="display:grid;grid-template-columns:140px 1fr 32px;gap:.5rem;padding:0 0 4px;border-bottom:.5px solid var(--brd);margin-bottom:.5rem;">
+        <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;">Nº Chamado</span>
+        <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;">O que deve ser feito</span>
+        <span></span>
+      </div>
+      <div id="suspensos-lista"></div>
+      <div id="suspensos-vazio" style="font-size:12px;color:var(--muted);text-align:center;padding:1rem;">
+        Nenhum chamado suspenso. Clique em "+ Adicionar chamado" para registrar.
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- Histórico -->
+  <div class="card" style="margin-top:.875rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
+      <div class="ctitle" style="margin:0;">🕐 Histórico de Registros</div>
+      <input type="text" id="turno-hist-busca" placeholder="🔍 Buscar por data..." oninput="rTurnoHistorico()"
+        style="font-size:11px;padding:4px 9px;border:.5px solid var(--brd);border-radius:var(--rad);width:160px;">
+    </div>
+    <div id="turno-historico" style="overflow-x:auto;"></div>
+  </div>
+
+</div>
+</div>
+<!-- ════════════ FIM PASSAGEM DE TURNO ════════════ -->
+
 <div class="page" id="pg-gerencial">
 <div class="pw">
   <div class="ph">
@@ -4418,6 +4671,7 @@ function pg(id,tabEl){
   try{if(id==='abono') rAbono();}catch(e){}
   try{if(id==='cad'){rAcesso();refreshDash();}}catch(e){}
   try{if(id==='presenca'){rPresenca();}}catch(e){}
+  try{if(id==='turno'){setTurnoHoje();rTurnoHistorico();}}catch(e){}
 }
 
 /* ═══ MODE ═══ */
@@ -4635,6 +4889,10 @@ f) o TCU se resguarda o direito de suspender meu acesso a qualquer momento.</p>
   td,th{border:1px solid #999;padding:6px 8px;font-size:11px;}
   ol li{margin:4px 0;}
   @media print{body{margin:20px;}}
+
+/* collab-only: visible only in collab form mode */
+body.collab-form .collab-only { display: block !important; }
+body.collab-form .fp.collab-only { display: flex !important; }
 </style>
 </head><body>
 <h1>${doc.title}</h1>
@@ -5248,6 +5506,7 @@ function rTbl(){
   if(flt) list=list.filter(c=>c.cargo===flt);
   if(fltUf) list=list.filter(c=>(c.uf||'DF')===fltUf);
   if(fltNome) list=list.filter(c=>c.nome.toLowerCase().includes(fltNome));
+  list=list.slice().sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
   const tbody=document.getElementById('ctbody');tbody.innerHTML='';
   list.forEach(c=>{
     const d=CD[c.cargo];
@@ -6234,6 +6493,8 @@ function checkHash(){
 
 
 function setCollabMode(){
+  // Fiscal cannot switch to collab mode
+  if((_SESSION_USER&&_SESSION_USER.role)==='fiscal') return;
   ST.collab=true;
   document.body.classList.add('collab');
   document.getElementById('mpill').textContent='COLABORADOR';
@@ -6902,7 +7163,7 @@ function presOnChange(sel){
   } else {
     setPresenca(nome, dFull, val);
     // Clear registro if not E
-    if(PRESENCA_REG[presKey(nome,dFull)]){
+    if(PRESENCA_REG[presKey(nome,dFull)] && PRESENCA_REG[presKey(nome,dFull)].length){
       delete PRESENCA_REG[presKey(nome,dFull)];
       saveAll();
     }
@@ -6917,7 +7178,7 @@ function presAbrirModal(nome, dFull, selEl){
 
   var parts = dFull.split('-');
   var dataFmt = parts[2]+'/'+parts[1]+'/'+parts[0];
-  var regAtual = PRESENCA_REG[presKey(nome,dFull)]||'';
+  var regAtual = PRESENCA_REG[presKey(nome,dFull)]||[];
 
   var modal = document.createElement('div');
   modal.id = 'pres-modal';
@@ -6954,21 +7215,12 @@ function presAbrirModal(nome, dFull, selEl){
 
   document.body.appendChild(modal);
 
-  // Pre-fill if already has a registro
-  if(regAtual){
-    var parts2 = regAtual.split(' | ');
-    document.getElementById('pres-modal-motivo').value = parts2[0]||'';
-    if(parts2[1]) document.getElementById('pres-modal-hora').value = parts2[1].replace('Horário: ','');
-    if(parts2[2]) document.getElementById('pres-modal-obs').value  = parts2[2].replace('Obs: ','');
-  }
+  // regs shown via regsHtml above
 
   document.getElementById('pres-modal-cancel').addEventListener('click', function(){
     modal.remove();
     // Revert select to previous value
-    if(selEl){
-      var prev = PRESENCA_DATA[presKey(nome,dFull)]||'';
-      selEl.value = prev;
-    }
+    // selEl no longer used
   });
 
   document.getElementById('pres-modal-save').addEventListener('click', function(){
@@ -6982,7 +7234,7 @@ function presAbrirModal(nome, dFull, selEl){
     if(obs)  reg += ' | Obs: '+obs;
     // Save
     setPresenca(nome, dFull, 'E');
-    PRESENCA_REG[presKey(nome,dFull)] = reg;
+    // Legacy setter removed - use presAddReg instead
     saveAll();
     modal.remove();
     rPresenca();
@@ -7056,6 +7308,7 @@ function rPresenca(){
   };
 
   var t='<table style="width:100%;border-collapse:collapse;font-size:10px;min-width:900px;">';
+  var diasUteis=dias.filter(function(d){var dow=new Date(ano,mIdx,d).getDay();return dow>=1&&dow<=5;});
 
   // Header
   t+='<thead><tr style="background:var(--b900);color:#fff;">';
@@ -7064,7 +7317,7 @@ function rPresenca(){
     var dow=new Date(ano,mIdx,d).getDay();
     var isWE=dow===0||dow===6;
     var ds=['D','S','T','Q','Q','S','S'][dow];
-    t+='<th style="padding:3px 2px;min-width:36px;text-align:center;'+(isWE?'background:rgba(255,255,255,.1);':'')+'">';
+    t+='<th style="padding:3px 2px;min-width:36px;text-align:center;">'
     t+='<div style="font-size:7px;opacity:.65;">'+ds+'</div><div style="font-size:9px;">'+d+'</div></th>';
   });
   t+='<th style="padding:6px 3px;min-width:30px;text-align:center;background:#1e3a5f;" title="Home Office">H</th>';
@@ -7080,18 +7333,18 @@ function rPresenca(){
       +'<span style="font-size:8px;margin-left:4px;background:var(--b50);color:var(--b700);padding:1px 4px;border-radius:3px;">'+col.cargo+'</span></td>';
 
     var cH=0,cE=0,cPF=0,cF=0;
-    dias.forEach(function(d){
+    diasUteis.forEach(function(d){
       var dFull=ano+'-'+String(mIdx+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
       var dow=new Date(ano,mIdx,d).getDay();
       var isWE=dow===0||dow===6;
       var val=PRESENCA_DATA[presKey(col.nome,dFull)]||'';
       var regs=PRESENCA_REG[presKey(col.nome,dFull)]||[];
       if(val==='H')cH++; else if(val==='E')cE++; else if(val==='PF')cPF++; else if(val==='F')cF++;
-      var st=ST[val]||(isWE?'background:#f1f5f9;color:#94a3b8;':ST['']);
+      var st=ST[val]||ST[''];
       var tipText=regs.length?regs.map(function(r,i){return (i+1)+'. '+r.motivo+(r.hora?' '+r.hora:'')+(r.obs?' — '+r.obs:'');}).join(' | '):'';
       var safeNome=col.nome.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
 
-      t+='<td style="padding:2px;text-align:center;'+(isWE?'background:#f1f5f9;':'background:'+rowBg+';')+'">';
+      t+='<td style="padding:2px;text-align:center;'+'background:'+rowBg+';'+'">';
       t+='<div style="display:flex;flex-direction:column;align-items:center;gap:1px;">';
       // Status button
       t+='<button onclick="presOpenCell(\''+safeNome+'\',\''+dFull+'\')" '
@@ -7229,14 +7482,15 @@ function expPresenca(){
   var mIdx=mArr.indexOf(mes);
   var nDias=new Date(ano,mIdx+1,0).getDate();
   var dias=Array.from({length:nDias},function(_,i){return i+1;});
+  var diasUteis=dias.filter(function(d){var dow=new Date(ano,mIdx,d).getDay();return dow>=1&&dow<=5;});
   var colls=COLL.filter(function(c){return c.status!=='inativo'&&(c.cargo==='TEL'||c.cargo==='STEL');}).sort(function(a,b){return a.nome.localeCompare(b.nome,'pt-BR');});
   if(!colls.length){toast('Nenhum analista TEL/STEL.','warn');return;}
   var hdrs=['Analista','Cargo'];
-  dias.forEach(function(d){hdrs.push(String(d).padStart(2,'0'));});
+  diasUteis.forEach(function(d){hdrs.push(String(d).padStart(2,'0'));});
   hdrs.push('H','E','PF','F','Registros');
   var rows=colls.map(function(col){
     var cH=0,cE=0,cPF=0,cF=0,allRegs=[];
-    var cells=dias.map(function(d){
+    var cells=diasUteis.map(function(d){
       var dF=ano+'-'+String(mIdx+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
       var v=PRESENCA_DATA[presKey(col.nome,dF)]||'';
       if(v==='H')cH++;else if(v==='E')cE++;else if(v==='PF')cPF++;else if(v==='F')cF++;
@@ -7248,6 +7502,590 @@ function expPresenca(){
   });
   buildXLS(hdrs,rows,'presenca_TEL_'+mes+'_'+ano);
   toast('✅ Presença TEL exportada!','ok');
+}
+
+
+/* ═══ PORTAL FISCAL ═══ */
+function fiscalTab(tab){
+  var tabs=['cad','ger','dev','mal','abo'];
+  tabs.forEach(function(t){
+    var pane=document.getElementById('fiscal-pane-'+t);
+    var btn =document.getElementById('fiscal-tab-'+t);
+    if(pane) pane.style.display=t===tab?'block':'none';
+    if(btn){btn.style.borderBottomColor=t===tab?'#1d4ed8':'transparent';btn.style.color=t===tab?'#1d4ed8':'#64748b';btn.style.fontWeight=t===tab?'700':'600';}
+  });
+  if(tab==='ger') rFiscalGer();
+  if(tab==='dev') rFiscalDev();
+  if(tab==='mal') rFiscalMal();
+  if(tab==='abo') rFiscalAbo();
+}
+function rFiscalDev(){
+  var tbody=document.getElementById('fiscal-dev-tbody');if(!tbody)return;
+  var tipo=document.getElementById('fiscal-dev-tipo')?.value||'';
+  var busca=(document.getElementById('fiscal-dev-busca')?.value||'').toLowerCase();
+  var list=(DEVICE_DATA||[]).filter(function(e){
+    if(tipo&&e.tipo!==tipo)return false;
+    if(busca&&!(e.nome||'').toLowerCase().includes(busca))return false;
+    return true;
+  }).sort(function(a,b){return (a.nome||'').localeCompare(b.nome||'','pt-BR');});
+  var cnt=document.getElementById('fiscal-dev-count');
+  if(cnt)cnt.textContent=list.length+' registro(s)';
+  tbody.innerHTML='';
+  if(!list.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum registro.</td></tr>';return;}
+  list.forEach(function(e,i){
+    var bg=i%2===0?'#fff':'#f8fafc';
+    var cargoLabel=(CD[e.cargo]||{}).label||e.cargo||'—';
+    var detalhe=e.tipo==='celular'?('Nº: '+(e.num||'—')):('Possui: '+(e.possui||'—')+(e.possui==='Não'&&e.previsao?' | Previsão: '+e.previsao:''));
+    var tr=document.createElement('tr');
+    tr.style.borderBottom='.5px solid #f1f5f9';
+    tr.innerHTML='<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+(e.nome||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+(e.cargo||'—')+'</span></td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(e.tipo||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+detalhe+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(e.data||'—')+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+function rFiscalMal(){
+  var tbody=document.getElementById('fiscal-mal-tbody');if(!tbody)return;
+  var busca=(document.getElementById('fiscal-mal-busca')?.value||'').toLowerCase();
+  var list=(MALETA_DATA||[]).filter(function(e){
+    return !busca||(e.nome||'').toLowerCase().includes(busca);
+  }).sort(function(a,b){return (a.nome||'').localeCompare(b.nome||'','pt-BR');});
+  var cnt=document.getElementById('fiscal-mal-count');
+  if(cnt)cnt.textContent=list.length+' registro(s)';
+  tbody.innerHTML='';
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum registro.</td></tr>';return;}
+  list.forEach(function(e,i){
+    var bg=i%2===0?'#fff':'#f8fafc';
+    var col=COLL.find(function(c){return c.nome===e.nome;})||{};
+    var tr=document.createElement('tr');
+    tr.style.borderBottom='.5px solid #f1f5f9';
+    tr.innerHTML='<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+(e.nome||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+(e.cargo||'—')+'</span></td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(col.uf||e.uf||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(e.data||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';font-weight:700;color:'+(e.nOK===e.total?'#065f46':'#991b1b')+';">'+(e.nOK||0)+'/'+(e.total||0)+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(e.reprNome||'—')+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+function rFiscalAbo(){
+  var tbody=document.getElementById('fiscal-abo-tbody');if(!tbody)return;
+  var mes=document.getElementById('fiscal-abo-mes')?.value||'Janeiro';
+  var ano=parseInt(document.getElementById('fiscal-abo-ano')?.value||'2026');
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mIdx=meses.indexOf(mes);
+  var curMes=String(mIdx+1).padStart(2,'0');
+  var curAno=String(ano);
+  var ativos=COLL.filter(function(c){return c.status!=='inativo';}).sort(function(a,b){return a.nome.localeCompare(b.nome,'pt-BR');});
+  var cnt=document.getElementById('fiscal-abo-count');
+  if(cnt)cnt.textContent=ativos.length+' colaboradores';
+  tbody.innerHTML='';
+  if(!ativos.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum colaborador.</td></tr>';return;}
+  ativos.forEach(function(col,i){
+    var bg=i%2===0?'#fff':'#f8fafc';
+    var key=col.nome+'|'+curMes+'|'+curAno;
+    var d=(ABONO_DATA&&ABONO_DATA[key])||{desktop:'—',internet:'—',celular:''};
+    var dVal=parseFloat((d.desktop||'0').replace('R$','').replace(',','.'))||0;
+    var iVal=parseFloat((d.internet||'0').replace('R$','').replace(',','.'))||0;
+    var cVal=parseFloat((d.celular||'0').replace('R$','').replace(',','.'))||0;
+    var total='R$ '+(dVal+iVal+cVal).toFixed(2).replace('.',',');
+    var tr=document.createElement('tr');
+    tr.style.borderBottom='.5px solid #f1f5f9';
+    tr.innerHTML='<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+col.nome+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+col.cargo+'</span></td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(col.uf||'DF')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(d.desktop||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(d.celular||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';font-weight:700;color:#065f46;">'+total+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+function rFiscalCad(){
+  var tbody=document.getElementById('fiscal-cad-tbody');if(!tbody)return;
+  var csel=document.getElementById('fiscal-fil-cargo');
+  if(csel&&csel.options.length<=1){
+    Object.keys(CD).sort(function(a,b){return (CD[a].label||a).localeCompare(CD[b].label||b);}).forEach(function(k){
+      var o=document.createElement('option');o.value=k;o.textContent=(CD[k]||{}).label||k;csel.appendChild(o);
+    });
+  }
+  var busca=(document.getElementById('fiscal-busca')?.value||'').toLowerCase();
+  var fCargo=document.getElementById('fiscal-fil-cargo')?.value||'';
+  var ativos=COLL.filter(function(c){
+    if(c.status==='inativo')return false;
+    if(fCargo&&c.cargo!==fCargo)return false;
+    if(busca&&!c.nome.toLowerCase().includes(busca))return false;
+    return true;
+  }).sort(function(a,b){return a.nome.localeCompare(b.nome,'pt-BR');});
+  var cnt=document.getElementById('fiscal-cad-count');
+  if(cnt)cnt.textContent=ativos.length+' colaboradores';
+  tbody.innerHTML='';
+  if(!ativos.length){
+    tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:#64748b;padding:1.5rem;font-size:12px;">Nenhum colaborador encontrado.</td></tr>';
+    return;
+  }
+  ativos.forEach(function(c,i){
+    var cargoLabel=(CD[c.cargo]||{}).label||c.cargo||'—';
+    var bg=i%2===0?'#fff':'#f8fafc';
+    var tr=document.createElement('tr');
+    tr.style.borderBottom='.5px solid #f1f5f9';
+    tr.innerHTML=
+      '<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+c.nome+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';font-family:monospace;">'+(c.cpf_imp||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.rg_imp||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.nascimento||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.raca||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';color:#1d4ed8;">'+(c.email_imp||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.admissao||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 6px;border-radius:4px;font-weight:700;">'+c.cargo+'</span></td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">Terceirizado</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.horas||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.uf||'DF')+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+function rFiscalGer(){
+  var wrap=document.getElementById('fiscal-ger-wrap');if(!wrap)return;
+  var mes=document.getElementById('fiscal-ger-mes')?.value||'Janeiro';
+  var ano=parseInt(document.getElementById('fiscal-ger-ano')?.value||'2026');
+  var fCargo=document.getElementById('fiscal-ger-cargo')?.value||'';
+  var csel=document.getElementById('fiscal-ger-cargo');
+  if(csel&&csel.options.length<=1){
+    Object.keys(CD).sort(function(a,b){return (CD[a].label||a).localeCompare(CD[b].label||b);}).forEach(function(k){
+      var o=document.createElement('option');o.value=k;o.textContent=(CD[k]||{}).label||k;csel.appendChild(o);
+    });
+  }
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mIdx=meses.indexOf(mes);
+  var nDias=new Date(ano,mIdx+1,0).getDate();
+  var dias=Array.from({length:nDias},function(_,i){return i+1;});
+  var ST={'P':'background:#E1F5EE;color:#3B6D11','F':'background:#FCEBEB;color:#A32D2D','A':'background:#FAEEDA;color:#854F0B','H':'background:#E6F4FF;color:#185FA5','PF':'background:#FEF9C3;color:#854D0E','DS':'background:#F1EFE8;color:#5F5E5A','OC':'background:#EEEDFE;color:#534AB7','':'background:#f8fafc;color:#ccc'};
+  var ativos=COLL.filter(function(c){
+    if(c.status==='inativo')return false;
+    if(fCargo&&c.cargo!==fCargo)return false;
+    return true;
+  }).sort(function(a,b){return a.nome.localeCompare(b.nome,'pt-BR');});
+  if(!ativos.length){wrap.innerHTML='<div style="text-align:center;padding:2rem;color:#64748b;font-size:12px;">Nenhum colaborador encontrado.</div>';return;}
+  var t='<table style="width:100%;border-collapse:collapse;font-size:10px;">';
+  t+='<thead><tr style="background:#1e3a5f;color:#fff;">';
+  t+='<th style="padding:6px 10px;text-align:left;position:sticky;left:0;background:#1e3a5f;min-width:180px;">Colaborador</th>';
+  dias.forEach(function(d){
+    var dow=new Date(ano,mIdx,d).getDay();
+    var ds=['D','S','T','Q','Q','S','S'][dow];
+    t+='<th style="padding:4px 2px;min-width:30px;text-align:center;'+(dow===0||dow===6?'background:rgba(255,255,255,.1);':'')+'"><div style="font-size:7px;opacity:.7;">'+ds+'</div><div>'+d+'</div></th>';
+  });
+  t+='</tr></thead><tbody>';
+  ativos.forEach(function(col,ri){
+    var bg=ri%2===0?'#fff':'#f8fafc';
+    var key=col.nome;
+    var rec=(typeof GER_DATA!=='undefined'?GER_DATA[key]:null)||{};
+    t+='<tr><td style="padding:5px 10px;font-weight:500;font-size:10px;position:sticky;left:0;background:'+bg+';border-right:.5px solid #e2e8f0;white-space:nowrap;">'+col.nome+'</td>';
+    dias.forEach(function(d){
+      var dKey=String(d).padStart(2,'0');
+      var val=(rec[dKey]||'').toUpperCase();
+      var st=ST[val]||ST[''];
+      var dow=new Date(ano,mIdx,d).getDay();
+      var isWE=dow===0||dow===6;
+      var cellSt=val?st:(isWE?'background:#f1f5f9;color:#94a3b8;':ST['']);
+      t+='<td style="padding:2px;text-align:center;'+cellSt+';border-right:.5px solid #f1f5f9;font-weight:700;font-size:9px;">'+(val||'')+'</td>';
+    });
+    t+='</tr>';
+  });
+  t+='</tbody></table>';
+  wrap.innerHTML=t;
+}
+
+
+/* ═══ MALETA DECLARAÇÃO + ASSINATURA REPRESENTANTE ═══ */
+var _malReprSigDrawing=false, _malReprSigHasData=false;
+
+function malInitReprSig(){
+  var c=document.getElementById('mal-sig-repr-canvas');
+  if(!c||c._sigInit)return;
+  c._sigInit=true;
+  var ctx=c.getContext('2d');
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+  function gp(e){var r=c.getBoundingClientRect();var s=e.touches?e.touches[0]:e;return {x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}
+  function start(e){e.preventDefault();_malReprSigDrawing=true;var p=gp(e);ctx.beginPath();ctx.moveTo(p.x,p.y);}
+  function move(e){e.preventDefault();if(!_malReprSigDrawing)return;var p=gp(e);ctx.lineTo(p.x,p.y);ctx.stroke();_malReprSigHasData=true;var ph=document.getElementById('mal-repr-sig-ph');if(ph)ph.style.display='none';}
+  function end(){_malReprSigDrawing=false;}
+  c.addEventListener('mousedown',start);c.addEventListener('mousemove',move);c.addEventListener('mouseup',end);c.addEventListener('mouseleave',end);
+  c.addEventListener('touchstart',start,{passive:false});c.addEventListener('touchmove',move,{passive:false});c.addEventListener('touchend',end);
+}
+function malReprSigClear(){
+  var c=document.getElementById('mal-sig-repr-canvas');if(!c)return;
+  c.getContext('2d').clearRect(0,0,c.width,c.height);
+  _malReprSigHasData=false;
+  var ph=document.getElementById('mal-repr-sig-ph');if(ph)ph.style.display='block';
+}
+function malReprSigGetDataURL(){
+  var c=document.getElementById('mal-sig-repr-canvas');
+  return (c&&_malReprSigHasData)?c.toDataURL('image/png'):null;
+}
+function malUpdateDecl(){
+  var cargoEl=document.getElementById('mal_cargo');
+  var nomeEl =document.getElementById('mal_nome');
+  var reprEl =document.getElementById('mal_repr_nome');
+  var ufEl   =document.getElementById('mal_uf');
+  var cargoKey=cargoEl?cargoEl.value:'';
+  var cargoLabel=(CD[cargoKey]||{}).label||cargoKey||'_______________________________________________';
+  var nomeVal=nomeEl?nomeEl.value:'';
+  var reprVal=reprEl?reprEl.value.trim():'';
+  var col=COLL.find(function(c){return c.nome===nomeVal;})||{};
+  var ufVal=(ufEl&&ufEl.value)||(col.uf||'________');
+  var eRepr=document.getElementById('mal-decl-repr');
+  var eUF  =document.getElementById('mal-decl-uf');
+  var eCargo=document.getElementById('mal-decl-cargo');
+  if(eRepr) eRepr.textContent=reprVal||'_______________________________________________';
+  if(eUF)   eUF.textContent=ufVal;
+  if(eCargo) eCargo.textContent=cargoLabel;
+  malInitReprSig();
+}
+
+
+/* ═══ PASSAGEM DE TURNO ═══ */
+var TURNO_DATA = {};  // key: "dd/mm/aaaa|periodo" → {indicadores, suspensos, ...}
+var _turnoSuspensos = [];  // current editing state
+
+function turnoKey(){
+  var d = document.getElementById('turno-data')?.value||'';
+  var p = document.getElementById('turno-periodo')?.value||'manha';
+  return d+'|'+p;
+}
+
+function toggleOcPeriodo(){
+  var p = document.getElementById('turno-periodo')?.value||'manha';
+  var m = document.getElementById('oc-manha-wrap');
+  var t = document.getElementById('oc-tarde-wrap');
+  if(m) m.style.display = p==='manha' ? 'block' : 'none';
+  if(t) t.style.display = p==='tarde' ? 'block' : 'none';
+}
+
+function setTurnoHoje(){
+  var t = new Date();
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  document.getElementById('turno-data').value = pad(t.getDate())+'/'+pad(t.getMonth()+1)+'/'+t.getFullYear();
+  var h = t.getHours();
+  var p = h < 14 ? 'manha' : 'tarde';
+  var per = document.getElementById('turno-periodo');
+  if(per) per.value = p;
+  loadTurno();
+  toggleOcPeriodo();
+}
+
+function loadTurno(){
+  var key = turnoKey();
+  var rec = TURNO_DATA[key] || {};
+  // Fill fields
+  var ids = ['ti_rec_dia','ti_atend15_dia','ti_rec_mes','ti_atend15_mes',
+             'ti_res2h','ti_total_ch','ti_aband_dia','ti_aband_mes',
+             'ti_oc_manha','ti_oc_tarde','ti_pendencias','ti_responsavel'];
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = rec[id]||'';
+  });
+  _turnoSuspensos = rec.suspensos ? JSON.parse(JSON.stringify(rec.suspensos)) : [];
+  renderSuspensos();
+  calcTurno();
+  toggleOcPeriodo();
+}
+
+function saveTurno(){
+  var key = turnoKey();
+  if(!key.startsWith('0')&&!key.match(/^\d{2}\//)){ toast('Informe a data.','warn'); return; }
+  var rec = {};
+  ['ti_rec_dia','ti_atend15_dia','ti_rec_mes','ti_atend15_mes',
+   'ti_res2h','ti_total_ch','ti_aband_dia','ti_aband_mes',
+   'ti_oc_manha','ti_oc_tarde','ti_pendencias','ti_responsavel'].forEach(function(id){
+    var el = document.getElementById(id);
+    rec[id] = el ? el.value : '';
+  });
+  rec.suspensos = JSON.parse(JSON.stringify(_turnoSuspensos));
+  rec.savedAt = new Date().toLocaleString('pt-BR');
+  TURNO_DATA[key] = rec;
+  saveAll();
+  toast('✅ Passagem de turno salva!','ok');
+  rTurnoHistorico();
+  // Clear indicadores operacionais only (keep ocorrências/suspensos for reference)
+  ['ti_rec_dia','ti_atend15_dia','ti_rec_mes','ti_atend15_mes',
+   'ti_res2h','ti_total_ch','ti_aband_dia','ti_aband_mes'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  var calcEl=document.getElementById('turno-calc');
+  if(calcEl) calcEl.style.display='none';
+}
+
+function calcTurno(){
+  var recDia   = parseInt(document.getElementById('ti_rec_dia')?.value)||0;
+  var at15Dia  = parseInt(document.getElementById('ti_atend15_dia')?.value)||0;
+  var recMes   = parseInt(document.getElementById('ti_rec_mes')?.value)||0;
+  var at15Mes  = parseInt(document.getElementById('ti_atend15_mes')?.value)||0;
+  var res2h    = parseInt(document.getElementById('ti_res2h')?.value)||0;
+  var totCh    = parseInt(document.getElementById('ti_total_ch')?.value)||0;
+  var abandDia = parseInt(document.getElementById('ti_aband_dia')?.value)||0;
+  var calcEl   = document.getElementById('turno-calc');
+  var textEl   = document.getElementById('turno-calc-text');
+  if(!calcEl||!textEl) return;
+  if(!recDia && !recMes){ calcEl.style.display='none'; return; }
+
+  var pct15Dia = recDia>0 ? (at15Dia/recDia*100).toFixed(1) : '—';
+  var pct15Mes = recMes>0 ? (at15Mes/recMes*100).toFixed(1) : '—';
+  var pctRes2h = totCh>0  ? (res2h/totCh*100).toFixed(1)   : '—';
+  var pctAband = recDia>0 ? (abandDia/recDia*100).toFixed(1): '—';
+
+  var meta90 = function(v){ if(v==='—') return v; return parseFloat(v)>=90 ? '<span style="color:#065f46;font-weight:700;">'+v+'% ✓</span>' : '<span style="color:#991b1b;font-weight:700;">'+v+'% ✗</span>'; };
+
+  calcEl.style.display='block';
+  textEl.innerHTML =
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem;">'
+    +'<div style="background:#fff;border-radius:6px;padding:.5rem .75rem;border:.5px solid var(--b100);">'
+      +'<div style="font-size:9px;color:var(--muted);margin-bottom:2px;">TEL-01 — Nível serviço diário</div>'
+      +'<div style="font-size:13px;">'+meta90(pct15Dia)+'</div><div style="font-size:9px;color:var(--muted);">Meta: ≥90%</div>'
+    +'</div>'
+    +'<div style="background:#fff;border-radius:6px;padding:.5rem .75rem;border:.5px solid var(--b100);">'
+      +'<div style="font-size:9px;color:var(--muted);margin-bottom:2px;">TEL-01 — Nível serviço mensal</div>'
+      +'<div style="font-size:13px;">'+meta90(pct15Mes)+'</div><div style="font-size:9px;color:var(--muted);">Meta: ≥90%</div>'
+    +'</div>'
+    +(totCh>0?'<div style="background:#fff;border-radius:6px;padding:.5rem .75rem;border:.5px solid var(--b100);">'
+      +'<div style="font-size:9px;color:var(--muted);margin-bottom:2px;">TEL-02 — Resolvidos em 2h</div>'
+      +'<div style="font-size:13px;">'+meta90(pctRes2h)+'</div><div style="font-size:9px;color:var(--muted);">Meta: ≥90%</div>'
+    +'</div>':'')
+    +'<div style="background:#fff;border-radius:6px;padding:.5rem .75rem;border:.5px solid var(--b100);">'
+      +'<div style="font-size:9px;color:var(--muted);margin-bottom:2px;">Taxa de abandono diária</div>'
+      +'<div style="font-size:13px;font-weight:700;color:'+(parseFloat(pctAband)>5?'#991b1b':'#065f46')+';">'+pctAband+(pctAband!=='—'?'%':'')+'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+function adicionarChamadoSuspenso(){
+  _turnoSuspensos.push({num:'',sistema:'',acao:'',responsavel:''});
+  renderSuspensos();
+}
+
+function removeChamadoSuspenso(idx){
+  _turnoSuspensos.splice(idx,1);
+  renderSuspensos();
+}
+
+function renderSuspensos(){
+  var lista = document.getElementById('suspensos-lista');
+  var vazio = document.getElementById('suspensos-vazio');
+  if(!lista) return;
+  lista.innerHTML = '';
+  if(!_turnoSuspensos.length){
+    if(vazio) vazio.style.display='block';
+    return;
+  }
+  if(vazio) vazio.style.display='none';
+
+  _turnoSuspensos.forEach(function(s,i){
+    var div = document.createElement('div');
+    div.style.cssText = 'background:var(--a50);border:.5px solid var(--a100);border-radius:8px;padding:.75rem;display:grid;grid-template-columns:140px 1fr 32px;gap:.5rem;align-items:start;';
+    div.innerHTML =
+      '<div><label style="font-size:9px;font-weight:600;color:var(--muted);display:block;margin-bottom:2px;">Nº Chamado</label>'
+        +'<input type="text" value="'+(s.num||'')+'" placeholder="Ex: 12345" '
+        +'oninput="_turnoSuspensos['+i+'].num=this.value" '
+        +'style="width:100%;font-size:11px;padding:4px 7px;border:.5px solid var(--brd);border-radius:5px;font-family:inherit;"></div>'
+      +'<div><label style="font-size:9px;font-weight:600;color:var(--muted);display:block;margin-bottom:2px;">O que deve ser feito</label>'
+        +'<input type="text" value="'+(s.acao||'')+'" placeholder="Descreva a ação necessária para o próximo turno..." '
+        +'oninput="_turnoSuspensos['+i+'].acao=this.value" '
+        +'style="width:100%;font-size:11px;padding:4px 7px;border:.5px solid var(--brd);border-radius:5px;font-family:inherit;"></div>'
+      +'<div style="padding-top:16px;"><button onclick="removeChamadoSuspenso('+i+')" '
+        +'style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;padding:0;" title="Remover">✕</button></div>';
+    lista.appendChild(div);
+  });
+}
+
+function rTurnoHistorico(){
+  var wrap=document.getElementById('turno-historico');
+  if(!wrap)return;
+  var busca=(document.getElementById('turno-hist-busca')?.value||'').toLowerCase();
+
+  // Group by date
+  var byDate={};
+  Object.keys(TURNO_DATA).forEach(function(k){
+    var parts=k.split('|');
+    var date=parts[0]; var period=parts[1]||'dia';
+    if(!byDate[date]) byDate[date]={};
+    byDate[date][period]=TURNO_DATA[k];
+  });
+
+  var dates=Object.keys(byDate).filter(function(d){
+    if(!busca)return true;
+    return d.includes(busca)||JSON.stringify(byDate[d]).toLowerCase().includes(busca);
+  }).sort(function(a,b){
+    var pa=a.split('/'),pb=b.split('/');
+    return new Date(pb[2],pb[1]-1,pb[0])-new Date(pa[2],pa[1]-1,pa[0]);
+  });
+
+  if(!dates.length){wrap.innerHTML='<div style="text-align:center;color:var(--muted);padding:1rem;font-size:12px;">Nenhum registro encontrado.</div>';return;}
+  wrap.innerHTML='';
+
+  dates.forEach(function(date,di){
+    var recs=byDate[date];
+    var totalRec=0,totalAt15=0,totalRecMes=0,totalAt15Mes=0,totalAband=0,totalSusp=0,responsavel='—';
+    Object.keys(recs).forEach(function(p){
+      var r=recs[p];
+      totalRec   +=parseInt(r.ti_rec_dia)||0;
+      totalAt15  +=parseInt(r.ti_atend15_dia)||0;
+      totalRecMes =Math.max(totalRecMes,parseInt(r.ti_rec_mes)||0);
+      totalAt15Mes=Math.max(totalAt15Mes,parseInt(r.ti_atend15_mes)||0);
+      totalAband +=parseInt(r.ti_aband_dia)||0;
+      totalSusp  +=(r.suspensos?r.suspensos.length:0);
+      if(r.ti_responsavel)responsavel=r.ti_responsavel;
+    });
+    var pct15Dia=totalRec>0?(totalAt15/totalRec*100).toFixed(1)+'%':'—';
+    var pct15Mes=totalRecMes>0?(totalAt15Mes/totalRecMes*100).toFixed(1)+'%':'—';
+    var metaOkDia=totalRec>0&&(totalAt15/totalRec)>=0.9;
+    var metaOkMes=totalRecMes>0&&(totalAt15Mes/totalRecMes)>=0.9;
+
+    var card=document.createElement('div');
+    card.style.cssText='border-radius:8px;margin-bottom:5px;overflow:hidden;border:.5px solid var(--brd);';
+
+    var header=document.createElement('div');
+    header.style.cssText='display:flex;align-items:center;gap:.625rem;padding:9px 12px;cursor:pointer;user-select:none;background:'+(di%2===0?'#fff':'#f8fafc')+';flex-wrap:wrap;';
+    header.innerHTML=
+      '<span style="font-size:12px;font-weight:700;color:var(--b900);min-width:95px;">📅 '+date+'</span>'
+      +'<div style="display:flex;gap:.5rem;flex-wrap:wrap;flex:1;">'
+        +'<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:#f1f5f9;"><span style="color:var(--muted);">Rec. dia:</span> <strong>'+totalRec+'</strong></span>'
+        +'<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:#f1f5f9;"><span style="color:var(--muted);">Atend. 15s:</span> <strong>'+totalAt15+'</strong></span>'
+        +'<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:#f1f5f9;">NS dia: <strong style="color:'+(metaOkDia?'#065f46':'#991b1b')+';">'+pct15Dia+'</strong></span>'
+        +'<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:#f1f5f9;">NS mês acum.: <strong style="color:'+(totalRecMes>0?(metaOkMes?'#065f46':'#991b1b'):'#94a3b8')+';">'+pct15Mes+'</strong>'
+          +'<span style="font-size:9px;color:var(--muted);"> ('+totalAt15Mes+'/'+totalRecMes+')</span></span>'
+        +(totalSusp>0?'<span style="font-size:10px;background:#fef3c7;color:#d97706;padding:2px 7px;border-radius:10px;font-weight:700;">⏸ '+totalSusp+'</span>':'')
+        +'<span style="font-size:9px;color:var(--muted);">'+responsavel+'</span>'
+      +'</div>'
+      +'<span class="hist-exp-ic" style="font-size:11px;color:var(--muted);transition:transform .2s;display:inline-block;">▶</span>';
+
+    var panel=document.createElement('div');
+    panel.style.cssText='display:none;background:#f8fafc;border-top:.5px solid var(--brd);';
+
+    var pLabels={manha:'🌅 Manhã',tarde:'🌇 Tarde',noite:'🌙 Noite',dia:'📅 Dia completo'};
+    var pOrder=['manha','tarde','noite','dia'];
+    var hasMulti=Object.keys(recs).length>1;
+
+    var ph='';
+    pOrder.filter(function(p){return recs[p];}).forEach(function(p){
+      var r=recs[p];
+      var susp=r.suspensos||[];
+      var pRec=parseInt(r.ti_rec_dia)||0;
+      var pAt15=parseInt(r.ti_atend15_dia)||0;
+      var pPct=pRec>0?(pAt15/pRec*100).toFixed(1)+'%':'—';
+      var pOk=pRec>0&&(pAt15/pRec)>=0.9;
+
+      ph+='<div style="padding:.75rem 1rem;border-bottom:.5px solid var(--brd);">'
+        +'<div style="font-size:11px;font-weight:700;color:var(--b700);margin-bottom:.5rem;">'+(pLabels[p]||p)+'</div>'
+        +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:.375rem .75rem;margin-bottom:.5rem;font-size:10px;">'
+          +'<div><span style="color:var(--muted);">Recebidas (dia):</span> <strong>'+pRec+'</strong></div>'
+          +'<div><span style="color:var(--muted);">Atend. 15s (dia):</span> <strong>'+pAt15+' → <span style="color:'+(pOk?'#065f46':'#991b1b')+';">'+pPct+'</span></strong></div>'
+          +'<div><span style="color:var(--muted);">Rec. mês acum.:</span> <strong>'+(r.ti_rec_mes||'—')+'</strong></div>'
+          +'<div><span style="color:var(--muted);">Atend. 15s mês acum.:</span> <strong>'+(r.ti_atend15_mes||'—')+'</strong></div>'
+          +'<div><span style="color:var(--muted);">Abandonadas (dia):</span> <strong>'+(r.ti_aband_dia||'0')+'</strong></div>'
+          +'<div><span style="color:var(--muted);">Aband. mês acum.:</span> <strong>'+(r.ti_aband_mes||'—')+'</strong></div>'
+          +(r.ti_res2h?'<div><span style="color:var(--muted);">Resolvidos 2h:</span> <strong>'+r.ti_res2h+'/'+r.ti_total_ch+'</strong></div>':'')
+          +(r.ti_responsavel?'<div><span style="color:var(--muted);">Responsável:</span> '+r.ti_responsavel+'</div>':'')
+        +'</div>'
+        +(r.ti_oc_manha?'<div style="font-size:10px;margin-bottom:.375rem;"><strong>Ocorrências manhã:</strong><div style="color:#374151;white-space:pre-wrap;background:#fff;border-radius:4px;padding:4px 7px;margin-top:2px;border:.5px solid var(--brd);">'+r.ti_oc_manha+'</div></div>':'')
+        +(r.ti_oc_tarde?'<div style="font-size:10px;margin-bottom:.375rem;"><strong>Ocorrências tarde:</strong><div style="color:#374151;white-space:pre-wrap;background:#fff;border-radius:4px;padding:4px 7px;margin-top:2px;border:.5px solid var(--brd);">'+r.ti_oc_tarde+'</div></div>':'')
+        +(r.ti_pendencias?'<div style="font-size:10px;margin-bottom:.375rem;"><strong>Pendências:</strong><div style="color:#374151;white-space:pre-wrap;background:#fff;border-radius:4px;padding:4px 7px;margin-top:2px;border:.5px solid var(--brd);">'+r.ti_pendencias+'</div></div>':'')
+        +(susp.length?'<div style="font-size:10px;margin-bottom:.375rem;"><strong>⏸ Chamados suspensos ('+susp.length+'):</strong>'
+          +susp.map(function(s){return '<div style="background:#fef3c7;border-radius:4px;padding:3px 7px;margin-top:3px;"><strong>'+(s.num||'—')+'</strong> — '+(s.acao||'—')+'</div>';}).join('')+'</div>':'')
+        +'<div style="display:flex;justify-content:flex-end;margin-top:.375rem;">'
+          +'<button class="btn bp" style="font-size:9px;padding:2px 8px;" onclick="abrirTurno(\''+date+(hasMulti?'|'+p:'')+'\')">✏️ Editar este registro</button>'
+        +'</div>'
+        +'</div>';
+    });
+
+    panel.innerHTML=ph;
+    header.addEventListener('click',function(){
+      var open=panel.style.display==='block';
+      panel.style.display=open?'none':'block';
+      var ic=header.querySelector('.hist-exp-ic');
+      if(ic)ic.style.transform=open?'':'rotate(90deg)';
+    });
+    card.appendChild(header);card.appendChild(panel);wrap.appendChild(card);
+  });
+}
+
+function abrirTurno(key){
+  var parts = key.split('|');
+  var elData = document.getElementById('turno-data');
+  var elPer  = document.getElementById('turno-periodo');
+  if(elData && parts[0]) elData.value = parts[0];
+  if(elPer  && parts[1]) elPer.value  = parts[1];
+  loadTurno();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function enviarTurnoPorEmail(){
+  var data      = document.getElementById('turno-data')?.value||'—';
+  var periodo   = document.getElementById('turno-periodo')?.value||'manha';
+  var resp      = document.getElementById('ti_responsavel')?.value||'—';
+  var recDia    = document.getElementById('ti_rec_dia')?.value||'0';
+  var at15Dia   = document.getElementById('ti_atend15_dia')?.value||'0';
+  var recMes    = document.getElementById('ti_rec_mes')?.value||'0';
+  var at15Mes   = document.getElementById('ti_atend15_mes')?.value||'0';
+  var res2h     = document.getElementById('ti_res2h')?.value||'—';
+  var totCh     = document.getElementById('ti_total_ch')?.value||'—';
+  var abandDia  = document.getElementById('ti_aband_dia')?.value||'0';
+  var abandMes  = document.getElementById('ti_aband_mes')?.value||'0';
+  var pct15Dia  = parseInt(recDia)>0?(parseInt(at15Dia)/parseInt(recDia)*100).toFixed(1)+'%':'—';
+  var pct15Mes  = parseInt(recMes)>0?(parseInt(at15Mes)/parseInt(recMes)*100).toFixed(1)+'%':'—';
+  var ocManha   = document.getElementById('ti_oc_manha')?.value||'Nenhuma';
+  var ocTarde   = document.getElementById('ti_oc_tarde')?.value||'Nenhuma';
+  var pendencias= document.getElementById('ti_pendencias')?.value||'Nenhuma';
+
+  var nl = '%0D%0A';
+  var sep = encodeURIComponent('─────────────────────────────────');
+  var subject = encodeURIComponent('Passagem de Turno — '+periodos[periodo]+' — '+data+' — T&S Engenharia');
+
+  var suspBody = '';
+  if(_turnoSuspensos.length){
+    _turnoSuspensos.forEach(function(s,i){
+      suspBody += encodeURIComponent((i+1)+'. Chamado: '+(s.num||'—')+' | Sistema: '+(s.sistema||'—'))+nl
+        + encodeURIComponent('   Ação: '+(s.acao||'—')+' | Responsável: '+(s.responsavel||'—'))+nl;
+    });
+  } else {
+    suspBody = encodeURIComponent('Nenhum chamado suspenso.')+nl;
+  }
+
+  var body =
+    encodeURIComponent('PASSAGEM DE TURNO — SUPORTE TELEFÔNICO TCU — T&S ENGENHARIA')+nl
+    +encodeURIComponent('Data: '+data+' | Responsável: '+resp)+nl+nl
+    +sep+nl
+    +encodeURIComponent('INDICADORES OPERACIONAIS DE PERFORMANCE — TCU NÍVEL I')+nl
+    +sep+nl
+    +encodeURIComponent('TEL-01 — Índice de atendimento em até 15 segundos')+nl
+    +encodeURIComponent('  Chamadas recebidas (Diário):        '+recDia)+nl
+    +encodeURIComponent('  Atendidas em até 15s (Diário):      '+at15Dia+' → '+pct15Dia+' (Meta: ≥90%)')+nl
+    +encodeURIComponent('  Chamadas recebidas (Mensal acum.):  '+recMes)+nl
+    +encodeURIComponent('  Atendidas em até 15s (Mensal acum.):'+at15Mes+' → '+pct15Mes+' (Meta: ≥90%)')+nl+nl
+    +encodeURIComponent('TEL-02 — Chamados resolvidos em até 2 horas')+nl
+    +encodeURIComponent('  Resolvidos em 2h: '+res2h+' / '+totCh+' (Meta: ≥90%)')+nl+nl
+    +encodeURIComponent('Controle Interno — Chamadas Abandonadas')+nl
+    +encodeURIComponent('  Abandonadas (Diário):  '+abandDia)+nl
+    +encodeURIComponent('  Abandonadas (Mensal):  '+abandMes)+nl+nl
+    +sep+nl
+    +encodeURIComponent('CHAMADOS SUSPENSOS')+nl
+    +sep+nl
+    +suspBody+nl
+    +sep+nl
+    +encodeURIComponent('OCORRÊNCIAS — MANHÃ')+nl
+    +sep+nl
+    +encodeURIComponent(ocManha)+nl+nl
+    +sep+nl
+    +encodeURIComponent('OCORRÊNCIAS — TARDE')+nl
+    +sep+nl
+    +encodeURIComponent(ocTarde)+nl+nl
+    +sep+nl
+    +encodeURIComponent('PENDÊNCIAS PARA O PRÓXIMO TURNO')+nl
+    +sep+nl
+    +encodeURIComponent(pendencias)+nl+nl
+    +encodeURIComponent('─────────────────────────────────')+nl
+    +encodeURIComponent('T&S Engenharia — Gerado em '+new Date().toLocaleString('pt-BR'));
+
+  window.location.href = 'mailto:?subject='+subject+'&body='+body;
 }
 
 /* ═══ PERSIST (localStorage) ═══ */
@@ -7312,7 +8150,7 @@ function saveAll(){
       ATES_DATA, DEVICE_DATA, UNI_DATA, SOL_DATA,
       ACESSO_DATA, DOCS_DATA, _docsPainel,
       FEEDBACK_DATA, GER_DATA, MALETA_DATA, ABONO_DATA, DOC_MATRIX,
-      PRESENCA_DATA, PRESENCA_REG
+      PRESENCA_DATA, PRESENCA_REG, TURNO_DATA
     });
     _ls.setItem(STORE_KEY, payload);
     // Write a sync timestamp so other tabs/sessions detect the change
@@ -8115,6 +8953,12 @@ function onDevTipo(){
   document.getElementById('dev-tablet-fields').style.display=t==='tablet'?'block':'none';
 }
 
+function onTabPossui(){
+  var v=document.getElementById('tab_possui').value;
+  var pf=document.getElementById('tab-previsao-field');
+  if(pf) pf.style.display=v==='Não'?'block':'none';
+}
+
 function devFileUp(id, el){
   if(el.files.length>0){
     const lbl=document.getElementById(id);
@@ -8132,25 +8976,28 @@ function subDevice(){
   if(!nome||!tipo){toast('Preencha todos os campos obrigatórios.','warn');return;}
   let entry={id:Date.now(),nome,tipo};
   if(tipo==='celular'){
-    entry.marca=document.getElementById('dev_marca').value;
+    entry.marca='—';
     entry.modelo='';
     entry.cor='';
     entry.imei='';
-    entry.num=document.getElementById('dev_num').value;
+    entry.num=document.getElementById('dev_num').value||'—';
     entry.carregador='';
     entry.obs='';
-    entry.data=document.getElementById('dev_data').value?new Date(document.getElementById('dev_data').value).toLocaleDateString('pt-BR'):'—';
-    if(!entry.marca){toast('Marca é obrigatória.','warn');return;}
+    entry.data=new Date().toLocaleDateString('pt-BR');
   } else {
-    entry.marca=document.getElementById('tab_marca').value;
+    var possui=document.getElementById('tab_possui').value;
+    var previsao=document.getElementById('tab_previsao')?.value||'';
+    if(!possui){toast('Informe se possui tablet.','warn');return;}
+    entry.marca='—';
     entry.modelo='';
     entry.cor='';
     entry.imei='';
     entry.num='—';
     entry.carregador='';
     entry.obs='';
-    entry.data=document.getElementById('tab_data').value?new Date(document.getElementById('tab_data').value).toLocaleDateString('pt-BR'):'—';
-    if(!entry.marca){toast('Marca é obrigatória.','warn');return;}
+    entry.data=new Date().toLocaleDateString('pt-BR');
+    entry.possui=possui;
+    entry.previsao=previsao;
   }
   DEVICE_DATA.push(entry);
   saveAll();
@@ -8508,7 +9355,8 @@ function gerarPortalLinks(){
 var _USERS = [
   {user:'admin',        pwd:'Portal@2026',   nome:'Administrador', role:'gestor'},
   {user:'gestor',       pwd:'Portal@2026',   nome:'Gestor',         role:'gestor'},
-  {user:'colaborador',  pwd:'Colab@2026',    nome:'Colaborador',    role:'colaborador'}
+  {user:'colaborador',  pwd:'Colab@2026',    nome:'Colaborador',    role:'colaborador'},
+  {user:'fiscal',       pwd:'Fiscal@2026',   nome:'Fiscal TCU',     role:'fiscal'}
 ];
 
 var _SESSION_USER = null;
@@ -8556,14 +9404,40 @@ function isAuthenticated(){
 function doLogout(){
   _SESSION_USER = null;
   try{ sessionStorage.removeItem('ts_user'); }catch(e){}
+
+  // Reset body state
   document.body.removeAttribute('data-role');
+  document.body.classList.remove('collab','collab-form','portal-ready','fiscal-mode');
   _AUTH_SESSION = null;
+
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(function(p){
+    p.classList.remove('on');
+    p.style.cssText = 'display:none!important';
+  });
+
+  // Hide portal UI
+  var tabsWrap = document.querySelector('.tabs-wrap');
+  if(tabsWrap) tabsWrap.style.display = 'none';
+  var topNav = document.querySelector('.top-nav,.nav-bar,nav');
+  if(topNav) topNav.style.display = 'none';
+
+  // Show login screen
   var ls = document.getElementById('login-screen');
-  if(ls){ ls.classList.remove('hidden'); }
-  // Clear fields
+  if(ls){
+    ls.classList.remove('hidden');
+    ls.style.display = '';
+  }
+
+  // Clear login fields
   var u=document.getElementById('login-user'); if(u)u.value='';
   var p=document.getElementById('login-pwd');  if(p){p.value='';p.classList.remove('error');}
   var err=document.getElementById('login-error'); if(err)err.textContent='';
+
+  // Remove any overlays
+  var ov=document.getElementById('collab-form-success-overlay'); if(ov)ov.remove();
+  var pm=document.getElementById('pres-modal'); if(pm)pm.remove();
+
   toast('Sessão encerrada.','ok');
 }
 
@@ -8699,6 +9573,19 @@ function _initPortal(){
   var _userName  = (_SESSION_USER&&_SESSION_USER.nome)||'';
   // Apply role as CSS data attribute
   document.body.setAttribute('data-role', _userRole);
+
+  if(_userRole === 'fiscal'){
+    try{ loadAll(); }catch(e){}
+    document.body.classList.add('portal-ready');
+    document.querySelectorAll('.page').forEach(function(p){ p.style.cssText='display:none!important'; });
+    var fp=document.getElementById('pg-fiscal');
+    if(fp) fp.style.cssText='display:block!important';
+    var nt=document.querySelector('.tabs-wrap'); if(nt) nt.style.display='none';
+    var nav=document.querySelector('nav.top-nav,.nav-bar'); if(nav) nav.style.display='none';
+    try{ document.getElementById('mpill').textContent='FISCAL'; }catch(e){}
+    setTimeout(function(){ try{rFiscalCad();}catch(e){} },100);
+    return;
+  }
 
   if(_userRole === 'colaborador'){
     window.addEventListener('hashchange',function(){checkHash();});
@@ -8878,8 +9765,12 @@ function subMaleta(){
   var nome  = document.getElementById('mal_nome')?.value;
   var cargo = document.getElementById('mal_cargo')?.value;
   var data  = document.getElementById('mal_data')?.value;
-  var num   = document.getElementById('mal_num')?.value.trim();
-  var obs   = document.getElementById('mal_obs')?.value.trim();
+  var num   = document.getElementById('mal_uf')?.value.trim();
+  var obs       = document.getElementById('mal_obs')?.value.trim()||'';
+  var reprNome  = document.getElementById('mal_repr_nome')?.value.trim()||'';
+  var local     = document.getElementById('mal_local')?.value.trim()||'';
+  var dataAssin = document.getElementById('mal_data_assinatura')?.value.trim()||'';
+  var reprSig   = malReprSigGetDataURL?malReprSigGetDataURL():null;
 
   if(!nome||!data){toast('Preencha Colaborador e Data de Entrega.','warn');return;}
 
@@ -8916,7 +9807,8 @@ function subMaleta(){
 
 function clearMaletaForm(){
   malClearAll();
-  ['mal_nome','mal_num','mal_obs'].forEach(function(id){
+  ['mal_nome','mal_obs'].forEach(function(id){
+  var uf=document.getElementById('mal_uf');if(uf)uf.selectedIndex=0;
     var el=document.getElementById(id);if(el)el.value='';
   });
   var mc=document.getElementById('mal_cargo');if(mc)mc.value='';
@@ -9016,7 +9908,7 @@ function expMaleta(){
   if(fMes) data=data.filter(function(r){return r.mes===fMes;});
   if(fAno) data=data.filter(function(r){return String(r.ano)===String(fAno);});
   if(!data.length){toast('Nenhum registro encontrado.','warn');return;}
-  var csv='Data,Colaborador,Cargo,Nº Maleta,Itens OK,Total,Situação,Itens Faltantes,Observações,Status,Termo Assinado\n';
+  var csv='Data,Colaborador,Cargo,UF,Itens OK,Total,Situação,Itens Faltantes,Observações,Status,Termo Assinado\n';
   data.forEach(function(r){
     csv+='"'+r.data+'","'+r.nome+'","'+((CD[r.cargo]||{}).label||r.cargo||'—')+'","'+r.num+'",'+r.itensOK+','+r.total+',"'+r.situacao+'","'+(r.missing||[]).join('; ')+'","'+r.obs+'","'+r.acao+'",'+(r.anexo?'Sim':'Não')+'\n';
   });
@@ -9065,6 +9957,8 @@ function gerarTermoPDF(idx){
   var r=MALETA_DATA[idx];
   if(!r){toast('Registro não encontrado.','warn');return;}
   var cargo=(CD[r.cargo]||{}).label||r.cargo||'—';
+  var colEntry=COLL.find(function(c){return c.nome===r.nome;})||{};
+  var colUF=colEntry.uf||r.uf||'DF';
   var itensRows='';
   MAL_ITENS.forEach(function(it,i){
     var ok=(r.checked||[]).indexOf(it.label)>=0;
@@ -9120,7 +10014,7 @@ function gerarTermoPDF(idx){
       +'<div class="info-item"><label>Colaborador</label><span>'+r.nome+'</span></div>'
       +'<div class="info-item"><label>Cargo</label><span>'+cargo+'</span></div>'
       +'<div class="info-item"><label>Data de Entrega</label><span>'+r.data+'</span></div>'
-      +'<div class="info-item"><label>Nº Maleta / Patrimônio</label><span>'+(r.num||'—')+'</span></div>'
+      +'<div class="info-item"><label>UF</label><span>'+(r.num||'—')+'</span></div>'
       +'<div class="info-item"><label>Situação da Maleta</label>'
         +'<span><span class="situacao-badge sit-'+(r.situacao||'').toLowerCase()+'">'+r.situacao+'</span></span></div>'
       +'<div class="info-item"><label>Itens Verificados</label><span>'+r.itensOK+' de '+r.total+' itens</span></div>'
@@ -9134,20 +10028,39 @@ function gerarTermoPDF(idx){
     +(r.obs&&r.obs!=='—'?'<div class="obs-box"><strong>Observações:</strong> '+r.obs+'</div>':'')
 
     // Declaração
+    // Declaração
     +'<div class="decl">'
-      +'<strong>Declaração:</strong> Eu, <strong>'+r.nome+'</strong>, declaro que recebi a maleta de ferramentas '
-      +(r.num&&r.num!=='—'?'(patrimônio Nº <strong>'+r.num+'</strong>) ':'')
-      +'nesta data, contendo os itens marcados como <em>Recebido</em> acima. '
-      +'Comprometo-me a zelar pelos equipamentos recebidos, utilizando-os exclusivamente para fins profissionais, '
-      +'e a comunicar imediatamente qualquer avaria, perda ou necessidade de reposição.'
+      +'<strong>Declaração:</strong><br><br>'
+      +'Eu, <strong>'+(r.reprNome||'_______________________________________________')+'</strong>, '
+      +'representante do TCU no estado de <strong>'+colUF+'</strong>, '
+      +'declaro, para os devidos fins, que a empresa <strong>T&S Engenharia</strong> forneceu '
+      +'a maleta de ferramentas destinada ao posto de trabalho de '
+      +'<strong>'+cargo+'</strong>, '
+      +'contendo os itens obrigatórios conforme especificação contratual.'
     +'</div>'
+
+
+    // Repr sig
+    var reprSigHtml=r.reprAssinatura
+      ?'<img src="'+r.reprAssinatura+'" style="height:70px;max-width:280px;" alt="Assinatura">'
+      :'<div style="width:280px;height:60px;border-bottom:2px solid #333;margin:0 auto;"></div>';
+    var localDataStr='<div style="margin-top:1rem;font-size:9pt;color:#444;">'
+      +'<strong>Local:</strong> '+(r.local||'________________________________')
+      +' &nbsp;&nbsp; <strong>Data:</strong> '+(r.dataAssinatura||new Date().toLocaleDateString('pt-BR'))
+      +'</div>';
 
     // Signatures
     +'<div class="sig-area">'
       +'<div class="sig-box">'
-        +sigHtml
-        +'<div class="sig-label">'+r.nome+'<br><span style="font-size:8pt;color:#666;">Colaborador</span></div>'
+        +reprSigHtml
+        +'<div class="sig-label">'+(r.reprNome||'Representante TCU')+'<br><span style="font-size:8pt;color:#666;">Representante do TCU / '+colUF+'</span></div>'
       +'</div>'
+      +'<div class="sig-box">'
+        +sigHtml
+        +'<div class="sig-label">'+r.nome+'<br><span style="font-size:8pt;color:#666;">Colaborador Técnico</span></div>'
+      +'</div>'
+    +'</div>'
+    +localDataStr
       +'<div class="sig-box">'
         +'<div style="width:280px;height:60px;border-bottom:2px solid #333;margin:0 auto;"></div>'
         +'<div class="sig-label">Gestor Responsável<br><span style="font-size:8pt;color:#666;">T&S Engenharia</span></div>'
@@ -9217,8 +10130,10 @@ function openMaletaCollabForm(){
           +'<select id="mc_nome" style="width:100%"><option value="">— Selecione —</option></select></div>'
         +'<div class="fp"><label>Data *</label>'
           +'<input type="date" placeholder="dd/mm/aaaa" id="mc_data" style="width:100%;"></div>'
-        +'<div class="fp"><label>Nº Maleta / Patrimônio</label>'
-          +'<input type="text" id="mc_num" placeholder="Ex: MAL-001" style="width:100%;"></div>'
+        +'<div class="fp"><label>UF *</label>'
+          +'<select id="mc_num" style="width:100%;"><option value="">— Selecione —</option><option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option></select></div>'
+        +'<div class="fp ff"><label>Nome do Representante TCU *</label>'
+          +'<input type="text" id="mc_repr_nome" placeholder="Nome completo do representante do TCU" style="width:100%;"></div>'
       +'</div>'
     +'</div>'
 
@@ -9353,6 +10268,7 @@ function mcSubmit(){
   var cargo=document.getElementById('mc_cargo')?.value;
   var data =document.getElementById('mc_data')?.value;
   var num  =(document.getElementById('mc_num')?.value||'').trim();
+  var reprNome=(document.getElementById('mc_repr_nome')?.value||'').trim();
   var obs  =(document.getElementById('mc_obs')?.value||'').trim();
   if(!nome||!data){toast('Preencha seu nome e a data.','warn');return;}
 
@@ -9373,7 +10289,7 @@ function mcSubmit(){
 
   var entry={
     id:Date.now(),nome:nome,cargo:cargo||'—',data:dataFmt,mes:mesNome,ano:parts[0],
-    num:num||'—',itensOK:nOK,total:MAL_ITENS.length,situacao:situacao,
+    num:num||'—',uf:num||'—',reprNome:reprNome,itensOK:nOK,total:MAL_ITENS.length,situacao:situacao,
     checked:checked,missing:missing,obs:obs||'—',status:'Registrado',acao:'aguardando',
     assinatura:sigData,anexo:null
   };
@@ -9984,5 +10900,140 @@ function expFeedback() {
 </div>
 </div>
 <!-- ════════════ FIM PRESENÇA TEL ════════════ -->
+
+
+<!-- ════════════ PORTAL FISCAL ════════════ -->
+<div class="page" id="pg-fiscal" style="display:none;">
+<div style="background:#1e3a5f;color:#fff;padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="font-size:22px;">🏛</div>
+    <div>
+      <div style="font-size:15px;font-weight:700;">Portal do Fiscal — TCU</div>
+      <div style="font-size:10px;opacity:.7;">T&S Engenharia · Visualização somente leitura</div>
+    </div>
+  </div>
+  <button onclick="doLogout()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:11px;font-family:inherit;">Sair</button>
+</div>
+<div style="display:flex;border-bottom:2px solid #e2e8f0;background:#fff;padding:0 1rem;flex-wrap:wrap;">
+  <button id="fiscal-tab-cad" onclick="fiscalTab('cad')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid #1d4ed8;color:#1d4ed8;margin-bottom:-2px;font-family:inherit;">👥 Cadastros</button>
+  <button id="fiscal-tab-ger" onclick="fiscalTab('ger')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">📊 Gerencial</button>
+  <button id="fiscal-tab-dev" onclick="fiscalTab('dev')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">📱 Celular/Tablet</button>
+  <button id="fiscal-tab-mal" onclick="fiscalTab('mal')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">🧰 Maleta</button>
+  <button id="fiscal-tab-abo" onclick="fiscalTab('abo')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">💰 Abono</button>
+</div>
+<div id="fiscal-pane-cad" style="padding:1rem;">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
+    <input type="text" id="fiscal-busca" placeholder="🔍 Buscar por nome..." oninput="rFiscalCad()" style="font-size:11px;padding:5px 10px;border:.5px solid #e2e8f0;border-radius:6px;width:220px;">
+    <select id="fiscal-fil-cargo" onchange="rFiscalCad()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;max-width:200px;"><option value="">Todos os cargos</option></select>
+    <span id="fiscal-cad-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
+  </div>
+  <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+    <table style="width:100%;border-collapse:collapse;min-width:900px;font-size:11px;">
+      <thead><tr style="background:#1e3a5f;color:#fff;">
+        <th style="padding:8px 10px;text-align:left;">Nome</th>
+        <th style="padding:8px 10px;">CPF</th>
+        <th style="padding:8px 10px;">RG</th>
+        <th style="padding:8px 10px;">Data Nasc.</th>
+        <th style="padding:8px 10px;">Cor/Raça</th>
+        <th style="padding:8px 10px;">E-mail</th>
+        <th style="padding:8px 10px;">Dt. Admissão</th>
+        <th style="padding:8px 10px;">Cargo</th>
+        <th style="padding:8px 10px;">Tipo Contrat.</th>
+        <th style="padding:8px 10px;">Jornada</th>
+        <th style="padding:8px 10px;">UF</th>
+      </tr></thead>
+      <tbody id="fiscal-cad-tbody"></tbody>
+    </table>
+  </div>
+</div>
+<div id="fiscal-pane-ger" style="display:none;padding:1rem;">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
+    <select id="fiscal-ger-mes" onchange="rFiscalGer()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
+      <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option>
+      <option>Maio</option><option selected>Junho</option><option>Julho</option><option>Agosto</option>
+      <option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option>
+    </select>
+    <select id="fiscal-ger-ano" onchange="rFiscalGer()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
+      <option>2025</option><option selected>2026</option><option>2027</option>
+    </select>
+    <select id="fiscal-ger-cargo" onchange="rFiscalGer()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;max-width:200px;"><option value="">Todos os cargos</option></select>
+  </div>
+  <div id="fiscal-ger-wrap" style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);"></div>
+</div>
+
+<!-- Celular/Tablet pane -->
+<div id="fiscal-pane-dev" style="display:none;padding:1rem;">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
+    <select id="fiscal-dev-tipo" onchange="rFiscalDev()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
+      <option value="">Todos</option><option value="celular">Celular</option><option value="tablet">Tablet</option>
+    </select>
+    <input type="text" id="fiscal-dev-busca" placeholder="🔍 Nome..." oninput="rFiscalDev()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:180px;">
+    <span id="fiscal-dev-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
+  </div>
+  <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#1e3a5f;color:#fff;">
+        <th style="padding:8px 10px;text-align:left;">Colaborador</th>
+        <th style="padding:8px 10px;">Cargo</th>
+        <th style="padding:8px 10px;">Tipo</th>
+        <th style="padding:8px 10px;">Número / Possui</th>
+        <th style="padding:8px 10px;">Data</th>
+      </tr></thead>
+      <tbody id="fiscal-dev-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Maleta pane -->
+<div id="fiscal-pane-mal" style="display:none;padding:1rem;">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
+    <input type="text" id="fiscal-mal-busca" placeholder="🔍 Nome..." oninput="rFiscalMal()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:180px;">
+    <span id="fiscal-mal-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
+  </div>
+  <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#1e3a5f;color:#fff;">
+        <th style="padding:8px 10px;text-align:left;">Colaborador</th>
+        <th style="padding:8px 10px;">Cargo</th>
+        <th style="padding:8px 10px;">UF</th>
+        <th style="padding:8px 10px;">Data</th>
+        <th style="padding:8px 10px;">Itens OK</th>
+        <th style="padding:8px 10px;">Representante TCU</th>
+      </tr></thead>
+      <tbody id="fiscal-mal-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Abono pane -->
+<div id="fiscal-pane-abo" style="display:none;padding:1rem;">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
+    <select id="fiscal-abo-mes" onchange="rFiscalAbo()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
+      <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option>
+      <option>Maio</option><option selected>Junho</option><option>Julho</option><option>Agosto</option>
+      <option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option>
+    </select>
+    <select id="fiscal-abo-ano" onchange="rFiscalAbo()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
+      <option>2025</option><option selected>2026</option><option>2027</option>
+    </select>
+    <span id="fiscal-abo-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
+  </div>
+  <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#1e3a5f;color:#fff;">
+        <th style="padding:8px 10px;text-align:left;">Colaborador</th>
+        <th style="padding:8px 10px;">Cargo</th>
+        <th style="padding:8px 10px;">UF</th>
+        <th style="padding:8px 10px;">Desktop/Internet</th>
+        <th style="padding:8px 10px;">Celular/Tablet</th>
+        <th style="padding:8px 10px;">Total</th>
+      </tr></thead>
+      <tbody id="fiscal-abo-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+<!-- ════════════ FIM PORTAL FISCAL ════════════ -->
 
 >
