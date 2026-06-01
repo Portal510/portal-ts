@@ -5826,7 +5826,7 @@ function saveColl(id){
   if(id){
     const c=COLL.find(x=>x.id===id);
     const nasc2=document.getElementById('ed_nasc')?.value||'';
-    Object.assign(c,{nome,cargo,horas,status,admissao,saida,motivo,nascimento:nasc2?new Date(nasc2).toLocaleDateString('pt-BR'):c.nascimento||''});
+    Object.assign(c,{nome,cargo,horas,status,admissao,saida,motivo,nascimento:nasc2||c.nascimento||''});
   } else {
     var _ufNew=document.getElementById('ed_uf')?.value||'DF';
     COLL.push({id:Date.now(),nome,cargo,horas,admissao,saida,status,sub:null,motivo,uf:_ufNew,nascimento:''});
