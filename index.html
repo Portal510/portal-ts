@@ -570,6 +570,51 @@ body.collab #btn-voltar-form { display: flex !important; }
     <div class="sc"><div class="sl">⏰ Saldo banco de horas</div><div class="sv" style="font-size:15px;" id="g-bh-saldo">0h</div></div>
   </div>
 
+  <!-- ── TEL Indicadores card ── -->
+  <div class="card" style="margin-bottom:.875rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;flex-wrap:wrap;gap:.5rem;">
+      <div class="ctitle" style="margin:0;">📞 Indicadores TEL — Passagem de Turno</div>
+      <div style="display:flex;align-items:center;gap:.5rem;">
+        <select id="g-tel-mes" onchange="refreshTelCard()" style="font-size:10px;padding:3px 7px;border:.5px solid var(--brd);border-radius:4px;">
+          <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option>
+          <option>Maio</option><option selected>Junho</option><option>Julho</option><option>Agosto</option>
+          <option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option>
+        </select>
+        <select id="g-tel-ano" onchange="refreshTelCard()" style="font-size:10px;padding:3px 7px;border:.5px solid var(--brd);border-radius:4px;">
+          <option>2025</option><option selected>2026</option><option>2027</option>
+        </select>
+        <button class="btn bp" onclick="pg('turno',document.querySelectorAll('.tab')[document.querySelectorAll('.tab').length-2])" style="font-size:10px;padding:3px 9px;white-space:nowrap;">Ver turno →</button>
+      </div>
+    </div>
+    <!-- KPI row -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.625rem;margin-bottom:.875rem;">
+      <div style="background:var(--b50);border-radius:8px;padding:.75rem;text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">TEL-01 Nível Serviço<br><span style="font-size:9px;">(mês acum.)</span></div>
+        <div id="g-tel01-pct" style="font-size:22px;font-weight:700;color:var(--b700);">—</div>
+        <div style="font-size:9px;color:var(--muted);">Meta ≥ 90%</div>
+      </div>
+      <div style="background:var(--g50);border-radius:8px;padding:.75rem;text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Atendidas ≤15s<br><span style="font-size:9px;">(mês acum.)</span></div>
+        <div id="g-tel-at15" style="font-size:22px;font-weight:700;color:var(--g600);">—</div>
+        <div id="g-tel-rec" style="font-size:9px;color:var(--muted);">de — recebidas</div>
+      </div>
+      <div style="background:#fef3c7;border-radius:8px;padding:.75rem;text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">TEL-02 Resolvidos 2h<br><span style="font-size:9px;">(acumulado)</span></div>
+        <div id="g-tel02-pct" style="font-size:22px;font-weight:700;color:#d97706;">—</div>
+        <div style="font-size:9px;color:var(--muted);">Meta ≥ 90%</div>
+      </div>
+      <div style="background:#fef2f2;border-radius:8px;padding:.75rem;text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Abandonadas<br><span style="font-size:9px;">(acumulado mês)</span></div>
+        <div id="g-tel-aband" style="font-size:22px;font-weight:700;color:#991b1b;">—</div>
+        <div id="g-tel-aband-pct" style="font-size:9px;color:var(--muted);">—%</div>
+      </div>
+    </div>
+    <!-- Últimos registros -->
+    <div id="g-tel-registros" style="font-size:11px;color:var(--muted);text-align:center;padding:.5rem;">
+      Nenhum registro de passagem de turno este mês.
+    </div>
+  </div>
+
   <!-- ── ROW 2: Controle de colaboradores + Cadastro ── -->
   <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:.875rem;margin-bottom:.875rem;">
 
@@ -2223,17 +2268,22 @@ body.collab #btn-voltar-form { display: flex !important; }
 <div class="dash-page">
   <div class="dh2"><div class="dhic" style="background:var(--a50);">🎂</div>Aniversariantes</div>
   <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;">
-    <div style="font-size:12px;font-weight:600;color:var(--b800);margin-bottom:.4rem;">⚙️ Configuração da mensagem de aniversário (Power Automate / Teams)</div>
-    <p style="font-size:10px;color:var(--b800);margin-bottom:.5rem;">A mensagem abaixo será enviada automaticamente via link para o card do Teams no dia do aniversário do colaborador. Para automação via Power Automate, use o webhook do canal do Teams.</p>
+    <div style="font-size:12px;font-weight:700;color:var(--b800);margin-bottom:.5rem;">✉️ Mensagem de parabéns por e-mail</div>
+    <p style="font-size:10px;color:var(--b700);margin-bottom:.75rem;">Use <strong>{nome}</strong> para inserir o nome do colaborador automaticamente. Clique em 📧 ao lado de cada aniversariante para enviar.</p>
     <div class="fg">
-      <div class="fp ff"><label>Modelo de mensagem (use {nome} para o nome do colaborador)</label>
-        <textarea id="aniv-msg-template" rows="4" placeholder="Ex: 🎂 Parabéns, {nome}! A equipe T&S deseja um feliz aniversário! 🎉 Que este dia seja especial para você!"></textarea>
-      </div>
-      <div class="fp ff"><label>Webhook do Teams (Power Automate)</label>
-        <input type="text" id="aniv-webhook" placeholder="https://outlook.office.com/webhook/...">
+      <div class="fp ff">
+        <label>Modelo de mensagem</label>
+        <textarea id="aniv-msg" rows="4" style="width:100%;padding:8px;border:.5px solid var(--brd);border-radius:var(--rad);font-family:inherit;font-size:12px;resize:vertical;">Olá, {nome}! 🎂
+
+Em nome de toda a equipe T&S Engenharia, desejamos a você um feliz aniversário!
+Que este novo ano de vida seja repleto de conquistas, saúde e alegrias.
+
+Parabéns! 🎉</textarea>
       </div>
     </div>
-    <button class="btn bp" style="margin-top:.5rem;" onclick="saveAnivConfig()">💾 Salvar configuração</button>
+    <div style="margin-top:.625rem;">
+      <button class="btn bp" onclick="enviarAnivTodos()" style="font-size:11px;white-space:nowrap;">📧 Enviar para todos os aniversariantes do mês</button>
+    </div>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem;">
     <div class="card">
@@ -4654,7 +4704,7 @@ function pg(id,tabEl){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
   // Render page data
-  try{if(id==='geral') refreshGeral();}catch(e){}
+  try{if(id==='geral'){refreshGeral();setTimeout(function(){try{refreshTelCard();}catch(e){}},100);}}catch(e){}
   try{if(id==='ctrl') rCtrl();}catch(e){}
   try{if(id==='pausas'){rPausas();initPauNames();}}catch(e){}
   try{if(id==='ferias') rFerias();}catch(e){}
@@ -5319,6 +5369,98 @@ function refreshDash(){
 }
 
 /* ═══ GERAL DASHBOARD ═══ */
+function refreshTelCard(){
+  var mes = document.getElementById('g-tel-mes')?.value || 'Janeiro';
+  var ano = document.getElementById('g-tel-ano')?.value || '2026';
+  var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mIdx  = String(meses.indexOf(mes)+1).padStart(2,'0');
+
+  // Aggregate all turno records for this month/year
+  var totalRec=0, totalAt15=0, totalRecMes=0, totalAt15Mes=0;
+  var totalRes2h=0, totalCh=0, totalAband=0, totalAbandMes=0;
+  var registros=[];
+
+  Object.keys(TURNO_DATA).forEach(function(k){
+    var r = TURNO_DATA[k];
+    var parts = k.split('|');
+    var dateParts = (parts[0]||'').split('/'); // dd/mm/aaaa
+    if(dateParts.length<3) return;
+    if(dateParts[1]===mIdx && dateParts[2]===ano){
+      totalRec    += parseInt(r.ti_rec_dia)||0;
+      totalAt15   += parseInt(r.ti_atend15_dia)||0;
+      totalRecMes  = Math.max(totalRecMes,  parseInt(r.ti_rec_mes)||0);
+      totalAt15Mes = Math.max(totalAt15Mes, parseInt(r.ti_atend15_mes)||0);
+      totalRes2h  += parseInt(r.ti_res2h)||0;
+      totalCh     += parseInt(r.ti_total_ch)||0;
+      totalAband  += parseInt(r.ti_aband_dia)||0;
+      totalAbandMes= Math.max(totalAbandMes, parseInt(r.ti_aband_mes)||0);
+      registros.push({key:k, data:parts[0], periodo:parts[1]||'dia', r:r});
+    }
+  });
+
+  // Use accumulated month values if available, otherwise sum of daily
+  var recBase  = totalRecMes  || totalRec;
+  var at15Base = totalAt15Mes || totalAt15;
+  var pct01    = recBase>0  ? (at15Base/recBase*100).toFixed(1)  : null;
+  var pct02    = totalCh>0  ? (totalRes2h/totalCh*100).toFixed(1): null;
+  var pctAband = recBase>0  ? (totalAband/recBase*100).toFixed(1) : null;
+
+  var meta01ok = pct01!==null && parseFloat(pct01)>=90;
+  var meta02ok = pct02!==null && parseFloat(pct02)>=90;
+
+  function sv(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
+  function sc(id,c){ var el=document.getElementById(id); if(el) el.style.color=c; }
+
+  sv('g-tel01-pct',  pct01!==null ? pct01+'%' : '—');
+  sc('g-tel01-pct',  pct01!==null ? (meta01ok?'#065f46':'#991b1b') : '#94a3b8');
+  sv('g-tel-at15',   at15Base||'—');
+  sv('g-tel-rec',    recBase ? 'de '+recBase+' recebidas' : 'sem dados');
+  sv('g-tel02-pct',  pct02!==null ? pct02+'%' : '—');
+  sc('g-tel02-pct',  pct02!==null ? (meta02ok?'#065f46':'#d97706') : '#94a3b8');
+  sv('g-tel-aband',  totalAband||'—');
+  sv('g-tel-aband-pct', pctAband!==null ? pctAband+'% de abandono' : '—');
+
+  // Last 5 records summary
+  var regEl = document.getElementById('g-tel-registros');
+  if(!regEl) return;
+  if(!registros.length){
+    regEl.innerHTML='<div style="font-size:11px;color:var(--muted);text-align:center;padding:.5rem;">Nenhum registro de passagem de turno em '+mes+'/'+ano+'.</div>';
+    return;
+  }
+  var periodLabels={manha:'🌅',tarde:'🌇',noite:'🌙',dia:'📅'};
+  registros.sort(function(a,b){ return b.key.localeCompare(a.key); });
+  var html2='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
+    +'<thead><tr style="background:var(--gy50);">'
+    +'<th style="padding:5px 8px;text-align:left;font-weight:600;">Data</th>'
+    +'<th style="padding:5px 8px;text-align:left;font-weight:600;">Turno</th>'
+    +'<th style="padding:5px 8px;text-align:center;font-weight:600;">Rec. dia</th>'
+    +'<th style="padding:5px 8px;text-align:center;font-weight:600;">Atend. 15s</th>'
+    +'<th style="padding:5px 8px;text-align:center;font-weight:600;">NS dia</th>'
+    +'<th style="padding:5px 8px;text-align:center;font-weight:600;">Abandonadas</th>'
+    +'<th style="padding:5px 8px;text-align:left;font-weight:600;">Responsável</th>'
+    +'</tr></thead><tbody>';
+  registros.slice(0,8).forEach(function(item,i){
+    var r=item.r;
+    var rRec=parseInt(r.ti_rec_dia)||0;
+    var rAt15=parseInt(r.ti_atend15_dia)||0;
+    var rPct=rRec>0?(rAt15/rRec*100).toFixed(1)+'%':'—';
+    var rOk=rRec>0&&(rAt15/rRec)>=0.9;
+    var bg=i%2===0?'#fff':'#f8fafc';
+    html2+='<tr style="border-bottom:.5px solid #f1f5f9;">'
+      +'<td style="padding:5px 8px;font-weight:600;background:'+bg+';">'+item.data+'</td>'
+      +'<td style="padding:5px 8px;background:'+bg+';">'+(periodLabels[item.periodo]||'📅')+' '+(item.periodo==='manha'?'Manhã':item.periodo==='tarde'?'Tarde':item.periodo)+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;background:'+bg+';">'+( rRec||'—')+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;background:'+bg+';">'+( rAt15||'—')+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;background:'+bg+';font-weight:700;color:'+(rRec>0?(rOk?'#065f46':'#991b1b'):'#94a3b8')+';">'+rPct+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;background:'+bg+';color:#991b1b;">'+(r.ti_aband_dia||'0')+'</td>'
+      +'<td style="padding:5px 8px;font-size:9px;color:var(--muted);background:'+bg+';">'+(r.ti_responsavel||'—')+'</td>'
+      +'</tr>';
+  });
+  html2+='</tbody></table></div>';
+  if(registros.length>8) html2+='<div style="font-size:10px;color:var(--muted);text-align:right;margin-top:4px;">+' +(registros.length-8)+' registros anteriores</div>';
+  regEl.innerHTML = html2;
+}
+
 function refreshGeral(){
   var sv = function(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; };
   var sc2 = function(id,val){ var el=document.getElementById(id); if(el){ el.textContent=val; } };
@@ -5414,6 +5556,11 @@ function refreshGeral(){
     if(!BH_DATA.length){ bhLst.innerHTML='<div style="font-size:11px;color:var(--muted);">Sem registros.</div>'; }
     BH_DATA.slice(-3).reverse().forEach(function(r){
       bhLst.innerHTML+='<div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:.5px solid var(--brd);">'
+        +'<span style="font-size:10px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+r.nome+'</span>'
+        +'<span class="bdg '+(r.minutos>=0?'bok2':'be')+'" style="font-size:8px;">'+minToStr(r.minutos)+'</span>'
+        +'<span style="font-size:9px;color:var(--muted);">'+r.data+'</span></div>';
+    });
+  }
 
   // ── Maleta ──
   var malComp=MALETA_DATA.filter(function(r){return r.situacao==='Completa';}).length;
@@ -5457,7 +5604,19 @@ function refreshGeral(){
   sv('g-ac-tot', acTot); sv('g-ac-ok', acOK); sv('g-ac-pend', acPend);
   var acBar=document.getElementById('g-ac-bar'); if(acBar) acBar.style.width=acPct+'%';
   sv('g-ac-pct', acPct+'% configurados');
-    }).slice(0,4);
+
+  // ── Próximos Feriados ──
+  var proxEl=document.getElementById('g-prox-fer');
+  if(proxEl){
+    var hoje2=new Date();
+    var futuros=Object.keys(FERIADOS_GER_2026).filter(function(k){
+      return new Date(k)>=hoje2;
+    }).sort().slice(0,4).map(function(k){
+      var d=new Date(k); var f=FERIADOS_GER_2026[k];
+      var ds=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][d.getDay()];
+      var parts=k.split('-');
+      return {tipo:f.tipo,desc:f.desc,dow:ds,data:parts[2]+'/'+parts[1]+'/'+parts[0]};
+    });
     proxEl.innerHTML='';
     if(!futuros.length){ proxEl.innerHTML='<div style="font-size:11px;color:var(--muted);padding:.5rem;">Sem feriados futuros em 2026.</div>'; }
     futuros.forEach(function(f){
@@ -5470,6 +5629,7 @@ function refreshGeral(){
         +'</div>';
     });
   }
+  try{ refreshTelCard(); }catch(e){}
 }
 
 /* ═══ CONTROLE ═══ */
@@ -5619,12 +5779,12 @@ function openEditModal(id){
   const overlay=document.getElementById('modal-overlay');
   const body=document.getElementById('modal-body');
   const cargoOpts=Object.entries(CD).map(([k,d])=>'<option value="'+k+'" '+(c.cargo===k?'selected':'')+'>'+d.label+'</option>').join('');
-  var nascVal=c.nascimento?new Date(c.nascimento.split('/').reverse().join('-')).toISOString().split('T')[0]:'';
+  var nascVal = c.nascimento || '';
   body.innerHTML=
     '<h3 style="font-size:15px;font-weight:600;margin-bottom:1rem;">'+(id?'Editar Colaborador':'Novo Colaborador')+'</h3>'
     +'<div class="fg" style="gap:.6rem;">'
       +'<div class="fp ff"><label>Nome completo *</label><input type="text" id="ed_nome" value="'+c.nome+'" placeholder="Nome completo"></div>'
-      +'<div class="fp ff"><label>Cargo *</label><select id="ed_cargo"><option value="">Selecione</option>'+cargoOpts+'</select></div>'
+      +'<div class="fp ff"><label>Cargo *</label><select id="ed_cargo" onchange="autoJornada()"><option value="">Selecione</option>'+cargoOpts+'</select></div>'
       +'<div class="fp"><label>Jornada de Trabalho</label><input type="text" id="ed_horas" value="'+c.horas+'" readonly class="ro"></div>'
       +'<div class="fp"><label>Status</label>'
         +'<select id="ed_status">'
@@ -5634,9 +5794,9 @@ function openEditModal(id){
           +'<option value="afastado" '+(c.status==='afastado'?'selected':'')+'>Afastado</option>'
         +'</select>'
       +'</div>'
-      +'<div class="fp"><label>Data de nascimento (aniversário)</label><input type="date" placeholder="dd/mm/aaaa" id="ed_nasc" value="'+nascVal+'"></div>'
-      +'<div class="fp"><label>Data de admissão</label><input type="text" id="ed_adm" value="'+(c.admissao||'')+'" placeholder="DD/MM/AAAA"></div>'
-      +'<div class="fp"><label>Data de saída</label><input type="text" id="ed_sai" value="'+(c.saida||'')+'" placeholder="DD/MM/AAAA (se aplicável)"></div>'
+      +'<div class="fp"><label>Data de nascimento</label><input type="text" oninput="maskDate(this)" placeholder="dd/mm/aaaa" id="ed_nasc" value="'+nascVal+'"></div>'
+      +'<div class="fp"><label>Data de admissão</label><input type="text" oninput="maskDate(this)" id="ed_adm" value="'+(c.admissao||'')+'" placeholder="dd/mm/aaaa"></div>'
+      +'<div class="fp"><label>Data de saída</label><input type="text" oninput="maskDate(this)" id="ed_sai" value="'+(c.saida||'')+'" placeholder="dd/mm/aaaa"></div>'
       +'<div class="fp ff"><label>Motivo (saída / afastamento)</label><input type="text" id="ed_mot" value="'+(c.motivo||'')+'" placeholder="Ex: pedido do cliente, atestado..."></div>'
     +'</div>'
     +'<div class="brow" style="margin-top:1rem;">'
@@ -9662,7 +9822,7 @@ function _initPortal(){
   // ── STEP 3: Init data / names
   initAtesNames();initDevNames();initUniNames();
   // ── STEP 4: Render all pages
-  refreshNav();refreshDash();refreshGeral();rFerias();rBH();rAtes();rDevice();rUni();rAcesso();
+  refreshNav();refreshDash();refreshGeral();refreshTelCard();rFerias();rBH();rAtes();rDevice();rUni();rAcesso();
   // pre-fill bv_msg
   const bvMsgEl=document.getElementById('bv_msg');
   if(bvMsgEl) bvMsgEl.value="Olá, [Nome do Colaborador]!\n\nÉ com grande alegria que damos as boas-vindas a você em nossa equipe. Estamos muito felizes com a sua chegada e confiantes de que sua experiência, talento e dedicação contribuirão para o nosso crescimento coletivo.\n\nAqui, valorizamos a colaboração, o respeito e a inovação. Conte com o apoio de todos para se integrar, aprender e também compartilhar suas ideias. Nosso objetivo é que você se sinta acolhido(a) e motivado(a) para alcançar grandes resultados junto conosco.\n\nSeja muito bem-vindo(a) e sucesso nessa nova jornada!";
