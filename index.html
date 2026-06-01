@@ -5779,7 +5779,8 @@ function openEditModal(id){
   const overlay=document.getElementById('modal-overlay');
   const body=document.getElementById('modal-body');
   const cargoOpts=Object.entries(CD).map(([k,d])=>'<option value="'+k+'" '+(c.cargo===k?'selected':'')+'>'+d.label+'</option>').join('');
-  var nascVal = c.nascimento || '';
+  // Only use nascimento if it matches dd/mm/aaaa format
+  var nascVal = (c.nascimento && /^\d{2}\/\d{2}\/\d{4}$/.test(String(c.nascimento))) ? c.nascimento : '';
   body.innerHTML=
     '<h3 style="font-size:15px;font-weight:600;margin-bottom:1rem;">'+(id?'Editar Colaborador':'Novo Colaborador')+'</h3>'
     +'<div class="fg" style="gap:.6rem;">'
