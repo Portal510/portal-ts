@@ -528,7 +528,6 @@ body.collab #btn-voltar-form { display: flex !important; }
     <button class="tab"     onclick="pg('aniv'   ,this)">🎂 Aniversariantes</button>
     <button class="tab"     onclick="pg('abono'  ,this)">💰 Abono</button>
     <button class="tab"     onclick="pg('links'  ,this)" data-keep="true">🔗 Portal Links</button>
-    <button class="tab"     onclick="pg('presenca' ,this)">📍 Presença TEL</button>
     <button class="tab"     onclick="pg('turno'    ,this)">🔄 Passagem de Turno</button>
     <button class="tab"     onclick="pg('gerencial',this)">📊 Gerencial</button>
     <button class="tab"     onclick="pg('feedback',this)">💬 Feedback</button>
@@ -6869,10 +6868,10 @@ function loadAll(){
     if(d.BV_ACORDOS) BV_ACORDOS.splice(0,BV_ACORDOS.length,...d.BV_ACORDOS);
     if(d.ANIV_CONFIG) Object.assign(ANIV_CONFIG,d.ANIV_CONFIG);
     if(d.FEEDBACK_DATA) FEEDBACK_DATA.splice(0,FEEDBACK_DATA.length,...d.FEEDBACK_DATA);
-    if(d.GER_DATA) Object.assign(GER_DATA,d.GER_DATA);
+    if(d.GER_DATA){ Object.keys(GER_DATA).forEach(function(k){delete GER_DATA[k];}); Object.assign(GER_DATA,d.GER_DATA); }
     if(d.MALETA_DATA) MALETA_DATA.splice(0,MALETA_DATA.length,...d.MALETA_DATA);
-    if(d.ABONO_DATA) Object.assign(ABONO_DATA,d.ABONO_DATA);
-    if(d.DOC_MATRIX) Object.assign(DOC_MATRIX,d.DOC_MATRIX);
+    if(d.ABONO_DATA){ Object.keys(ABONO_DATA).forEach(function(k){delete ABONO_DATA[k];}); Object.assign(ABONO_DATA,d.ABONO_DATA); }
+    if(d.DOC_MATRIX){ Object.keys(DOC_MATRIX).forEach(function(k){delete DOC_MATRIX[k];}); Object.assign(DOC_MATRIX,d.DOC_MATRIX); }
     if(d.PRESENCA_DATA) Object.assign(PRESENCA_DATA,d.PRESENCA_DATA);
     if(d._docsPainel) Object.assign(_docsPainel,d._docsPainel);
   }catch(e){}
@@ -6921,25 +6920,48 @@ document.addEventListener('visibilitychange', function(){
   }
 });
 
-// ── Auto-refresh a cada 15s usando timestamp ──
+// ── Auto-refresh a cada 3s — fiscal lê localStorage diretamente ──
 var _lastSyncTs = (function(){ try{ return _ls.getItem(STORE_KEY+'_sync')||'0'; }catch(e){return '0';} })();
 setInterval(function(){
-  if(ST.collab) return;
-  // If GAS configured, pull from Sheets (handles cross-device sync)
-  if(getGasUrl()){
-    gasPull();
-    return;
-  }
-  // Fallback: same-browser tab sync via timestamp
   try{
-    var ts = _ls.getItem(STORE_KEY+'_sync') || '0';
-    if(ts !== _lastSyncTs){
-      _lastSyncTs = ts;
-      loadAll(); refreshAll();
-      toast('✅ Dados atualizados!','ok');
+    var role = document.body.getAttribute('data-role')||'';
+    var ts = (_ls.getItem(STORE_KEY+'_sync'))||'0';
+    var changed = (ts !== _lastSyncTs);
+    if(changed) _lastSyncTs = ts;
+    if(role === 'fiscal'){
+      // Fiscal: sempre lê direto do localStorage (não depende de evento)
+      try{
+        var raw=_ls.getItem(STORE_KEY);
+        if(raw){
+          var d=JSON.parse(raw);
+          if(d.ABONO_DATA){Object.keys(ABONO_DATA).forEach(function(k){delete ABONO_DATA[k];});Object.assign(ABONO_DATA,d.ABONO_DATA);}
+          if(d.GER_DATA){Object.keys(GER_DATA).forEach(function(k){delete GER_DATA[k];});Object.assign(GER_DATA,d.GER_DATA);}
+          if(d.COLL&&Array.isArray(d.COLL))COLL.splice(0,COLL.length,...d.COLL);
+          if(d.MALETA_DATA)MALETA_DATA.splice(0,MALETA_DATA.length,...d.MALETA_DATA);
+          if(d.DEVICE_DATA)DEVICE_DATA.splice(0,DEVICE_DATA.length,...d.DEVICE_DATA);
+          if(d.DOC_MATRIX){Object.keys(DOC_MATRIX).forEach(function(k){delete DOC_MATRIX[k];});Object.assign(DOC_MATRIX,d.DOC_MATRIX);}
+          if(d._docsPainel){Object.keys(_docsPainel).forEach(function(k){delete _docsPainel[k];});Object.assign(_docsPainel,d._docsPainel);}
+        }
+      }catch(ex){}
+      if(changed){
+        try{ rFiscalCad(); }catch(e){}
+        try{ rFiscalGer(); }catch(e){}
+        try{ rFiscalAbo(); }catch(e){}
+        try{ rFiscalMal(); }catch(e){}
+        try{ rFiscalDev(); }catch(e){}
+        try{ rFiscalDocs(); }catch(e){}
+      }
+    } else if(changed){
+      loadAll();
+      try{ refreshDash(); }catch(e){}
+      try{ refreshGeral(); }catch(e){}
+      try{ refreshTelCard(); }catch(e){}
+      try{ rAbono(); }catch(e){}
+      try{ rMaleta(); }catch(e){}
     }
   }catch(ex){}
-}, 15000);
+}, 3000);
+
 
 // ── postMessage listener: Google Sites can send form routing commands ──
 // Usage: iframe.contentWindow.postMessage({portalForm:'pau'},'*')
@@ -9619,38 +9641,7 @@ function expFeedback() {
         <button onclick="voltarPortalLinks()" style="margin-top:1.5rem;background:var(--b600);color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;">← Voltar ao portal</button>
       </div>
 <!-- ════════════ PRESENÇA TEL ════════════ -->
-<div class="page" id="pg-presenca">
-<div class="dash-page">
-  <div class="dh2"><div class="dhic" style="background:#e0f2fe;">📍</div>Controle de Presença — Analistas Telefônicos</div>
 
-  <div class="card" style="margin-bottom:.75rem;">
-    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
-      <select id="pres-mes" onchange="rPresenca()" style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);">
-        <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option>
-        <option>Maio</option><option selected>Junho</option><option>Julho</option><option>Agosto</option>
-        <option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option>
-      </select>
-      <select id="pres-ano" onchange="rPresenca()" style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);">
-        <option>2025</option><option selected>2026</option><option>2027</option>
-      </select>
-      <input type="text" id="pres-busca" placeholder="🔍 Nome..." oninput="rPresenca()" style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);width:170px;">
-      <div style="display:flex;gap:.375rem;align-items:center;font-size:10px;flex-wrap:wrap;">
-        <span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:4px;font-weight:700;">H Home Office</span>
-        <span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:4px;font-weight:700;">E Empresa</span>
-        <span style="background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:4px;font-weight:700;">PF Ponto Facultativo</span>
-        <span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px;font-weight:700;">F Falta</span>
-      </div>
-      <span id="pres-count" style="font-size:10px;color:var(--muted);"></span>
-      <button class="btn bp" onclick="expPresenca()" style="font-size:11px;padding:5px 12px;white-space:nowrap;margin-left:auto;">⬇ Exportar XLS</button>
-    </div>
-  </div>
-
-  <div class="card" style="padding:0;">
-    <div id="pres-wrap" style="overflow-x:auto;border-radius:var(--radlg);"></div>
-  </div>
-</div>
-</div>
-<!-- ════════════ FIM PRESENÇA TEL ════════════ -->
 
 
 <!-- ════════════ PORTAL FISCAL ════════════ -->
