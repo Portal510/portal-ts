@@ -475,6 +475,51 @@ body.collab #btn-voltar-form { display: flex !important; }
   });
 })();
 </script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB6gK-4UWyVnf0u7wQf-lge1LEXnoDmTz8",
+      authDomain: "portal-ts.firebaseapp.com",
+      projectId: "portal-ts",
+      storageBucket: "portal-ts.firebasestorage.app",
+      messagingSenderId: "667665484200",
+      appId: "1:667665484200:web:9cd7258f2436a14117359d"
+    };
+
+    const _fbApp = initializeApp(firebaseConfig);
+    const _db   = getFirestore(_fbApp);
+    const _DOC  = 'portal-ts/dados';
+
+    // ── Save to Firestore ──
+    window._fbSave = async function(payload){
+      try{
+        await setDoc(doc(_db, 'portal-ts', 'dados'), payload);
+      }catch(e){ console.warn('Firebase save error:', e); }
+    };
+
+    // ── Load from Firestore ──
+    window._fbLoad = async function(){
+      try{
+        const snap = await getDoc(doc(_db, 'portal-ts', 'dados'));
+        if(snap.exists()) return snap.data();
+      }catch(e){ console.warn('Firebase load error:', e); }
+      return null;
+    };
+
+    // ── Real-time listener ──
+    window._fbListen = function(callback){
+      return onSnapshot(doc(_db, 'portal-ts', 'dados'), function(snap){
+        if(snap.exists()) callback(snap.data());
+      }, function(e){ console.warn('Firebase listen error:', e); });
+    };
+
+    window._fbReady = true;
+    window.dispatchEvent(new Event('firebase-ready'));
+  </script>
 </head>
 <body>
 
@@ -6864,19 +6909,77 @@ function refreshAll(){
 
 function saveAll(){
   try{
-    var payload = JSON.stringify({
-      COLL, PAUSAS, PEND_PAUSAS, FERIAS, BH_DATA,
-      ATES_DATA, DEVICE_DATA, UNI_DATA, SOL_DATA,
-      ACESSO_DATA, DOCS_DATA, _docsPainel,
-      FEEDBACK_DATA, GER_DATA, MALETA_DATA, ABONO_DATA, DOC_MATRIX,
-      PRESENCA_DATA, PRESENCA_REG, TURNO_DATA
-    });
+    var data = {
+      COLL:COLL, PAUSAS:PAUSAS, PEND_PAUSAS:PEND_PAUSAS, FERIAS:FERIAS, BH_DATA:BH_DATA,
+      ATES_DATA:ATES_DATA, DEVICE_DATA:DEVICE_DATA, UNI_DATA:UNI_DATA, SOL_DATA:SOL_DATA,
+      ACESSO_DATA:ACESSO_DATA, DOCS_DATA:DOCS_DATA, _docsPainel:_docsPainel,
+      FEEDBACK_DATA:FEEDBACK_DATA, GER_DATA:GER_DATA, MALETA_DATA:MALETA_DATA,
+      ABONO_DATA:ABONO_DATA, DOC_MATRIX:DOC_MATRIX,
+      PRESENCA_DATA:PRESENCA_DATA, PRESENCA_REG:PRESENCA_REG, TURNO_DATA:TURNO_DATA
+    };
+    var payload = JSON.stringify(data);
     _ls.setItem(STORE_KEY, payload);
-    // Write a sync timestamp so other tabs/sessions detect the change
     _ls.setItem(STORE_KEY + '_sync', Date.now().toString());
-    // Broadcast to other tabs (fiscal, other gestor windows)
     try{ _ls.setItem(STORE_KEY + '_broadcast', Date.now().toString()); }catch(e){}
+    // Save to Firebase (real-time sync between devices)
+    if(window._fbReady && window._fbSave){
+      window._fbSave(data).catch(function(){});
+    }
   }catch(e){}
+}
+
+async function loadAllFromFirebase(){
+  if(!window._fbLoad) return false;
+  try{
+    var d = await window._fbLoad();
+    if(!d) return false;
+    _applyData(d);
+    return true;
+  }catch(e){ return false; }
+}
+
+function _applyData(d){
+  var _builtIn={};
+  COLL.forEach(function(c){ _builtIn[c.nome]=c; });
+  if(d.COLL && Array.isArray(d.COLL)){
+    d.COLL.forEach(function(c){
+      var src=_builtIn[c.nome];
+      if(src){
+        ['admissao','cpf_imp','rg_imp','nascimento','email_imp','raca','genero',
+         'uf','salario','email_tcu','pcd','libras','vvd'].forEach(function(f){
+          if(!c[f]||c[f]==='—') c[f]=src[f]||'';
+        });
+      }
+      var p=[];
+      if(!c.cpf_imp)    p.push('CPF');
+      if(!c.rg_imp)     p.push('RG');
+      if(!c.nascimento) p.push('Data Nascimento');
+      if(!c.email_imp)  p.push('E-mail');
+      if(!c.genero)     p.push('Gênero');
+      if(!c.raca)       p.push('Raça/Cor');
+      if(!c.admissao)   p.push('Admissão');
+      c._pendente=p.length>0; c._pendencias=p;
+    });
+    COLL.splice(0,COLL.length,...d.COLL);
+  }
+  if(d.PAUSAS)       PAUSAS.splice(0,PAUSAS.length,...d.PAUSAS);
+  if(d.PEND_PAUSAS)  PEND_PAUSAS.splice(0,PEND_PAUSAS.length,...d.PEND_PAUSAS);
+  if(d.FERIAS)       FERIAS.splice(0,FERIAS.length,...d.FERIAS);
+  if(d.BH_DATA)      BH_DATA.splice(0,BH_DATA.length,...d.BH_DATA);
+  if(d.ATES_DATA)    ATES_DATA.splice(0,ATES_DATA.length,...d.ATES_DATA);
+  if(d.DEVICE_DATA)  DEVICE_DATA.splice(0,DEVICE_DATA.length,...d.DEVICE_DATA);
+  if(d.UNI_DATA)     UNI_DATA.splice(0,UNI_DATA.length,...d.UNI_DATA);
+  if(d.SOL_DATA)     SOL_DATA.splice(0,SOL_DATA.length,...d.SOL_DATA);
+  if(d.ACESSO_DATA)  ACESSO_DATA.splice(0,ACESSO_DATA.length,...d.ACESSO_DATA);
+  if(d.FEEDBACK_DATA)FEEDBACK_DATA.splice(0,FEEDBACK_DATA.length,...d.FEEDBACK_DATA);
+  if(d.MALETA_DATA)  MALETA_DATA.splice(0,MALETA_DATA.length,...d.MALETA_DATA);
+  if(d.GER_DATA){    Object.keys(GER_DATA).forEach(function(k){delete GER_DATA[k];}); Object.assign(GER_DATA,d.GER_DATA); }
+  if(d.ABONO_DATA){  Object.keys(ABONO_DATA).forEach(function(k){delete ABONO_DATA[k];}); Object.assign(ABONO_DATA,d.ABONO_DATA); }
+  if(d.DOC_MATRIX){  Object.keys(DOC_MATRIX).forEach(function(k){delete DOC_MATRIX[k];}); Object.assign(DOC_MATRIX,d.DOC_MATRIX); }
+  if(d._docsPainel){ Object.keys(_docsPainel).forEach(function(k){delete _docsPainel[k];}); Object.assign(_docsPainel,d._docsPainel); }
+  if(d.PRESENCA_DATA)Object.assign(PRESENCA_DATA,d.PRESENCA_DATA);
+  if(d.PRESENCA_REG) Object.assign(PRESENCA_REG,d.PRESENCA_REG);
+  if(d.TURNO_DATA)   Object.assign(TURNO_DATA,d.TURNO_DATA);
 }
 
 function loadAll(){
@@ -6884,53 +6987,10 @@ function loadAll(){
     const raw = _ls.getItem(STORE_KEY);
     if(!raw) return;
     const d = JSON.parse(raw);
-    if(d.COLL && Array.isArray(d.COLL)){
-      // Build lookup of built-in COLL (from JS source, has planilha data)
-      var _builtIn={};
-      COLL.forEach(function(c){ _builtIn[c.nome]=c; });
-      d.COLL.forEach(function(c){
-        // Merge built-in fields if stored ones are empty
-        var src = _builtIn[c.nome];
-        if(src){
-          ['admissao','cpf_imp','rg_imp','nascimento','email_imp','raca','genero',
-           'uf','salario','email_tcu','pcd','libras','vvd'].forEach(function(f){
-            if(!c[f]||c[f]==='—') c[f]=src[f]||'';
-          });
-        }
-        // Recalculate pending fields
-        var p=[];
-        if(!c.cpf_imp)    p.push('CPF');
-        if(!c.rg_imp)     p.push('RG');
-        if(!c.nascimento) p.push('Data Nascimento');
-        if(!c.email_imp)  p.push('E-mail');
-        if(!c.genero)     p.push('Gênero');
-        if(!c.raca)       p.push('Raça/Cor');
-        if(!c.admissao)   p.push('Admissão');
-        c._pendente   = p.length > 0;
-        c._pendencias = p;
-      });
-      COLL.splice(0,COLL.length,...d.COLL);
-    }
-    if(d.PAUSAS) PAUSAS.splice(0,PAUSAS.length,...d.PAUSAS);
-    if(d.PEND_PAUSAS) PEND_PAUSAS.splice(0,PEND_PAUSAS.length,...d.PEND_PAUSAS);
-    if(d.FERIAS) FERIAS.splice(0,FERIAS.length,...d.FERIAS);
-    if(d.BH_DATA) BH_DATA.splice(0,BH_DATA.length,...d.BH_DATA);
-    if(d.ATES_DATA) ATES_DATA.splice(0,ATES_DATA.length,...d.ATES_DATA);
-    if(d.DEVICE_DATA) DEVICE_DATA.splice(0,DEVICE_DATA.length,...d.DEVICE_DATA);
-    if(d.UNI_DATA) UNI_DATA.splice(0,UNI_DATA.length,...d.UNI_DATA);
-    if(d.SOL_DATA) SOL_DATA.splice(0,SOL_DATA.length,...d.SOL_DATA);
-    if(d.ACESSO_DATA) ACESSO_DATA.splice(0,ACESSO_DATA.length,...d.ACESSO_DATA);
-    if(d.BV_ACORDOS) BV_ACORDOS.splice(0,BV_ACORDOS.length,...d.BV_ACORDOS);
-    if(d.ANIV_CONFIG) Object.assign(ANIV_CONFIG,d.ANIV_CONFIG);
-    if(d.FEEDBACK_DATA) FEEDBACK_DATA.splice(0,FEEDBACK_DATA.length,...d.FEEDBACK_DATA);
-    if(d.GER_DATA){ Object.keys(GER_DATA).forEach(function(k){delete GER_DATA[k];}); Object.assign(GER_DATA,d.GER_DATA); }
-    if(d.MALETA_DATA) MALETA_DATA.splice(0,MALETA_DATA.length,...d.MALETA_DATA);
-    if(d.ABONO_DATA){ Object.keys(ABONO_DATA).forEach(function(k){delete ABONO_DATA[k];}); Object.assign(ABONO_DATA,d.ABONO_DATA); }
-    if(d.DOC_MATRIX){ Object.keys(DOC_MATRIX).forEach(function(k){delete DOC_MATRIX[k];}); Object.assign(DOC_MATRIX,d.DOC_MATRIX); }
-    if(d.PRESENCA_DATA) Object.assign(PRESENCA_DATA,d.PRESENCA_DATA);
-    if(d._docsPainel) Object.assign(_docsPainel,d._docsPainel);
+    _applyData(d);
   }catch(e){}
 }
+
 
 /* ═══ TOAST ═══ */
 
@@ -8381,7 +8441,60 @@ window.addEventListener('DOMContentLoaded',function(){
     if(ls2) ls2.style.display = 'none';
     document.body.setAttribute('data-role', _SESSION_USER.role||'gestor');
     document.body.classList.add('portal-ready');
-    requestAnimationFrame(function(){ _initPortal(); });
+    // Try Firebase first, fallback to localStorage
+    function _doInit(){
+      requestAnimationFrame(function(){ _initPortal(); });
+      // Start real-time listener for cross-device sync
+      if(window._fbListen){
+        window._fbListen(function(data){
+          _applyData(data);
+          // Also update localStorage
+          try{ _ls.setItem(STORE_KEY, JSON.stringify(data)); _ls.setItem(STORE_KEY+'_sync', Date.now().toString()); }catch(e){}
+          // Refresh visible panels
+          var role=document.body.getAttribute('data-role')||'';
+          if(role==='fiscal'){
+            try{rFiscalCad();}catch(e){}
+            try{rFiscalGer();}catch(e){}
+            try{rFiscalAbo();}catch(e){}
+            try{rFiscalMal();}catch(e){}
+            try{rFiscalDev();}catch(e){}
+            try{rFiscalDocs();}catch(e){}
+          } else {
+            try{refreshDash();}catch(e){}
+            try{refreshGeral();}catch(e){}
+            try{refreshTelCard();}catch(e){}
+            try{rAbono();}catch(e){}
+            try{rMaleta();}catch(e){}
+          }
+        });
+      }
+    }
+    if(window._fbReady){
+      loadAllFromFirebase().then(function(ok){ _doInit(); });
+    } else {
+      loadAll();
+      window.addEventListener('firebase-ready', function(){
+        loadAllFromFirebase().then(function(ok){ if(ok){ try{refreshAll();}catch(e){} } });
+        // Start listener after Firebase is ready
+        setTimeout(function(){
+          if(window._fbListen){
+            window._fbListen(function(data){
+              _applyData(data);
+              try{ _ls.setItem(STORE_KEY, JSON.stringify(data)); _ls.setItem(STORE_KEY+'_sync', Date.now().toString()); }catch(e){}
+              var role=document.body.getAttribute('data-role')||'';
+              if(role==='fiscal'){
+                try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
+                try{rFiscalMal();}catch(e){} try{rFiscalDev();}catch(e){} try{rFiscalDocs();}catch(e){}
+              } else {
+                try{refreshDash();}catch(e){} try{refreshGeral();}catch(e){}
+                try{refreshTelCard();}catch(e){} try{rAbono();}catch(e){} try{rMaleta();}catch(e){}
+              }
+            });
+          }
+        }, 500);
+      });
+      _doInit();
+    }
     return;
   }
 
