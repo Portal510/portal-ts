@@ -3048,6 +3048,22 @@ let COLL = [
   {id:73,nome:"William Souza Aguiar",cargo:"EST",uf:"AC",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"874.281.482-00",rg_imp:"418453 SSP/AC",nascimento:"24/08/1985",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"william.ag.souza@gmail.com",email_tcu:"",status:"ativo",_pendente:false}
 ];
 
+// Recalculate pending fields for all built-in COLL entries
+(function(){
+  COLL.forEach(function(c){
+    var p=[];
+    if(!c.cpf_imp)    p.push('CPF');
+    if(!c.rg_imp)     p.push('RG');
+    if(!c.nascimento) p.push('Data Nascimento');
+    if(!c.email_imp)  p.push('E-mail');
+    if(!c.genero)     p.push('Gênero');
+    if(!c.raca)       p.push('Raça/Cor');
+    if(!c.admissao)   p.push('Admissão');
+    c._pendente   = p.length > 0;
+    c._pendencias = p;
+  });
+})();
+
 /* ═══ PAUSAS ═══ */
 let PAUSAS=[
   {id:1,nome:'Ana Paula Ferreira',data:'16/03/2026',tipo:'Pausa particular',hora:'14h27',detalhes:'Pausa particular — pegar encomenda / 1685300 ficou até 14h27',status:'aprovado'},
@@ -6780,6 +6796,19 @@ function enviarTurnoPorEmail(){
 
 /* ═══ PERSIST (localStorage) ═══ */
 const STORE_KEY = 'hepta_portal_data';
+const STORE_VER = '2026-06-v4';
+// Clear old localStorage if version changed (forces fresh data from built-in COLL)
+(function(){
+  try{
+    var savedVer = localStorage.getItem('hepta_portal_ver');
+    if(savedVer !== STORE_VER){
+      localStorage.removeItem(STORE_KEY);
+      localStorage.removeItem(STORE_KEY+'_sync');
+      localStorage.removeItem(STORE_KEY+'_broadcast');
+      localStorage.setItem('hepta_portal_ver', STORE_VER);
+    }
+  }catch(e){}
+})();
 
 function manualRefresh(){
   var gasUrl = getGasUrl();
@@ -6855,7 +6884,33 @@ function loadAll(){
     const raw = _ls.getItem(STORE_KEY);
     if(!raw) return;
     const d = JSON.parse(raw);
-    if(d.COLL && Array.isArray(d.COLL)) COLL.splice(0,COLL.length,...d.COLL);
+    if(d.COLL && Array.isArray(d.COLL)){
+      // Build lookup of built-in COLL (from JS source, has planilha data)
+      var _builtIn={};
+      COLL.forEach(function(c){ _builtIn[c.nome]=c; });
+      d.COLL.forEach(function(c){
+        // Merge built-in fields if stored ones are empty
+        var src = _builtIn[c.nome];
+        if(src){
+          ['admissao','cpf_imp','rg_imp','nascimento','email_imp','raca','genero',
+           'uf','salario','email_tcu','pcd','libras','vvd'].forEach(function(f){
+            if(!c[f]||c[f]==='—') c[f]=src[f]||'';
+          });
+        }
+        // Recalculate pending fields
+        var p=[];
+        if(!c.cpf_imp)    p.push('CPF');
+        if(!c.rg_imp)     p.push('RG');
+        if(!c.nascimento) p.push('Data Nascimento');
+        if(!c.email_imp)  p.push('E-mail');
+        if(!c.genero)     p.push('Gênero');
+        if(!c.raca)       p.push('Raça/Cor');
+        if(!c.admissao)   p.push('Admissão');
+        c._pendente   = p.length > 0;
+        c._pendencias = p;
+      });
+      COLL.splice(0,COLL.length,...d.COLL);
+    }
     if(d.PAUSAS) PAUSAS.splice(0,PAUSAS.length,...d.PAUSAS);
     if(d.PEND_PAUSAS) PEND_PAUSAS.splice(0,PEND_PAUSAS.length,...d.PEND_PAUSAS);
     if(d.FERIAS) FERIAS.splice(0,FERIAS.length,...d.FERIAS);
