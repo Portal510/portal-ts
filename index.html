@@ -476,49 +476,70 @@ body.collab #btn-voltar-form { display: flex !important; }
 })();
 </script>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <!-- Firebase SDK (compat - no modules needed) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    (function(){
+      var firebaseConfig = {
+        apiKey: "AIzaSyB6gK-4UWyVnf0u7wQf-lge1LEXnoDmTz8",
+        authDomain: "portal-ts.firebaseapp.com",
+        projectId: "portal-ts",
+        storageBucket: "portal-ts.firebasestorage.app",
+        messagingSenderId: "667665484200",
+        appId: "1:667665484200:web:9cd7258f2436a14117359d"
+      };
+      try {
+        var app = firebase.initializeApp(firebaseConfig);
+        var db  = firebase.firestore();
+        var ref = db.collection('portal-ts').doc('dados');
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB6gK-4UWyVnf0u7wQf-lge1LEXnoDmTz8",
-      authDomain: "portal-ts.firebaseapp.com",
-      projectId: "portal-ts",
-      storageBucket: "portal-ts.firebasestorage.app",
-      messagingSenderId: "667665484200",
-      appId: "1:667665484200:web:9cd7258f2436a14117359d"
-    };
+        function _fbStatus(text, color){
+          var el=document.getElementById('fb-status');
+          if(el){ el.textContent='🔥 '+text; el.style.background=color==='ok'?'#d1fae5':color==='err'?'#fee2e2':'#f1f5f9'; el.style.color=color==='ok'?'#065f46':color==='err'?'#991b1b':'#64748b'; }
+        }
 
-    const _fbApp = initializeApp(firebaseConfig);
-    const _db   = getFirestore(_fbApp);
-    const _DOC  = 'portal-ts/dados';
+        window._fbSave = function(data){
+          return ref.set(data).then(function(){
+            _fbStatus('Salvo', 'ok');
+            setTimeout(function(){ _fbStatus('Ativo','ok'); }, 2000);
+          }).catch(function(e){
+            _fbStatus('Erro save','err');
+            console.warn('❌ Firebase save error:', e);
+          });
+        };
 
-    // ── Save to Firestore ──
-    window._fbSave = async function(payload){
-      try{
-        await setDoc(doc(_db, 'portal-ts', 'dados'), payload);
-      }catch(e){ console.warn('Firebase save error:', e); }
-    };
+        window._fbLoad = function(){
+          return ref.get().then(function(snap){
+            if(snap.exists){ _fbStatus('Carregado','ok'); return snap.data(); }
+            return null;
+          }).catch(function(e){
+            _fbStatus('Sem dados','err');
+            console.warn('❌ Firebase load error:', e);
+            return null;
+          });
+        };
 
-    // ── Load from Firestore ──
-    window._fbLoad = async function(){
-      try{
-        const snap = await getDoc(doc(_db, 'portal-ts', 'dados'));
-        if(snap.exists()) return snap.data();
-      }catch(e){ console.warn('Firebase load error:', e); }
-      return null;
-    };
+        window._fbListen = function(callback){
+          return ref.onSnapshot(function(snap){
+            if(snap.exists){
+              _fbStatus('Ativo ●','ok');
+              callback(snap.data());
+            }
+          }, function(e){
+            _fbStatus('Offline','err');
+            console.warn('❌ Firebase listener error:', e);
+          });
+        };
 
-    // ── Real-time listener ──
-    window._fbListen = function(callback){
-      return onSnapshot(doc(_db, 'portal-ts', 'dados'), function(snap){
-        if(snap.exists()) callback(snap.data());
-      }, function(e){ console.warn('Firebase listen error:', e); });
-    };
-
-    window._fbReady = true;
-    window.dispatchEvent(new Event('firebase-ready'));
+        window._fbReady = true;
+        _fbStatus('Conectando...','');
+        window.dispatchEvent(new Event('firebase-ready'));
+        console.log('✅ Firebase inicializado');
+      } catch(e) {
+        console.warn('❌ Firebase init error:', e);
+      }
+    })();
   </script>
 </head>
 <body>
@@ -601,6 +622,7 @@ body.collab #btn-voltar-form { display: flex !important; }
     </div>
     <div style="display:flex;align-items:center;gap:.625rem;">
       <span id="sync-indicator" style="font-size:10px;color:var(--muted);"></span>
+      <span id="fb-status" title="Status Firebase" style="font-size:10px;padding:2px 7px;border-radius:10px;background:#f1f5f9;color:#64748b;">🔥 —</span>
       <button class="btn bs" onclick="manualRefresh()" style="font-size:10px;padding:4px 12px;display:flex;align-items:center;gap:4px;">
         🔄 Atualizar
       </button>
