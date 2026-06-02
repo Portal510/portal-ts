@@ -405,11 +405,12 @@ body.collab #btn-voltar-form { display: flex !important; }
 </style>
 
 <script>
-/* ── Auto-update: verifica nova versão no servidor a cada 5 minutos ── */
+/* ── Auto-update: verifica nova versão no servidor (1x por sessão) ── */
 (function(){
-  var CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutos
+  var CHECK_INTERVAL = 60 * 60 * 1000; // 1 hora
   var currentEtag = null;
   var checking = false;
+  var _shown = false; // só mostra 1x por sessão
 
   function checkUpdate(){
     if(checking) return;
@@ -434,7 +435,8 @@ body.collab #btn-voltar-form { display: flex !important; }
   }
 
   function showUpdateBanner(){
-    // Evita múltiplos banners
+    if(_shown) return;
+    _shown = true;
     if(document.getElementById('auto-update-banner')) return;
     var banner = document.createElement('div');
     banner.id = 'auto-update-banner';
@@ -1916,7 +1918,7 @@ body.collab #btn-voltar-form { display: flex !important; }
     </div>
     <div class="card">
       <div class="ctitle">Solicitações de Peças</div>
-      <div class="tw"><table><thead><tr><th>Nome</th><th>Gênero</th><th>Peças</th><th>Data</th><th>Status</th></tr></thead><tbody id="sol-tbody"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>Nome</th><th>Gênero</th><th>Peças</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead><tbody id="sol-tbody"></tbody></table></div>
     </div>
   </div>
 </div>
@@ -2210,11 +2212,16 @@ body.collab #btn-voltar-form { display: flex !important; }
         <span style="margin-left:auto;display:flex;gap:.75rem;">
           <span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;"><span style="width:14px;height:14px;border-radius:50%;background:#dcfce7;color:#16a34a;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">✓</span>Entregue</span>
           <span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;"><span style="width:14px;height:14px;border-radius:50%;background:#fee2e2;color:#dc2626;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">✗</span>Pendente</span>
-          <span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;"><span style="font-size:10px;">⬆</span>Upload doc.</span>
         </span>
       </div>
       <!-- Lista de requisitos -->
       <div id="docs-detalhe-list" style="max-height:480px;overflow-y:auto;"></div>
+      <!-- Observação -->
+      <div id="docs-detalhe-obs" style="display:none;padding:.75rem 1rem;border-top:.5px solid var(--brd);background:var(--gy50);">
+        <label style="font-size:11px;font-weight:600;color:var(--text);display:block;margin-bottom:.375rem;">📝 Observação / Pendência</label>
+        <textarea id="docs-detalhe-obs-ta" rows="3" placeholder="Registre pendências, observações ou informações adicionais sobre esta documentação..."
+          style="width:100%;padding:7px 9px;border:.5px solid var(--brd);border-radius:var(--rad);font-size:11px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+      </div>
     </div>
   </div>
 
@@ -2538,23 +2545,6 @@ Consequência: Equipe desfalcada." style="font-size:11px;resize:vertical;width:1
       </div>
     </div>
 
-    <!-- ── CHAMADOS SUSPENSOS ── -->
-    <div class="card" style="grid-column:1/-1;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
-        <div class="ctitle" style="margin:0;">⏸ Chamados Suspensos</div>
-        <button class="btn bp" onclick="adicionarChamadoSuspenso()" style="font-size:10px;padding:4px 12px;">+ Adicionar chamado</button>
-      </div>
-      <!-- Cabeçalho colunas -->
-      <div style="display:grid;grid-template-columns:140px 1fr 32px;gap:.5rem;padding:0 0 4px;border-bottom:.5px solid var(--brd);margin-bottom:.5rem;">
-        <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;">Nº Chamado</span>
-        <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;">O que deve ser feito</span>
-        <span></span>
-      </div>
-      <div id="suspensos-lista"></div>
-      <div id="suspensos-vazio" style="font-size:12px;color:var(--muted);text-align:center;padding:1rem;">
-        Nenhum chamado suspenso. Clique em "+ Adicionar chamado" para registrar.
-      </div>
-    </div>
 
   </div><!-- /grid -->
 
@@ -2984,1685 +2974,79 @@ const CD={
 
 /* ═══ COLLABORATORS ═══ */
 let COLL = [
-{
-"id": 2000,
-"nome": "Abdias Francisco Rodrigues",
-"cargo": "AE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "26/08/1968",
-"cpf_imp": "461.880.611-72",
-"rg_imp": "1134949 SSP/DF",
-"email_imp": "abdias.rodrigues@yahoo.com.br",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696062",
-"_pendente": false
-},
-{
-"id": 3000,
-"nome": "Adriano Pereira da Silva",
-"cargo": "EST",
-"uf": "GO",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "07/01/1986",
-"cpf_imp": "017.053.471-50",
-"rg_imp": "48222164 SSP",
-"email_imp": "adrianopesiu@hotmail.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 4000,
-"nome": "Adriano Portela Pantoja",
-"cargo": "EST",
-"uf": "AP",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "14/08/1982",
-"cpf_imp": "854.071.192-34",
-"rg_imp": "314603",
-"email_imp": "adrianoportela@outlook.com",
-"raca": "Pardo",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 5000,
-"nome": "Alberto Marques das Mercês Junior",
-"cargo": "EST",
-"uf": "PA",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "11/01/1994",
-"cpf_imp": "013.222.632-48",
-"rg_imp": "6709204 / PC",
-"email_imp": "jrmarques094@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 6000,
-"nome": "Alexander Duarte Rodrigues",
-"cargo": "EST",
-"uf": "RS",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "29610",
-"cpf_imp": "813.677.830-20",
-"rg_imp": "9023083356 SSP /RS",
-"email_imp": "aexduarte@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 7000,
-"nome": "Alexandre Ferreira Bottino",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "22/07/1995",
-"cpf_imp": "051.384.711-12",
-"rg_imp": "3196934",
-"email_imp": "alexandre.bottino@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696064",
-"_pendente": false
-},
-{
-"id": 8000,
-"nome": "Alexsandro Barbosa de Lima",
-"cargo": "EST",
-"uf": "RN",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "10/02/1993",
-"cpf_imp": "091.667.604-88",
-"rg_imp": "2836436/ITEP",
-"email_imp": "alexsandro_barbosa_lima@hotmail.com",
-"raca": "Pardo",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 9000,
-"nome": "Ana Clara Santos Veloso",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "24/07/2005",
-"cpf_imp": "038.075.991-85",
-"rg_imp": "2923487",
-"email_imp": "velsoanaaaa@gmail.com",
-"raca": "Branca",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696064",
-"_pendente": false
-},
-{
-"id": 10000,
-"nome": "Brunna de Nascimento Ruas",
-"cargo": "AP",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "11/05/1994",
-"cpf_imp": "041.695.011-60",
-"rg_imp": "3021948 - SSP /DF",
-"email_imp": "brunnaruas@gmail.com",
-"raca": "Parda",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 11000,
-"nome": "Caio dos Santos Silva",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "25/01/2002",
-"cpf_imp": "077.736.851-00",
-"rg_imp": "3398343/ PCGO",
-"email_imp": "csscaio22@gmail.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 12000,
-"nome": "Carlos Silva Gomes",
-"cargo": "AE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "07/07/1978",
-"cpf_imp": "852.164.451-53",
-"rg_imp": "1847748 SSP/DF",
-"email_imp": "carlosssg@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 13000,
-"nome": "Carolina Gonçalves Rocha",
-"cargo": "TEL",
-"uf": "N1",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "21/01/1997",
-"cpf_imp": "051.759.871-00",
-"rg_imp": "3324181/SSP DF",
-"email_imp": "Carolgr175@gmail.com",
-"raca": "Branca",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 14000,
-"nome": "Cleovansostenes Abud Freire",
-"cargo": "EST",
-"uf": "SE",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "04/04/1976",
-"cpf_imp": "588.473.835-87",
-"rg_imp": "949-794 SSP/SE",
-"email_imp": "Cleoabud@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 15000,
-"nome": "Daniel Pereira Rocha Neto",
-"cargo": "EST",
-"uf": "PE",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "32995",
-"cpf_imp": "087.311.294-63",
-"rg_imp": "8132617 SDS",
-"email_imp": "danielneto2011@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 16000,
-"nome": "Danilo dos Santos Nascimento",
-"cargo": "AE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "06/01/1989",
-"cpf_imp": "011.664.581-48",
-"rg_imp": "2528711-SSP/DF",
-"email_imp": "danilo89nascimento@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 17000,
-"nome": "Deise Cristina Sales",
-"cargo": "EST",
-"uf": "RO",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "19/02/1989",
-"cpf_imp": "970.891.172-00",
-"rg_imp": "911219/SSP - RO",
-"email_imp": "cristinabsales.sales@gmail.com",
-"raca": "Parda",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 18000,
-"nome": "Diego Gonçalves de Azevedo",
-"cargo": "EST",
-"uf": "ES",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "25/03/1989",
-"cpf_imp": "057.727.137-79",
-"rg_imp": "1802650 SPTC - ES",
-"email_imp": "diegogonvalves22@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 19000,
-"nome": "Diogenes Oliveira Dantas",
-"cargo": "EST",
-"uf": "CE",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "23/08/1977",
-"cpf_imp": "787.447.093-15",
-"rg_imp": "SSP /CE",
-"email_imp": "",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 20000,
-"nome": "Edilene Alves de Moraes",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "27/12/1978",
-"cpf_imp": "818.540.211-68",
-"rg_imp": "1701220",
-"email_imp": "Edilene.alvesmores@gmail.com",
-"raca": "Preta",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "SIM",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 21000,
-"nome": "Eduardo França Rocha",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "03/07/1989",
-"cpf_imp": "014.523.921-95",
-"rg_imp": "256893 SSP/DF",
-"email_imp": "eduardo.franca.rocha@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696064",
-"_pendente": false
-},
-{
-"id": 22000,
-"nome": "Elimar dos Santos Vieira",
-"cargo": "EST",
-"uf": "PI",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "23/12/1978",
-"cpf_imp": "642.007.283-20",
-"rg_imp": "051437102014-4 SSP/MA",
-"email_imp": "ariel_mongedae@hotmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 23000,
-"nome": "Emerson Anseilmo de Sousa",
-"cargo": "STEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "12/06/1989",
-"cpf_imp": "049.276.781-56",
-"rg_imp": "2924573 SSP/DF",
-"email_imp": "emercel22@gmail.com",
-"raca": "Branco",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696068",
-"_pendente": false
-},
-{
-"id": 24000,
-"nome": "Ezer weizmann Suaid Levyski",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "03/08/1980",
-"cpf_imp": "710.320.021-15",
-"rg_imp": "1757207 SESP/ DF",
-"email_imp": "ezer.weizmann@gmail.com",
-"raca": "Pardo",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696744",
-"_pendente": false
-},
-{
-"id": 25000,
-"nome": "Fabio de Sousa Soares",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "09/11/1994",
-"cpf_imp": "046.363.901-48",
-"rg_imp": "30444144",
-"email_imp": "fabiods.soares@outlook.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 26000,
-"nome": "Franciele Cristina dos Santos",
-"cargo": "EST",
-"uf": "PR",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "10/03/1987",
-"cpf_imp": "066.372.969-61",
-"rg_imp": "97087008 / SSP PR",
-"email_imp": "francielefafi@outlook.com",
-"raca": "Parda",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 27000,
-"nome": "Francisco Rabelo de Souza",
-"cargo": "EST",
-"uf": "RR",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "30/09/1980",
-"cpf_imp": "657.004.812-00",
-"rg_imp": "65700481200",
-"email_imp": "francisco-rabelo@hotmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 28000,
-"nome": "Fredson Magalhães da Silva",
-"cargo": "SAE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "19/03/1984",
-"cpf_imp": "967.149.481-15",
-"rg_imp": "2108281 SSP /DF",
-"email_imp": "Fredson.magalhaes@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 29000,
-"nome": "Gabriel Henrique Costa Rodrigues",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "09/11/2004",
-"cpf_imp": "039.953.661-20",
-"rg_imp": "3878357",
-"email_imp": "gabrielhcr261@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696064",
-"_pendente": false
-},
-{
-"id": 30000,
-"nome": "Glauber (Pendente formulário )",
-"cargo": "AE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "06/12/1986",
-"cpf_imp": "018.745.051-10",
-"rg_imp": "2519933",
-"email_imp": "glaubernunesdf@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 31000,
-"nome": "Hermano Marques Fernandes",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "29/05/1988",
-"cpf_imp": "736.037.591-68",
-"rg_imp": "2469939",
-"email_imp": "hermanodf@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 32000,
-"nome": "Hudson Alencar Saldanha de Oliveira",
-"cargo": "EST",
-"uf": "MG",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "25/03/1979",
-"cpf_imp": "036.750.676-96",
-"rg_imp": "PMMG",
-"email_imp": "hudsonsal167@hotmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 33000,
-"nome": "Jefferson Lucas da Conceição",
-"cargo": "EST",
-"uf": "AM",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "21/12/1975",
-"cpf_imp": "595.149.142-87",
-"rg_imp": "63987767-9 -SSP",
-"email_imp": "jefferson.lucas@gmail.com",
-"raca": "Pardo",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 34000,
-"nome": "Jose Luiz Oyapock Silva Andrade",
-"cargo": "GCON",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "25/05/1985",
-"cpf_imp": "990.382.181-68",
-"rg_imp": "2216320 SSP/DF",
-"email_imp": "oyapockluiz@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 35000,
-"nome": "Josue Lauro de Moraes Neves",
-"cargo": "EST",
-"uf": "MT",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "19/10/1967",
-"cpf_imp": "393.837.681-34",
-"rg_imp": "780312-3",
-"email_imp": "Lauroneves@hotmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 36000,
-"nome": "Klisman Silva Sousa",
-"cargo": "AE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "29/10/1992",
-"cpf_imp": "045.036.951-00",
-"rg_imp": "2912331-SSP/DF",
-"email_imp": "klisman.sousa@hotmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 37000,
-"nome": "Laélia Tayane Freitas Marques Souza",
-"cargo": "EST",
-"uf": "MA",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "20/09/1989",
-"cpf_imp": "008.026.692-47",
-"rg_imp": "065719842018-3 SSP/MA",
-"email_imp": "Marqueslaelia@gmail.com",
-"raca": "Preta",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 38000,
-"nome": "Lucas Sena de Souza",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "13/10/1985",
-"cpf_imp": "005.836.231-23",
-"rg_imp": "2278273 SSP/DF",
-"email_imp": "lucas.sena.2020@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 39000,
-"nome": "Luciana Alves Dos Santos Trindade",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "19/02/1982",
-"cpf_imp": "992.160.781-20",
-"rg_imp": "2014353",
-"email_imp": "lucianaallves@gmail.com",
-"raca": "Parda",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 40000,
-"nome": "Magno Barros Alves",
-"cargo": "AE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "27/04/1989",
-"cpf_imp": "021.452.011-06",
-"rg_imp": "2614423 SSP / DF",
-"email_imp": "magnoalvesdf@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 41000,
-"nome": "Magno Vinícius Santana Lucena",
-"cargo": "EST",
-"uf": "RJ",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "26/09/1994",
-"cpf_imp": "115.917.017-75",
-"rg_imp": "21624442-6 Detran",
-"email_imp": "m1971.trabalho@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 42000,
-"nome": "Marcos Silva Araújo",
-"cargo": "CE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "02/02/1982",
-"cpf_imp": "936.792.201-97",
-"rg_imp": "1979273 SSP/DF",
-"email_imp": "marcoscandeias02@hotmail.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696066",
-"_pendente": false
-},
-{
-"id": 43000,
-"nome": "Marcus Vinicius Lobato dos Santos Ayres",
-"cargo": "EST",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "18/07/1989",
-"cpf_imp": "047.900.393-90",
-"rg_imp": "36958001 SSP / DF",
-"email_imp": "markus.ayres@gmail.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696067",
-"_pendente": false
-},
-{
-"id": 44000,
-"nome": "Marcus Vinicius Marra de Oliveira Pereira",
-"cargo": "GCON",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "09/10/1983",
-"cpf_imp": "001.494.921-03",
-"rg_imp": "484007 MD/DF",
-"email_imp": "marcusmarra@gmail.com",
-"raca": "Branco",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 45000,
-"nome": "Matheus de Queiroz Alves",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "12/08/1997",
-"cpf_imp": "031.656.741-83",
-"rg_imp": "220888",
-"email_imp": "matheusqa18@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696061",
-"_pendente": false
-},
-{
-"id": 46000,
-"nome": "Thiago da Silva Senna",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "01/06/1995",
-"cpf_imp": "055.057.591-06",
-"rg_imp": "3283745",
-"email_imp": "thisenna22@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1698858",
-"_pendente": false
-},
-{
-"id": 47000,
-"nome": "Merilene Martins de Sousa",
-"cargo": "STEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "30/10/1986",
-"cpf_imp": "012.387.971-05",
-"rg_imp": "2390-052",
-"email_imp": "merilenemartins@gmail.com",
-"raca": "Preta",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 48000,
-"nome": "Michel Galeno de Souza",
-"cargo": "AE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "23/02/1981",
-"cpf_imp": "896.873.291-49",
-"rg_imp": "1834162 SSP/DF",
-"email_imp": "michelgaleno.10",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 49000,
-"nome": "Michel Machado",
-"cargo": "EST",
-"uf": "SC",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "06/10/1978",
-"cpf_imp": "000.081.209-94",
-"rg_imp": "3454690 SSP/SC",
-"email_imp": "Michelmachado78@gmail.com",
-"raca": "Branco",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 50000,
-"nome": "Osvaldo Mendes de Amorim Junior",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "21/09/1979",
-"cpf_imp": "642.333.673 - 34",
-"rg_imp": "2811318 SSP /DF",
-"email_imp": "osvaldojunior10@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696064",
-"_pendente": false
-},
-{
-"id": 51000,
-"nome": "Fábio Crystian da Costa Queiroz",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "20/06/1995",
-"cpf_imp": "049.381.681-03",
-"rg_imp": "2631002 SSP /DF",
-"email_imp": "fabiiocrystian@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1698185",
-"_pendente": false
-},
-{
-"id": 52000,
-"nome": "Filipe Augusto Dias Carvalho",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "08/06/1983",
-"cpf_imp": "005.373.351-70",
-"rg_imp": "2044560 SSP/DF",
-"email_imp": "filipeadc@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1698858",
-"_pendente": false
-},
-{
-"id": 53000,
-"nome": "João Paulo Santos Vitória",
-"cargo": "EST",
-"uf": "BA",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "27/09/1988",
-"cpf_imp": "041.580.935-57",
-"rg_imp": "09997159-33 Ssp BA",
-"email_imp": "jpsv88@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 54000,
-"nome": "Posto Vago",
-"cargo": "EST",
-"uf": "RJ",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "",
-"cpf_imp": "",
-"rg_imp": "",
-"email_imp": "",
-"raca": "",
-"genero": "",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 55000,
-"nome": "Posto Vago",
-"cargo": "EST",
-"uf": "SP",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "",
-"cpf_imp": "",
-"rg_imp": "",
-"email_imp": "",
-"raca": "",
-"genero": "",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 56000,
-"nome": "Priscila Pamplona Torres",
-"cargo": "GSD",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "06/11/1982",
-"cpf_imp": "720.712.811-87",
-"rg_imp": "2097281 Ssp/df",
-"email_imp": "pristorres211@gmail.com",
-"raca": "Parda",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 57000,
-"nome": "Rafael José Pires",
-"cargo": "SCHA",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "23/10/1972",
-"cpf_imp": "504.012.621-20",
-"rg_imp": "1065006 -SSP/DF",
-"email_imp": "Rafaeljpdj@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 58000,
-"nome": "Raphael Diogenes Pereira Lima dos Santos",
-"cargo": "EST",
-"uf": "MS",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "22/05/1994",
-"cpf_imp": "006.283.882-25",
-"rg_imp": "2481130 SEJUSP MS",
-"email_imp": "rapha.diogenes@gmail.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 59000,
-"nome": "Rayanne Pereira da Silva",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "26/04/2003",
-"cpf_imp": "092.243.693-24",
-"rg_imp": "09224369324 / PCDF",
-"email_imp": "raynny15@gmail.com",
-"raca": "Parda",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696061",
-"_pendente": false
-},
-{
-"id": 60000,
-"nome": "Renato Gomes Lemos",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "18/03/1988",
-"cpf_imp": "022.832.231-64",
-"rg_imp": "2539873 SSP/DF",
-"email_imp": "renato.lemos@live.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 61000,
-"nome": "Renato Rocha de Carvalho",
-"cargo": "EST",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "25/09/1976",
-"cpf_imp": "787.898.771-87",
-"rg_imp": "2595046 SSP/DF",
-"email_imp": "Renato29@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 62000,
-"nome": "Ricardo Conceição do Sanrtos",
-"cargo": "SCHA",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "13/05/1970",
-"cpf_imp": "505.840.571-72",
-"rg_imp": "1189000/SSP-DF",
-"email_imp": "ricardocs@gmail.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 63000,
-"nome": "Robson Alves Mendes",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "06/06/1990",
-"cpf_imp": "033.151.381-17",
-"rg_imp": "5378694",
-"email_imp": "robson.inf.alves@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 64000,
-"nome": "Rodrigo Henrique Maranhão Santana",
-"cargo": "EST",
-"uf": "AL",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "1591953 SSP/AL",
-"cpf_imp": "044.561.404-88",
-"rg_imp": "1982-09-06 00:00:00",
-"email_imp": "rodrigomaranhaos82gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 65000,
-"nome": "Ronyellison Braga dos  Santos",
-"cargo": "EST",
-"uf": "PB",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "19/06/1987",
-"cpf_imp": "076.785.664-33",
-"rg_imp": "2872722 SSP/PB",
-"email_imp": "ronyjp@gmail.com",
-"raca": "Preta",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 66000,
-"nome": "Sarah Mendes Ribeiro",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "23/05/1995",
-"cpf_imp": "048.435.631-37",
-"rg_imp": "3121272 - DF",
-"email_imp": "sarah.mendes2305@gmail.com",
-"raca": "Parda",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696898",
-"_pendente": false
-},
-{
-"id": 67000,
-"nome": "SilmaraFerreira Costa",
-"cargo": "EST",
-"uf": "TO",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "11/02/1983",
-"cpf_imp": "003.304.953-05",
-"rg_imp": "1080071994 SSP /MA",
-"email_imp": "silmarafc1@gmail.com",
-"raca": "Branca",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 68000,
-"nome": "Suene da Silva Pinho",
-"cargo": "TEL",
-"uf": "DF",
-"horas": "6h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "13/10/1993",
-"cpf_imp": "051.036.453-51",
-"rg_imp": "05103645351/ PCDF",
-"email_imp": "suenesilva2010@hotmail.com",
-"raca": "Branca",
-"genero": "Feminino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 69000,
-"nome": "Thiago Dantas Prado",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "09/07/1998",
-"cpf_imp": "057.517.371-80",
-"rg_imp": "05751737180",
-"email_imp": "tdantasprado@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696897",
-"_pendente": false
-},
-{
-"id": 70000,
-"nome": "Thiago Soares Carneiro",
-"cargo": "AC",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "21/08/1987",
-"cpf_imp": "015.621.311-76",
-"rg_imp": "2420368 SSP/DF",
-"email_imp": "thiago.sc87@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 71000,
-"nome": "Wanderson Marques da Costa",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "16/07/1987",
-"cpf_imp": "020.402.161-89",
-"rg_imp": "2417197   SSP/DF",
-"email_imp": "wanderson.bsi@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 72000,
-"nome": "Welton Macedo Santos Durão",
-"cargo": "BSB",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "28/01/1990",
-"cpf_imp": "028.737.731-89",
-"rg_imp": "02873773189 / SSP-GO",
-"email_imp": "welton_b50@hotmail.com",
-"raca": "Negro",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "1696848",
-"_pendente": false
-},
-{
-"id": 73000,
-"nome": "William Cássio da Rocha Duarte",
-"cargo": "AE",
-"uf": "DF",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "19/09/1982",
-"cpf_imp": "000.551.841-54",
-"rg_imp": "1984431 SSP/DF",
-"email_imp": "wcassio.rocha@gmail.com",
-"raca": "Parda",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-},
-{
-"id": 74000,
-"nome": "William Souza Aguiar",
-"cargo": "EST",
-"uf": "AC",
-"horas": "8h",
-"admissao": "",
-"saida": "",
-"status": "ativo",
-"sub": null,
-"motivo": "",
-"nascimento": "24/08/1985",
-"cpf_imp": "874.281.482-00",
-"rg_imp": "418453 SSP/AC",
-"email_imp": "william.ag.souza@gmail.com",
-"raca": "Branca",
-"genero": "Masculino",
-"pcd": "Não",
-"libras": "Não",
-"vvd": "Não",
-"chamCA_imp": "",
-"_pendente": false
-}
+  {id:1,nome:"Abdias Francisco Rodrigues",cargo:"AE",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"461.880.611-72",rg_imp:"1134949 SSP/DF",nascimento:"26/08/1968",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"abdias.rodrigues@yahoo.com.br",email_tcu:"x1696062@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:2,nome:"Adriano Pereira da Silva",cargo:"EST",uf:"GO",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"017.053.471-50",rg_imp:"48222164 SSP",nascimento:"07/01/1986",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"adrianopesiu@hotmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:3,nome:"Adriano Portela Pantoja",cargo:"EST",uf:"AP",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"854.071.192-34",rg_imp:"314603",nascimento:"14/08/1982",raca:"Pardo",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"adrianoportela@outlook.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:4,nome:"Alberto Marques das Mercês Junior",cargo:"EST",uf:"PA",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"013.222.632-48",rg_imp:"6709204 / PC",nascimento:"11/01/1994",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"jrmarques094@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:5,nome:"Alexander Duarte Rodrigues",cargo:"EST",uf:"RS",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"813.677.830-20",rg_imp:"9023083356 SSP /RS",nascimento:"24/01/1981",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"aexduarte@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:6,nome:"Alexandre Ferreira Bottino",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,17",admissao:"27/04/2026",cpf_imp:"051.384.711-12",rg_imp:"3196934",nascimento:"22/07/1995",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"alexandre.bottino@gmail.com",email_tcu:"x1696064@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:7,nome:"Alexsandro Barbosa de Lima",cargo:"EST",uf:"RN",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"091.667.604-88",rg_imp:"2836436/ITEP",nascimento:"10/02/1993",raca:"Pardo",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"alexsandro_barbosa_lima@hotmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:8,nome:"Ana Clara Santos Veloso",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,22",admissao:"27/04/2026",cpf_imp:"038.075.991-85",rg_imp:"2923487",nascimento:"24/07/2005",raca:"Branca",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"velsoanaaaa@gmail.com",email_tcu:"x1696064@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:9,nome:"Brunna de Nascimento Ruas",cargo:"Administração de parque tecnológico (AP)",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"041.695.011-60",rg_imp:"3021948 - SSP /DF",nascimento:"11/05/1994",raca:"Parda",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"brunnaruas@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:10,nome:"Caio dos Santos Silva",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,20",admissao:"27/04/2026",cpf_imp:"077.736.851-00",rg_imp:"3398343/ PCGO",nascimento:"25/01/2002",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"csscaio22@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:11,nome:"Carlos Silva Gomes",cargo:"AE",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"852.164.451-53",rg_imp:"1847748 SSP/DF",nascimento:"07/07/1978",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"carlosssg@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:12,nome:"Carolina Gonçalves Rocha",cargo:"TEL",uf:"N1",horas:"6h",salario:"R$ 3,830,17",admissao:"27/04/2026",cpf_imp:"051.759.871-00",rg_imp:"3324181/SSP DF",nascimento:"21/01/1997",raca:"Branca",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"Carolgr175@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:13,nome:"Cleovansostenes Abud Freire",cargo:"EST",uf:"SE",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"588.473.835-87",rg_imp:"949-794 SSP/SE",nascimento:"04/04/1976",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"Cleoabud@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:14,nome:"Daniel Pereira Rocha Neto",cargo:"EST",uf:"PE",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"087.311.294-63",rg_imp:"8132617 SDS",nascimento:"02/05/1990",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"danielneto2011@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:15,nome:"Danilo dos Santos Nascimento",cargo:"AE",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"011.664.581-48",rg_imp:"2528711-SSP/DF",nascimento:"06/01/1989",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"danilo89nascimento@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:16,nome:"Deise Cristina Sales",cargo:"EST",uf:"RO",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"970.891.172-00",rg_imp:"911219/SSP - RO",nascimento:"19/02/1989",raca:"Parda",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"cristinabsales.sales@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:17,nome:"Diego Gonçalves de Azevedo",cargo:"EST",uf:"ES",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"057.727.137-79",rg_imp:"1802650 SPTC - ES",nascimento:"25/03/1989",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"diegogonvalves22@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:18,nome:"Diogenes Oliveira Dantas",cargo:"EST",uf:"CE",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"787.447.093-15",rg_imp:"SSP /CE",nascimento:"23/08/1977",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"",email_tcu:"",status:'ativo',_pendente:false},
+  {id:19,nome:"Edilene Alves de Moraes",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"818.540.211-68",rg_imp:"1701220",nascimento:"27/12/1978",raca:"Preta",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"SIM",email_imp:"Edilene.alvesmores@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:20,nome:"Eduardo França Rocha",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,17",admissao:"27/04/2026",cpf_imp:"014.523.921-95",rg_imp:"256893 SSP/DF",nascimento:"03/07/1989",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"eduardo.franca.rocha@gmail.com",email_tcu:"x1696064@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:21,nome:"Elimar dos Santos Vieira",cargo:"EST",uf:"PI",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"642.007.283-20",rg_imp:"051437102014-4 SSP/MA",nascimento:"23/12/1978",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"ariel_mongedae@hotmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:22,nome:"Emerson Anseilmo de Sousa",cargo:"Supervisor de suporte (STEL)",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"049.276.781-56",rg_imp:"2924573 SSP/DF",nascimento:"12/06/1989",raca:"Branco",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"emercel22@gmail.com",email_tcu:"x1696068@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:23,nome:"Ezer weizmann Suaid Levyski",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"28/04/2026",cpf_imp:"710.320.021-15",rg_imp:"1757207 SESP/ DF",nascimento:"03/08/1980",raca:"Pardo",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"ezer.weizmann@gmail.com",email_tcu:"x1696744@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:24,nome:"Fabio de Sousa Soares",cargo:"Supervisor de suporte (BSB)",uf:"DF",horas:"8h",salario:"5842,56",admissao:"27/04/2026",cpf_imp:"046.363.901-48",rg_imp:"30444144",nascimento:"09/11/1994",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"fabiods.soares@outlook.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:25,nome:"Franciele Cristina dos Santos",cargo:"EST",uf:"PR",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"066.372.969-61",rg_imp:"97087008 / SSP PR",nascimento:"10/03/1987",raca:"Parda",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"francielefafi@outlook.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:26,nome:"Francisco Rabelo de Souza",cargo:"EST",uf:"RR",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"657.004.812-00",rg_imp:"65700481200",nascimento:"30/09/1980",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"francisco-rabelo@hotmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:27,nome:"Fredson Magalhães da Silva",cargo:"SAE",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"967.149.481-15",rg_imp:"2108281 SSP /DF",nascimento:"19/03/1984",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"Fredson.magalhaes@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:28,nome:"Gabriel Henrique Costa Rodrigues",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,23",admissao:"27/04/2026",cpf_imp:"039.953.661-20",rg_imp:"3878357",nascimento:"09/11/2004",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"gabrielhcr261@gmail.com",email_tcu:"x1696064@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:29,nome:"Glauber (Pendente formulário )",cargo:"AE",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"018.745.051-10",rg_imp:"2519933",nascimento:"06/12/1986",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"glaubernunesdf@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:30,nome:"Hermano Marques Fernandes",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,18",admissao:"27/04/2026",cpf_imp:"736.037.591-68",rg_imp:"2469939",nascimento:"29/05/1988",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"hermanodf@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:31,nome:"Hudson Alencar Saldanha de Oliveira",cargo:"EST",uf:"MG",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"036.750.676-96",rg_imp:"PMMG",nascimento:"25/03/1979",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"hudsonsal167@hotmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:32,nome:"Jefferson Lucas da Conceição",cargo:"EST",uf:"AM",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"595.149.142-87",rg_imp:"63987767-9 -SSP",nascimento:"21/12/1975",raca:"Pardo",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"jefferson.lucas@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:33,nome:"Jose Luiz Oyapock Silva Andrade",cargo:"Gestor de conhecimento",uf:"DF",horas:"8h",salario:"7790,08",admissao:"27/04/2026",cpf_imp:"990.382.181-68",rg_imp:"2216320 SSP/DF",nascimento:"25/05/1985",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"oyapockluiz@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:34,nome:"Josue Lauro de Moraes Neves",cargo:"EST",uf:"MT",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"393.837.681-34",rg_imp:"780312-3",nascimento:"19/10/1967",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"Lauroneves@hotmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:35,nome:"Klisman Silva Sousa",cargo:"AE",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"045.036.951-00",rg_imp:"2912331-SSP/DF",nascimento:"29/10/1992",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"klisman.sousa@hotmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:36,nome:"Laélia Tayane Freitas Marques Souza",cargo:"EST",uf:"MA",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"008.026.692-47",rg_imp:"065719842018-3 SSP/MA",nascimento:"20/09/1989",raca:"Preta",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"Marqueslaelia@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:37,nome:"Lucas Sena de Souza",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,21",admissao:"27/04/2026",cpf_imp:"005.836.231-23",rg_imp:"2278273 SSP/DF",nascimento:"13/10/1985",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"lucas.sena.2020@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:38,nome:"Luciana Alves Dos Santos Trindade",cargo:"Supervisor de suporte (BSB)",uf:"DF",horas:"8h",salario:"5842,56",admissao:"27/04/2026",cpf_imp:"992.160.781-20",rg_imp:"2014353",nascimento:"19/02/1982",raca:"Parda",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"lucianaallves@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:39,nome:"Magno Barros Alves",cargo:"AE",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"021.452.011-06",rg_imp:"2614423 SSP / DF",nascimento:"27/04/1989",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"magnoalvesdf@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:40,nome:"Magno Vinícius Santana Lucena",cargo:"EST",uf:"RJ",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"115.917.017-75",rg_imp:"21624442-6 Detran",nascimento:"26/09/1994",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"m1971.trabalho@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:41,nome:"Marcos Silva Araújo",cargo:"Cabeamento estruturado (CE)",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"936.792.201-97",rg_imp:"1979273 SSP/DF",nascimento:"02/02/1982",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"marcoscandeias02@hotmail.com",email_tcu:"x1696066@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:42,nome:"Marcus Vinicius Lobato dos Santos Ayres",cargo:"Supervisor de suporte (EST)",uf:"DF",horas:"8h",salario:"5842,56",admissao:"27/04/2026",cpf_imp:"047.900.393-90",rg_imp:"36958001 SSP / DF",nascimento:"18/07/1989",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"markus.ayres@gmail.com",email_tcu:"x1696067@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:43,nome:"Marcus Vinicius Marra de Oliveira Pereira",cargo:"Gestor de conhecimento",uf:"DF",horas:"8h",salario:"7790,08",admissao:"27/04/2026",cpf_imp:"001.494.921-03",rg_imp:"484007 MD/DF",nascimento:"09/10/1983",raca:"Branco",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"marcusmarra@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:44,nome:"Matheus de Queiroz Alves",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"031.656.741-83",rg_imp:"220888",nascimento:"12/08/1997",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"matheusqa18@gmail.com",email_tcu:"x1696061@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:45,nome:"Thiago da Silva Senna",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"05/05/2026",cpf_imp:"055.057.591-06",rg_imp:"3283745",nascimento:"01/06/1995",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"thisenna22@gmail.com",email_tcu:"x1698858@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:46,nome:"Merilene Martins de Sousa",cargo:"Supervisor de suporte (STEL)",uf:"DF",horas:"8h",salario:"5842,56",admissao:"27/04/2026",cpf_imp:"012.387.971-05",rg_imp:"2390-052",nascimento:"30/10/1986",raca:"Preta",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"merilenemartins@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:47,nome:"Michel Galeno de Souza",cargo:"AE",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"896.873.291-49",rg_imp:"1834162 SSP/DF",nascimento:"23/02/1981",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"michelgaleno.10",email_tcu:"",status:'ativo',_pendente:false},
+  {id:48,nome:"Michel Machado",cargo:"EST",uf:"SC",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"000.081.209-94",rg_imp:"3454690 SSP/SC",nascimento:"06/10/1978",raca:"Branco",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"Michelmachado78@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:49,nome:"Osvaldo Mendes de Amorim Junior",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,19",admissao:"27/04/2026",cpf_imp:"642.333.673 - 34",rg_imp:"2811318 SSP /DF",nascimento:"21/09/1979",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"osvaldojunior10@gmail.com",email_tcu:"x1696064@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:50,nome:"Fábio Crystian da Costa Queiroz",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"29/04/2026",cpf_imp:"049.381.681-03",rg_imp:"2631002 SSP /DF",nascimento:"20/06/1995",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"fabiiocrystian@gmail.com",email_tcu:"x1698185@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:51,nome:"Filipe Augusto Dias Carvalho",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"05/05/2026",cpf_imp:"005.373.351-70",rg_imp:"2044560 SSP/DF",nascimento:"08/06/1983",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"filipeadc@gmail.com",email_tcu:"x1698858@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:52,nome:"João Paulo Santos Vitória",cargo:"EST",uf:"BA",horas:"8h",salario:"4785,35",admissao:"29/04/2026",cpf_imp:"041.580.935-57",rg_imp:"09997159-33 Ssp BA",nascimento:"27/09/1988",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"jpsv88@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:53,nome:"Niger alexandre",cargo:"EST",uf:"RJ",horas:"8h",salario:"4785,35",admissao:"26/05/2026",cpf_imp:"128.543.587-75",rg_imp:"21.716.808-7",nascimento:"12/01/1989",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"niger.alexandre@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:54,nome:"Raul Scheir Rabelo",cargo:"EST",uf:"SP",horas:"8h",salario:"4785,35",admissao:"18/05/2026",cpf_imp:"381.003.328-60",rg_imp:"417343371/SSP - SP",nascimento:"16/11/1988",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"rabeloraul@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:55,nome:"Priscila Pamplona Torres",cargo:"Gestor de Service desk",uf:"DF",horas:"8h",salario:"12995,82",admissao:"27/04/2026",cpf_imp:"720.712.811-87",rg_imp:"2097281 Ssp/df",nascimento:"06/11/1982",raca:"Parda",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"pristorres211@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:56,nome:"Rafael José Pires",cargo:"SCHA",uf:"DF",horas:"8h",salario:"7790,08",admissao:"27/04/2026",cpf_imp:"504.012.621-20",rg_imp:"1065006 -SSP/DF",nascimento:"23/10/1972",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"Rafaeljpdj@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:57,nome:"Raphael Diogenes Pereira Lima dos Santos",cargo:"EST",uf:"MS",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"006.283.882-25",rg_imp:"2481130 SEJUSP MS",nascimento:"22/05/1994",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"rapha.diogenes@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:58,nome:"Rayanne Pereira da Silva",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"092.243.693-24",rg_imp:"09224369324 / PCDF",nascimento:"26/04/2003",raca:"Parda",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"raynny15@gmail.com",email_tcu:"x1696061@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:59,nome:"Renato Gomes Lemos",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"022.832.231-64",rg_imp:"2539873 SSP/DF",nascimento:"18/03/1988",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"renato.lemos@live.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:60,nome:"Renato Rocha de Carvalho",cargo:"Supervisor de suporte (EST)",uf:"DF",horas:"8h",salario:"5842,56",admissao:"27/04/2026",cpf_imp:"787.898.771-87",rg_imp:"2595046 SSP/DF",nascimento:"25/09/1976",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"Renato29@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:61,nome:"Ricardo Conceição do Sanrtos",cargo:"SCHA",uf:"DF",horas:"8h",salario:"7790,08",admissao:"27/04/2026",cpf_imp:"505.840.571-72",rg_imp:"1189000/SSP-DF",nascimento:"13/05/1970",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"ricardocs@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:62,nome:"Robson Alves Mendes",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,17",admissao:"27/04/2026",cpf_imp:"033.151.381-17",rg_imp:"5378694",nascimento:"06/06/1990",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"robson.inf.alves@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:63,nome:"Rodrigo Henrique Maranhão Santana",cargo:"EST",uf:"AL",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"044.561.404-88",rg_imp:"1591953 SSP/AL",nascimento:"06/09/1982",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"rodrigomaranhaos82gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:64,nome:"Ronyellison Braga dos  Santos",cargo:"EST",uf:"PB",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"076.785.664-33",rg_imp:"2872722 SSP/PB",nascimento:"19/06/1987",raca:"Preta",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"ronyjp@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:65,nome:"Sarah Mendes Ribeiro",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"048.435.631-37",rg_imp:"3121272 - DF",nascimento:"23/05/1995",raca:"Parda",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"sarah.mendes2305@gmail.com",email_tcu:"x1696898@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:66,nome:"SilmaraFerreira Costa",cargo:"EST",uf:"TO",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"003.304.953-05",rg_imp:"1080071994 SSP /MA",nascimento:"11/02/1983",raca:"Branca",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"silmarafc1@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:67,nome:"Suene da Silva Pinho",cargo:"TEL",uf:"DF",horas:"6h",salario:"R$ 3,830,17",admissao:"27/04/2026",cpf_imp:"051.036.453-51",rg_imp:"05103645351/ PCDF",nascimento:"13/10/1993",raca:"Branca",genero:"Feminino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"suenesilva2010@hotmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:68,nome:"Thiago Dantas Prado",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"057.517.371-80",rg_imp:"05751737180",nascimento:"09/07/1998",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"tdantasprado@gmail.com",email_tcu:"x1696897@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:69,nome:"Thiago Soares Carneiro",cargo:"Analista de suporte especializado (AC)",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"015.621.311-76",rg_imp:"2420368 SSP/DF",nascimento:"21/08/1987",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"thiago.sc87@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:70,nome:"Wanderson Marques da Costa",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"020.402.161-89",rg_imp:"2417197   SSP/DF",nascimento:"16/07/1987",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"wanderson.bsi@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:71,nome:"Welton Macedo Santos Durão",cargo:"BSB",uf:"DF",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"028.737.731-89",rg_imp:"02873773189 / SSP-GO",nascimento:"28/01/1990",raca:"Negro",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"welton_b50@hotmail.com",email_tcu:"x1696848@tcu.gov.br",status:'ativo',_pendente:false},
+  {id:72,nome:"William Cássio da Rocha Duarte",cargo:"AE",uf:"DF",horas:"8h",salario:"5803,96",admissao:"27/04/2026",cpf_imp:"000.551.841-54",rg_imp:"1984431 SSP/DF",nascimento:"19/09/1982",raca:"Parda",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"wcassio.rocha@gmail.com",email_tcu:"",status:'ativo',_pendente:false},
+  {id:73,nome:"William Souza Aguiar",cargo:"EST",uf:"AC",horas:"8h",salario:"4785,35",admissao:"27/04/2026",cpf_imp:"874.281.482-00",rg_imp:"418453 SSP/AC",nascimento:"24/08/1985",raca:"Branca",genero:"Masculino",pcd:"Não",libras:"Não",vvd:"Não",email_imp:"william.ag.souza@gmail.com",email_tcu:"",status:'ativo',_pendente:false}
 ];
 
 /* ═══ PAUSAS ═══ */
@@ -5278,13 +3662,13 @@ function refreshDash(){
         actionBar.innerHTML=
           '<span style="font-size:10px;color:var(--muted);flex:1;">Clique em Editar para modificar os dados diretamente</span>'
           +'<button id="btn-edit-'+_cid+'" class="btn bp" style="font-size:10px;padding:4px 12px;">&#9998; Editar</button>'
-          +'<button id="btn-link-'+_cid+'" class="btn" style="font-size:10px;padding:4px 12px;border:.5px solid var(--b400);color:var(--b600);">&#128231; Enviar link</button>'
+          +'<button id="btn-link-'+_cid+'" class="btn" style="font-size:10px;padding:4px 12px;border:.5px solid var(--b600);color:var(--b600);">&#128231; Enviar e-mail</button>'
           +'<button id="btn-del-'+_cid+'" class="btn" style="font-size:10px;padding:4px 12px;border:.5px solid #ef4444;color:#ef4444;">&#128465; Remover</button>';
-        (function(cid,nome){
+        (function(cid,col){
           actionBar.querySelector('#btn-edit-'+cid).addEventListener('click',function(){dashEditMode(cid,true);});
-          actionBar.querySelector('#btn-link-'+cid).addEventListener('click',function(){enviarLinkComplementar(nome);});
+          actionBar.querySelector('#btn-link-'+cid).addEventListener('click',function(){enviarEmailDocumentos(col);});
           actionBar.querySelector('#btn-del-'+cid).addEventListener('click',function(){dashRemover(cid);});
-        })(_cid,c.nome);
+        })(_cid, c);
 
         // Field rows
         function fRow(label,val,req){
@@ -5298,8 +3682,33 @@ function refreshDash(){
 
         var viewDiv=document.createElement('div');
         viewDiv.id='view-'+_cid;
+
+        // Build pending summary block
+        var _pend_campos = [
+          {f:'cpf_imp',label:'CPF'},{f:'rg_imp',label:'RG'},{f:'ctps',label:'CTPS'},
+          {f:'nascimento',label:'Data Nasc.'},{f:'civil',label:'Estado Civil'},
+          {f:'nac',label:'Nacionalidade'},{f:'natural',label:'Naturalidade'},
+          {f:'genero',label:'Gênero'},{f:'raca',label:'Cor/Raça'},
+          {f:'email_imp',label:'E-mail'},{f:'endereco',label:'Endereço'},
+          {f:'cep',label:'CEP'},{f:'cidade',label:'Cidade'},
+          {f:'pcd',label:'PCD'},{f:'libras',label:'Libras'},{f:'vvd',label:'Vit. Viol. Dom.'},
+          {f:'emg_nome',label:'Contato Emg. Nome'},{f:'emg_cel',label:'Contato Emg. Cel.'},
+          {f:'admissao',label:'Admissão'}
+        ];
+        var _pend_list = _pend_campos.filter(function(x){
+          return !c[x.f]||String(c[x.f]).trim()===''||c[x.f]==='—';
+        });
+        var _pend_block = _pend_list.length
+          ? '<div style="background:#fef3c7;border:.5px solid #f59e0b;border-radius:7px;padding:8px 12px;margin:8px 14px 0;">'
+            +'<div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:4px;">⚠ Campos pendentes de preenchimento ('+_pend_list.length+')</div>'
+            +'<div style="display:flex;flex-wrap:wrap;gap:4px;">'
+            +_pend_list.map(function(x){return '<span style="font-size:9px;background:#fde68a;color:#78350f;padding:2px 7px;border-radius:10px;">'+x.label+'</span>';}).join('')
+            +'</div></div>'
+          : '<div style="background:#d1fae5;border:.5px solid #6ee7b7;border-radius:7px;padding:6px 12px;margin:8px 14px 0;font-size:10px;font-weight:600;color:#065f46;">✅ Todos os campos preenchidos</div>';
+
         viewDiv.innerHTML=
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;padding:12px 14px;">'
+          _pend_block
+          +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;padding:12px 14px;">'
           +'<div>'+sHdr('Dados Pessoais')
             +fRow('Nome completo',c.nome,true)+fRow('CPF',c.cpf_imp,true)+fRow('RG',c.rg_imp,true)
             +fRow('CTPS',c.ctps,false)+fRow('Data Nasc.',c.nascimento,true)+fRow('Estado Civil',c.civil,false)
@@ -6970,30 +5379,29 @@ function abrirDocsDetalhe(nome){
         saveAll(); abrirDocsDetalhe(nome); rDocs();
       };})(i));
 
-      // Upload button
-      var lbl=document.createElement('label');
-      lbl.style.cssText='font-size:10px;padding:3px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:600;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;';
-      lbl.title='Anexar documento comprobatório';
-      lbl.innerHTML='⬆ Upload';
-      var inp=document.createElement('input');
-      inp.type='file'; inp.accept='.pdf,.jpg,.jpeg,.png,.webp'; inp.style.display='none';
-      inp.addEventListener('change',(function(idx){return function(){
-        var f=this.files[0]; if(!f) return;
-        if(!DOC_MATRIX[nome]) DOC_MATRIX[nome]={};
-        var cur=DOC_MATRIX[nome][idx]||{};
-        DOC_MATRIX[nome][idx]={ok:true, data:cur.data||new Date().toLocaleDateString('pt-BR'), arquivo:f.name};
-        saveAll(); abrirDocsDetalhe(nome); rDocs();
-        toast('Arquivo "'+f.name+'" vinculado!','ok');
-      };})(i));
-      lbl.prepend(inp);
-
       acts.appendChild(btnTgl);
-      acts.appendChild(lbl);
       row.appendChild(ico);
       row.appendChild(txt);
       row.appendChild(acts);
       list.appendChild(row);
     });
+  }
+
+  // ── Observação do colaborador ──
+  var obsKey = 'docs_obs_'+nome;
+  var obsVal = (typeof _docsPainel!=='undefined'&&_docsPainel[nome]&&_docsPainel[nome].obs)||'';
+  var obsWrap = document.getElementById('docs-detalhe-obs');
+  if(obsWrap){
+    obsWrap.style.display='block';
+    var obsTA = document.getElementById('docs-detalhe-obs-ta');
+    if(obsTA){
+      obsTA.value = obsVal;
+      obsTA.oninput = function(){
+        if(!_docsPainel[nome]) _docsPainel[nome]={};
+        _docsPainel[nome].obs = obsTA.value;
+        saveAll();
+      };
+    }
   }
 
   panel.style.display='block';
@@ -7268,6 +5676,54 @@ function abrirLinkComplementar(nome){
   var base = window.location.href.split('?')[0].split('#')[0];
   var link = base + '#form=collab1';
   window.open(link, '_blank');
+}
+
+
+function enviarEmailDocumentos(c){
+  var campos = [
+    {campo:'cpf_imp',    label:'CPF'},
+    {campo:'rg_imp',     label:'RG'},
+    {campo:'ctps',       label:'CTPS'},
+    {campo:'nascimento', label:'Data de Nascimento'},
+    {campo:'civil',      label:'Estado Civil'},
+    {campo:'nac',        label:'Nacionalidade'},
+    {campo:'natural',    label:'Naturalidade'},
+    {campo:'genero',     label:'Gênero'},
+    {campo:'raca',       label:'Cor / Raça'},
+    {campo:'email_imp',  label:'E-mail pessoal'},
+    {campo:'endereco',   label:'Endereço'},
+    {campo:'cep',        label:'CEP'},
+    {campo:'cidade',     label:'Cidade'},
+    {campo:'pcd',        label:'PCD'},
+    {campo:'libras',     label:'Libras'},
+    {campo:'vvd',        label:'Vítima de Violência Doméstica'},
+    {campo:'emg_nome',   label:'Contato de Emergência — Nome'},
+    {campo:'emg_cel',    label:'Contato de Emergência — Celular'},
+    {campo:'admissao',   label:'Data de Admissão'},
+  ];
+
+  var pendentes = campos.filter(function(f){
+    return !c[f.campo] || String(c[f.campo]).trim()==='' || c[f.campo]==='—';
+  }).map(function(f){ return '• '+f.label; });
+
+  var nl = '%0D%0A';
+  var subject = encodeURIComponent('Documentos disponíveis no portal T&S Engenharia');
+
+  var listaPendentes = pendentes.length
+    ? nl + encodeURIComponent('Os itens abaixo ainda não foram preenchidos:') + nl
+      + pendentes.map(function(p){ return encodeURIComponent(p); }).join(nl)
+    : nl + encodeURIComponent('✅ Todos os campos estão devidamente preenchidos.');
+
+  var body =
+    encodeURIComponent('Boa tarde,') + nl + nl
+    + encodeURIComponent('Informo que os seguintes documentos já constam devidamente preenchidos no portal da T&S. Caso seja identificada alguma divergência ou ausência de informações, solicito a gentileza de responder a este e-mail com as devidas atualizações.')
+    + listaPendentes + nl + nl
+    + encodeURIComponent('Atenciosamente,') + nl
+    + encodeURIComponent('Supervisão e Gestão — T&S Engenharia');
+
+  window.location.href = 'mailto:' + encodeURIComponent(c.email_imp||'')
+    + '?subject=' + subject + '&body=' + body;
+  toast('E-mail aberto para ' + c.nome, 'ok');
 }
 
 function enviarLinkComplementar(nome){
@@ -7668,7 +6124,7 @@ function expPresenca(){
 
 /* ═══ PORTAL FISCAL ═══ */
 function fiscalTab(tab){
-  var tabs=['cad','ger','dev','mal','abo'];
+  var tabs=['cad','ger','dev','mal','abo','docs'];
   tabs.forEach(function(t){
     var pane=document.getElementById('fiscal-pane-'+t);
     var btn =document.getElementById('fiscal-tab-'+t);
@@ -7679,6 +6135,7 @@ function fiscalTab(tab){
   if(tab==='dev') rFiscalDev();
   if(tab==='mal') rFiscalMal();
   if(tab==='abo') rFiscalAbo();
+  if(tab==='docs') rFiscalDocs();
 }
 function rFiscalDev(){
   var tbody=document.getElementById('fiscal-dev-tbody');if(!tbody)return;
@@ -7731,6 +6188,79 @@ function rFiscalMal(){
     tbody.appendChild(tr);
   });
 }
+
+function rFiscalDocs(){
+  var tbody=document.getElementById('fiscal-docs-tbody');if(!tbody)return;
+  var csel=document.getElementById('fiscal-docs-cargo');
+  if(csel&&csel.options.length<=1){
+    Object.keys(CD).sort(function(a,b){return (CD[a].label||a).localeCompare(CD[b].label||b);}).forEach(function(k){
+      var o=document.createElement('option');o.value=k;o.textContent=(CD[k]||{}).label||k;csel.appendChild(o);
+    });
+  }
+  var busca=(document.getElementById('fiscal-docs-busca')?.value||'').toLowerCase();
+  var fCargo=document.getElementById('fiscal-docs-cargo')?.value||'';
+  var fStatus=document.getElementById('fiscal-docs-status')?.value||'';
+
+  var ativos=COLL.filter(function(c){
+    if(c.status==='inativo')return false;
+    if(fCargo&&c.cargo!==fCargo)return false;
+    if(busca&&!c.nome.toLowerCase().includes(busca))return false;
+    return true;
+  }).sort(function(a,b){return a.nome.localeCompare(b.nome,'pt-BR');});
+
+  // Filter by status
+  var rows=ativos.map(function(c){
+    var reqs=(DOC_REQ_DATA&&DOC_REQ_DATA[c.cargo]&&DOC_REQ_DATA[c.cargo].requisitos)||[];
+    var mat=DOC_MATRIX[c.nome]||{};
+    var ok=reqs.filter(function(_,i){return mat[i]&&mat[i].ok;}).length;
+    var total=reqs.length;
+    var pct=total>0?Math.round(ok/total*100):0;
+    var completo=total>0&&ok===total;
+    var obs=(_docsPainel[c.nome]&&_docsPainel[c.nome].obs)||'';
+    return {c,ok,total,pct,completo,obs};
+  }).filter(function(r){
+    if(fStatus==='completo'&&!r.completo)return false;
+    if(fStatus==='pendente'&&r.completo)return false;
+    return true;
+  });
+
+  var cnt=document.getElementById('fiscal-docs-count');
+  if(cnt)cnt.textContent=rows.length+' colaboradores';
+
+  tbody.innerHTML='';
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum colaborador encontrado.</td></tr>';
+    return;
+  }
+  rows.forEach(function(item,i){
+    var c=item.c;
+    var bg=i%2===0?'#fff':'#f8fafc';
+    var barColor=item.pct===100?'#16a34a':item.pct>50?'#f59e0b':'#ef4444';
+    var tr=document.createElement('tr');
+    tr.style.borderBottom='.5px solid #f1f5f9';
+    tr.innerHTML=
+      '<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+c.nome+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+c.cargo+'</span></td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+( c.uf||'DF')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';text-align:center;">'
+        +'<div style="display:flex;align-items:center;gap:5px;justify-content:center;">'
+        +'<div style="width:50px;height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">'
+        +'<div style="width:'+item.pct+'%;height:100%;background:'+barColor+';border-radius:3px;"></div>'
+        +'</div>'
+        +'<span style="font-size:10px;color:'+barColor+';font-weight:700;">'+item.pct+'%</span>'
+        +'</div>'
+      +'</td>'
+      +'<td style="padding:7px 10px;text-align:center;background:'+bg+';font-weight:700;color:'+barColor+';">'+item.ok+'/'+item.total+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'
+        +(item.completo
+          ?'<span style="font-size:10px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-weight:700;">✅ Completo</span>'
+          :'<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-weight:700;">⚠ Pendente</span>')
+      +'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';font-size:10px;color:#374151;font-style:'+(item.obs?'normal':'italic')+';color:'+(item.obs?'#374151':'#94a3b8')+';">'+(item.obs||'—')+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
 function rFiscalAbo(){
   var tbody=document.getElementById('fiscal-abo-tbody');if(!tbody)return;
   var mes=document.getElementById('fiscal-abo-mes')?.value||'Janeiro';
@@ -8316,6 +6846,8 @@ function saveAll(){
     _ls.setItem(STORE_KEY, payload);
     // Write a sync timestamp so other tabs/sessions detect the change
     _ls.setItem(STORE_KEY + '_sync', Date.now().toString());
+    // Broadcast to other tabs (fiscal, other gestor windows)
+    try{ _ls.setItem(STORE_KEY + '_broadcast', Date.now().toString()); }catch(e){}
   }catch(e){}
 }
 
@@ -9330,7 +7862,7 @@ function rUni(){
     if(SOL_DATA.length===0){stbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1rem;">Nenhuma solicitação.</td></tr>';}
     else SOL_DATA.forEach((r,i)=>{
       const tr=document.createElement('tr');
-      tr.innerHTML=`<td style="font-weight:500;">${r.nome}</td><td>${r.gen}</td><td style="font-size:10px;">${r.pecas}</td><td>${r.data}</td><td><span class="bdg bw">${r.status}</span></td>`;
+      tr.innerHTML=`<td style="font-weight:500;">${r.nome}</td><td>${r.gen}</td><td style="font-size:10px;">${r.pecas}</td><td>${r.data}</td><td><span class="bdg bw">${r.status}</span></td><td><button class="btn bs" style="font-size:9px;padding:2px 7px;" onclick="SOL_DATA.splice(${i},1);rUni();saveAll()" title="Remover">🗑</button></td>`;
       stbody.appendChild(tr);
     });
   }
@@ -9546,11 +8078,18 @@ function doLogin(){
   if(found){
     _SESSION_USER = {user: found.user, nome: found.nome, role: found.role};
     try{ sessionStorage.setItem('ts_user', JSON.stringify(_SESSION_USER)); }catch(e){}
+
+    // Hide login screen immediately — before any heavy work
+    var ls = document.getElementById('login-screen');
+    if(ls) ls.style.display = 'none';
     document.body.setAttribute('data-role', found.role);
-    document.getElementById('login-screen').classList.add('hidden');
     document.body.classList.add('portal-ready');
-    _initPortal();
-    setTimeout(function(){ toast('Bem-vindo, '+found.nome+'!','ok'); }, 200);
+
+    // Run portal init on next frame so browser repaints first
+    requestAnimationFrame(function(){
+      _initPortal();
+      setTimeout(function(){ toast('Bem-vindo, '+found.nome+'!','ok'); }, 100);
+    });
   } else {
     errEl.textContent = '✗ Usuário ou senha incorretos.';
     document.getElementById('login-pwd').value = '';
@@ -9690,6 +8229,54 @@ function showCollabCadSuccess(){
     + '</div>';
 }
 
+// ── Cross-tab sync ──
+window.addEventListener('storage', function(e){
+  if(e.key === (typeof STORE_KEY!=='undefined'?STORE_KEY+'_broadcast':'hepta_portal_data_broadcast')){
+    _syncFiscal();
+  }
+});
+
+function _syncFiscal(){
+  try{ loadAll(); }catch(err){}
+  var role = document.body.getAttribute('data-role')||'';
+  if(role === 'fiscal'){
+    try{ rFiscalCad(); }catch(err){}
+    try{ rFiscalGer(); }catch(err){}
+    try{ rFiscalAbo(); }catch(err){}
+    try{ rFiscalMal(); }catch(err){}
+    try{ rFiscalDev(); }catch(err){}
+    try{ rFiscalDocs(); }catch(err){}
+  } else {
+    try{ refreshDash(); }catch(err){}
+    try{ refreshGeral(); }catch(err){}
+    try{ refreshTelCard(); }catch(err){}
+    try{ rMaleta(); }catch(err){}
+    try{ rAbono(); }catch(err){}
+  }
+}
+
+// ── Polling: verifica mudanças a cada 10s (para dispositivos diferentes) ──
+(function(){
+  var _lastSync = null;
+  var SKEY = typeof STORE_KEY!=='undefined' ? STORE_KEY+'_sync' : 'hepta_portal_data_sync';
+  function poll(){
+    try{
+      var ts = localStorage.getItem(SKEY);
+      if(ts && ts !== _lastSync){
+        _lastSync = ts;
+        if(_lastSync !== null){ // skip first load
+          _syncFiscal();
+        }
+      }
+    }catch(e){}
+  }
+  // Start polling after portal is ready
+  setTimeout(function(){
+    try{ _lastSync = localStorage.getItem(SKEY); }catch(e){}
+    setInterval(poll, 10000); // poll every 10 seconds
+  }, 3000);
+})();
+
 window.addEventListener('DOMContentLoaded',function(){
   // Detecta se é acesso via formulário (qualquer ?form= ou #form=)
   var urlParam  = new URLSearchParams(window.location.search).get('form')||'';
@@ -9713,9 +8300,11 @@ window.addEventListener('DOMContentLoaded',function(){
 
   if(_SESSION_USER){
     // ── SESSÃO ATIVA: entra direto ──
+    var ls2 = document.getElementById('login-screen');
+    if(ls2) ls2.style.display = 'none';
     document.body.setAttribute('data-role', _SESSION_USER.role||'gestor');
     document.body.classList.add('portal-ready');
-    _initPortal();
+    requestAnimationFrame(function(){ _initPortal(); });
     return;
   }
 
@@ -9738,13 +8327,14 @@ function _initPortal(){
   if(_userRole === 'fiscal'){
     try{ loadAll(); }catch(e){}
     document.body.classList.add('portal-ready');
-    document.querySelectorAll('.page').forEach(function(p){ p.style.cssText='display:none!important'; });
+    // Hide login screen right away
+    var lsF = document.getElementById('login-screen'); if(lsF) lsF.style.display='none';
+    // CSS rule body[data-role="fiscal"] .page:not(#pg-fiscal) handles hiding
+    // Just make pg-fiscal visible
     var fp=document.getElementById('pg-fiscal');
-    if(fp) fp.style.cssText='display:block!important';
-    var nt=document.querySelector('.tabs-wrap'); if(nt) nt.style.display='none';
-    var nav=document.querySelector('nav.top-nav,.nav-bar'); if(nav) nav.style.display='none';
+    if(fp){ fp.style.display='block'; fp.classList.add('on'); }
     try{ document.getElementById('mpill').textContent='FISCAL'; }catch(e){}
-    setTimeout(function(){ try{rFiscalCad();}catch(e){} },100);
+    setTimeout(function(){ try{rFiscalCad();}catch(e){} }, 50);
     return;
   }
 
@@ -11080,6 +9670,7 @@ function expFeedback() {
   <button id="fiscal-tab-ger" onclick="fiscalTab('ger')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">📊 Gerencial</button>
   <button id="fiscal-tab-dev" onclick="fiscalTab('dev')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">📱 Celular/Tablet</button>
   <button id="fiscal-tab-mal" onclick="fiscalTab('mal')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">🧰 Maleta</button>
+  <button id="fiscal-tab-docs" onclick="fiscalTab('docs')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">📁 Documentação</button>
   <button id="fiscal-tab-abo" onclick="fiscalTab('abo')" style="border:none;background:none;padding:.75rem 1rem;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;font-family:inherit;">💰 Abono</button>
 </div>
 <div id="fiscal-pane-cad" style="padding:1rem;">
@@ -11162,6 +9753,32 @@ function expFeedback() {
         <th style="padding:8px 10px;">Representante TCU</th>
       </tr></thead>
       <tbody id="fiscal-mal-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Documentação pane -->
+<div id="fiscal-pane-docs" style="display:none;padding:1rem;">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
+    <input type="text" id="fiscal-docs-busca" placeholder="🔍 Nome..." oninput="rFiscalDocs()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:200px;">
+    <select id="fiscal-docs-cargo" onchange="rFiscalDocs()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;max-width:200px;"><option value="">Todos os cargos</option></select>
+    <select id="fiscal-docs-status" onchange="rFiscalDocs()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
+      <option value="">Todos</option><option value="completo">✅ Completo</option><option value="pendente">⚠ Pendente</option>
+    </select>
+    <span id="fiscal-docs-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
+  </div>
+  <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#1e3a5f;color:#fff;">
+        <th style="padding:8px 10px;text-align:left;">Colaborador</th>
+        <th style="padding:8px 10px;">Cargo</th>
+        <th style="padding:8px 10px;">UF</th>
+        <th style="padding:8px 10px;text-align:center;">Progresso</th>
+        <th style="padding:8px 10px;text-align:center;">Entregues</th>
+        <th style="padding:8px 10px;">Status</th>
+        <th style="padding:8px 10px;">Observação</th>
+      </tr></thead>
+      <tbody id="fiscal-docs-tbody"></tbody>
     </table>
   </div>
 </div>
