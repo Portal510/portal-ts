@@ -6266,7 +6266,7 @@ function rFiscalAbo(){
   var ano=parseInt(document.getElementById('fiscal-abo-ano')?.value||'2026');
   var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var mIdx=meses.indexOf(mes);
-  var curMes=String(mIdx+1).padStart(2,'0');
+  var curMes=mes;  // use month name like admin does: "Junho"
   var curAno=String(ano);
   var ativos=COLL.filter(function(c){return c.status!=='inativo';}).sort(function(a,b){return a.nome.localeCompare(b.nome,'pt-BR');});
   var cnt=document.getElementById('fiscal-abo-count');
@@ -6275,7 +6275,7 @@ function rFiscalAbo(){
   if(!ativos.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum colaborador.</td></tr>';return;}
   ativos.forEach(function(col,i){
     var bg=i%2===0?'#fff':'#f8fafc';
-    var key=col.nome+'|'+curMes+'|'+curAno;
+    var key=abonoKey(col.nome,curMes,curAno);
     var d=(ABONO_DATA&&ABONO_DATA[key])||{desktop:'—',internet:'—',celular:''};
     var dVal=parseFloat((d.desktop||'0').replace('R$','').replace(',','.'))||0;
     var iVal=parseFloat((d.internet||'0').replace('R$','').replace(',','.'))||0;
@@ -6368,7 +6368,7 @@ function rFiscalGer(){
   t+='</tr></thead><tbody>';
   ativos.forEach(function(col,ri){
     var bg=ri%2===0?'#fff':'#f8fafc';
-    var key=col.nome;
+    var key=col.nome+'|'+mes+'|'+String(ano);
     var rec=(typeof GER_DATA!=='undefined'?GER_DATA[key]:null)||{};
     t+='<tr><td style="padding:5px 10px;font-weight:500;font-size:10px;position:sticky;left:0;background:'+bg+';border-right:.5px solid #e2e8f0;white-space:nowrap;">'+col.nome+'</td>';
     dias.forEach(function(d){
