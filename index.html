@@ -600,6 +600,7 @@ body.collab #btn-voltar-form { display: flex !important; }
   </div>
   <div class="nav-r">
     <span class="mpill" id="mpill">GESTOR</span>
+    <span id="fb-status" title="Status Firebase" style="font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;white-space:nowrap;">🔥 —</span>
     <button class="bsm" id="btog" onclick="toggleMode()">Modo colaborador</button>
     <button class="bsm" onclick="doLogout()" title="Sair" style="background:rgba(163,45,45,.2);color:#f7c1c1;border-color:rgba(163,45,45,.4);">⏻ Sair</button>
   </div>
@@ -622,7 +623,6 @@ body.collab #btn-voltar-form { display: flex !important; }
     </div>
     <div style="display:flex;align-items:center;gap:.625rem;">
       <span id="sync-indicator" style="font-size:10px;color:var(--muted);"></span>
-      <span id="fb-status" title="Status Firebase" style="font-size:10px;padding:2px 7px;border-radius:10px;background:#f1f5f9;color:#64748b;">🔥 —</span>
       <button class="btn bs" onclick="manualRefresh()" style="font-size:10px;padding:4px 12px;display:flex;align-items:center;gap:4px;">
         🔄 Atualizar
       </button>
