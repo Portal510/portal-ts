@@ -526,14 +526,15 @@ body.collab #btn-voltar-form { display: flex !important; }
       return obj;
     }
 
-    function _fbStatus(text, color){
+    window._fbStatus = function(text, color){
       var el=document.getElementById('fb-status');
       if(el){
         el.textContent='🔥 '+text;
         el.style.background=color==='ok'?'rgba(209,250,229,.3)':color==='err'?'rgba(254,226,226,.3)':'rgba(255,255,255,.15)';
         el.style.color=color==='ok'?'#6ee7b7':color==='err'?'#fca5a5':'rgba(255,255,255,.7)';
       }
-    }
+    };
+    function _fbStatus(text,color){ window._fbStatus(text,color); }
 
     window._fbSave = function(data){
       _fbStatus('Salvando...','');
@@ -594,8 +595,9 @@ body.collab #btn-voltar-form { display: flex !important; }
     };
 
     window._fbReady = true;
-    _fbStatus('Conectando...','');
-    window.dispatchEvent(new Event('firebase-ready'));
+    window._fbStatus('Pronto','');
+    // Dispatch after small delay to ensure listeners are set up
+    setTimeout(function(){ window.dispatchEvent(new Event('firebase-ready')); }, 100);
   })();
   </script>
 </head>
@@ -8523,56 +8525,26 @@ window.addEventListener('DOMContentLoaded',function(){
     // Try Firebase first, fallback to localStorage
     function _doInit(){
       requestAnimationFrame(function(){ _initPortal(); });
-      // Start real-time listener for cross-device sync
-      if(window._fbListen){
-        window._fbListen(function(data){
-          _applyData(data);
-          // Also update localStorage
-          try{ _ls.setItem(STORE_KEY, JSON.stringify(data)); _ls.setItem(STORE_KEY+'_sync', Date.now().toString()); }catch(e){}
-          // Refresh visible panels
-          var role=document.body.getAttribute('data-role')||'';
-          if(role==='fiscal'){
-            try{rFiscalCad();}catch(e){}
-            try{rFiscalGer();}catch(e){}
-            try{rFiscalAbo();}catch(e){}
-            try{rFiscalMal();}catch(e){}
-            try{rFiscalDev();}catch(e){}
-            try{rFiscalDocs();}catch(e){}
-          } else {
-            try{refreshDash();}catch(e){}
-            try{refreshGeral();}catch(e){}
-            try{refreshTelCard();}catch(e){}
-            try{rAbono();}catch(e){}
-            try{rMaleta();}catch(e){}
-          }
-        });
+      // Start Firebase listener
+      function _startFbListener(){
+        if(window._fbListen){
+          try{ window._fbStatus('Conectando...',''); }catch(e){}
+          window._fbListen(function(data){
+            _applyData(data);
+            try{ _ls.setItem(STORE_KEY, JSON.stringify(data)); _ls.setItem(STORE_KEY+'_sync', Date.now().toString()); }catch(e){}
+            var role=document.body.getAttribute('data-role')||'';
+            if(role==='fiscal'){
+              try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
+              try{rFiscalMal();}catch(e){} try{rFiscalDev();}catch(e){} try{rFiscalDocs();}catch(e){}
+            } else {
+              try{refreshDash();}catch(e){} try{refreshGeral();}catch(e){}
+              try{refreshTelCard();}catch(e){} try{rAbono();}catch(e){} try{rMaleta();}catch(e){}
+            }
+          });
+        }
       }
-    }
-    if(window._fbReady){
-      loadAllFromFirebase().then(function(ok){ _doInit(); });
-    } else {
-      loadAll();
-      window.addEventListener('firebase-ready', function(){
-        loadAllFromFirebase().then(function(ok){ if(ok){ try{refreshAll();}catch(e){} } });
-        // Start listener after Firebase is ready
-        setTimeout(function(){
-          if(window._fbListen){
-            window._fbListen(function(data){
-              _applyData(data);
-              try{ _ls.setItem(STORE_KEY, JSON.stringify(data)); _ls.setItem(STORE_KEY+'_sync', Date.now().toString()); }catch(e){}
-              var role=document.body.getAttribute('data-role')||'';
-              if(role==='fiscal'){
-                try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
-                try{rFiscalMal();}catch(e){} try{rFiscalDev();}catch(e){} try{rFiscalDocs();}catch(e){}
-              } else {
-                try{refreshDash();}catch(e){} try{refreshGeral();}catch(e){}
-                try{refreshTelCard();}catch(e){} try{rAbono();}catch(e){} try{rMaleta();}catch(e){}
-              }
-            });
-          }
-        }, 500);
-      });
-      _doInit();
+      if(window._fbReady){ loadAllFromFirebase().then(function(){ _startFbListener(); }); }
+      else { window.addEventListener('firebase-ready', function(){ loadAllFromFirebase().then(function(){ _startFbListener(); }); }); }
     }
     return;
   }
