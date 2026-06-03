@@ -595,9 +595,14 @@ body.collab #btn-voltar-form { display: flex !important; }
     };
 
     window._fbReady = true;
-    window._fbStatus('Pronto','');
-    // Dispatch after small delay to ensure listeners are set up
-    setTimeout(function(){ window.dispatchEvent(new Event('firebase-ready')); }, 100);
+    // Update status after DOM is ready
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', function(){ window._fbStatus('Pronto',''); });
+    } else {
+      window._fbStatus('Pronto','');
+    }
+    // Dispatch after DOM is ready
+    setTimeout(function(){ window.dispatchEvent(new Event('firebase-ready')); }, 200);
   })();
   </script>
 </head>
@@ -8307,6 +8312,30 @@ function doLogin(){
     requestAnimationFrame(function(){
       _initPortal();
       setTimeout(function(){ toast('Bem-vindo, '+found.nome+'!','ok'); }, 100);
+      // Start Firebase after login
+      setTimeout(function(){
+        if(window._fbLoad){
+          window._fbStatus('Conectando...','');
+          window._fbLoad().then(function(data){
+            if(data){ _applyData(data); try{refreshDash();refreshGeral();rAbono();}catch(e){} }
+            // Start polling listener
+            if(window._fbListen){
+              window._fbListen(function(fbdata){
+                _applyData(fbdata);
+                try{_ls.setItem(STORE_KEY,JSON.stringify(fbdata));_ls.setItem(STORE_KEY+'_sync',Date.now().toString());}catch(e){}
+                var role=document.body.getAttribute('data-role')||'';
+                if(role==='fiscal'){
+                  try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
+                  try{rFiscalMal();}catch(e){} try{rFiscalDev();}catch(e){} try{rFiscalDocs();}catch(e){}
+                } else {
+                  try{refreshDash();}catch(e){} try{refreshGeral();}catch(e){}
+                  try{refreshTelCard();}catch(e){} try{rAbono();}catch(e){} try{rMaleta();}catch(e){}
+                }
+              });
+            }
+          });
+        }
+      }, 500);
     });
   } else {
     errEl.textContent = '✗ Usuário ou senha incorretos.';
