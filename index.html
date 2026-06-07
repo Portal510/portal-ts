@@ -1039,7 +1039,7 @@ body.collab #btn-voltar-form { display: flex !important; }
       <!-- Cadastro Terceirizado -->
       <div class="card">
         <div class="ctitle">Documento 2 — Cadastro de Terceirizado</div>
-        <p style="font-size:11px;color:var(--muted);margin-bottom:.75rem;">Preencha os campos abaixo. O formulário será gerado automaticamente. Após assinar, faça o upload do documento assinado.</p>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:.75rem;">Preencha os campos abaixo. O formulário será gerado automaticamente.</p>
         <div class="fg">
           <div class="fp ff"><label>Nome completo</label><input type="text" id="cad_nome" oninput="ck3()"></div>
           <div class="fp"><label>CPF</label><input type="text" id="cad_cpf" placeholder="000.000.000-00" oninput="maskCPF(this);ck3()" maxlength="14"></div>
@@ -1086,7 +1086,12 @@ body.collab #btn-voltar-form { display: flex !important; }
       <div class="card">
         <div class="ctitle">Documento 3 — Termo de Responsabilidade em TI</div>
         <div class="al al-info" style="margin-bottom:.75rem;"><span>📜</span><div class="alb"><strong>Portaria-TCU nº 202/2008 · Res. nº 126/99</strong>Imprima ou solicite o formulário ao supervisor, preencha, assine e faça o upload abaixo.</div></div>
-        <div style="margin-top:.5rem;"><label style="display:block;margin-bottom:4px;">Upload do termo preenchido e assinado</label><label class="ulb" id="ul-termo"><input type="file" accept=".pdf,.jpg,.png" onchange="fUp('termo',this)">📎 Anexar PDF assinado</label></div>
+        <div style="margin-top:.75rem;background:#fef3c7;border:.5px solid #f59e0b;border-radius:8px;padding:.75rem 1rem;">
+          <label style="display:flex;align-items:flex-start;gap:.625rem;cursor:pointer;font-size:12px;color:#78350f;font-weight:600;">
+            <input type="checkbox" id="doc3-ciente" onchange="ck3()" style="margin-top:2px;width:16px;height:16px;accent-color:#d97706;flex-shrink:0;">
+            <span>Estou ciente que deverei assinar os documentos e encaminhar por e-mail ao supervisor responsável antes do início das atividades.</span>
+          </label>
+        </div>
       </div>
 
       <div id="ok3" class="al al-ok" style="display:none;"><span>✓</span><div class="alb"><strong>Todos os termos aceitos e documentos enviados</strong>Clique em Enviar.</div></div>
@@ -1102,8 +1107,8 @@ body.collab #btn-voltar-form { display: flex !important; }
             <input type="text" id="f_emg_nome" placeholder="Nome do familiar ou responsável" oninput="ck1()">
           </div>
           <div class="fp">
-            <label>Telefone fixo</label>
-            <input type="text" id="f_emg_tel" placeholder="(00) 0000-0000" oninput="maskPhone(this)" maxlength="15">
+            <label>Telefone fixo *</label>
+            <input type="text" id="f_emg_tel" placeholder="(00) 0000-0000" oninput="maskPhone(this);ck1()" maxlength="15">
           </div>
           <div class="fp">
             <label>Celular *</label>
@@ -1146,7 +1151,7 @@ body.collab #btn-voltar-form { display: flex !important; }
       <!-- Cadastro Terceirizado -->
       <div class="card">
         <div class="ctitle">Documento 2 — Cadastro de Terceirizado</div>
-        <p style="font-size:11px;color:var(--muted);margin-bottom:.75rem;">Preencha os campos abaixo. O formulário será gerado automaticamente. Após assinar, faça o upload do documento assinado.</p>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:.75rem;">Preencha os campos abaixo. O formulário será gerado automaticamente.</p>
         <div class="fg">
           <div class="fp ff"><label>Nome completo</label><input type="text" id="cad_nome" oninput="ck3()"></div>
           <div class="fp"><label>CPF</label><input type="text" id="cad_cpf" placeholder="000.000.000-00" oninput="maskCPF(this);ck3()" maxlength="14"></div>
@@ -1193,7 +1198,12 @@ body.collab #btn-voltar-form { display: flex !important; }
       <div class="card">
         <div class="ctitle">Documento 3 — Termo de Responsabilidade em TI</div>
         <div class="al al-info" style="margin-bottom:.75rem;"><span>📜</span><div class="alb"><strong>Portaria-TCU nº 202/2008 · Res. nº 126/99</strong>Imprima ou solicite o formulário ao supervisor, preencha, assine e faça o upload abaixo.</div></div>
-        <div style="margin-top:.5rem;"><label style="display:block;margin-bottom:4px;">Upload do termo preenchido e assinado</label><label class="ulb" id="ul-termo"><input type="file" accept=".pdf,.jpg,.png" onchange="fUp('termo',this)">📎 Anexar PDF assinado</label></div>
+        <div style="margin-top:.75rem;background:#fef3c7;border:.5px solid #f59e0b;border-radius:8px;padding:.75rem 1rem;">
+          <label style="display:flex;align-items:flex-start;gap:.625rem;cursor:pointer;font-size:12px;color:#78350f;font-weight:600;">
+            <input type="checkbox" id="doc3-ciente" onchange="ck3()" style="margin-top:2px;width:16px;height:16px;accent-color:#d97706;flex-shrink:0;">
+            <span>Estou ciente que deverei assinar os documentos e encaminhar por e-mail ao supervisor responsável antes do início das atividades.</span>
+          </label>
+        </div>
       </div>
 
       <div id="ok3" class="al al-ok" style="display:none;"><span>✓</span><div class="alb"><strong>Todos os termos aceitos e documentos enviados</strong>Clique em Enviar.</div></div>
@@ -3512,7 +3522,8 @@ function fUp(id,el){
   }
 }
 function ck3(){
-  const ok=!!(ST.pcsiOk&&ST.files.cad&&ST.files.termo);
+  const ciente=document.getElementById('doc3-ciente')?.checked||false;
+  const ok=!!(ST.pcsiOk&&ST.files.cad&&ciente);
   ST.p3ok=ok;
   document.getElementById('ok3').style.display=ok?'block':'none';
   const b=document.getElementById('bsub3');if(b)b.disabled=!ok;
@@ -3652,7 +3663,7 @@ function dashSaveEdit(cid){
   entry.cpf_imp=gei('cpf');entry.rg_imp=gei('rg');entry.ctps=gei('ctps');
   entry.nascimento=gei('nasc');entry.civil=gei('civil');entry.nac=gei('nac');entry.natural=gei('natural');
   entry.genero=gei('genero');entry.raca=gei('raca');entry.email_imp=gei('email');
-  entry.endereco=gei('endereco');entry.cep=gei('cep');entry.cidade=gei('cidade');
+  entry.endereco=gei('endereco');entry.cep=gei('cep');entry.cidade=gei('cidade');entry.email_inst=gei('email_inst');
   entry.uf=gei('uf')||entry.uf;entry.admissao=gei('admissao');
   entry.emg_nome=gei('emg_nome');entry.emg_cel=gei('emg_cel');entry.emg_tel=gei('emg_tel');
   var nc=gei('cargo');
@@ -3862,7 +3873,7 @@ function refreshDash(){
             +fRow('Raça / Cor',c.raca,false)+fRow('PCD',c.pcd,false)+fRow('Libras',c.libras,false)+fRow('Vít. Viol. Dom.',c.vvd,false)
           +'</div>'
           +'<div>'+sHdr('Contato & Endereço')
-            +fRow('E-mail',c.email_imp,true)+fRow('Endereço',c.endereco,false)+fRow('CEP',c.cep,false)
+            +fRow('E-mail',c.email_imp,true)+fRow('E-mail Institucional',c.email_inst,false)+fRow('Endereço',c.endereco,false)+fRow('CEP',c.cep,false)
             +fRow('Cidade',c.cidade,false)+fRow('UF',c.uf,false)
             +sHdr('Cargo & Contrato')
             +fRow('Cargo',cargoLabel+(c.cargo&&c.cargo!==cargoLabel?' ('+c.cargo+')':''),true)
@@ -3894,7 +3905,7 @@ function refreshDash(){
           +inp('nome','Nome completo *',c.nome)+inp('cpf','CPF *',c.cpf_imp)+inp('rg','RG *',c.rg_imp)
           +inp('ctps','CTPS',c.ctps)+inp('nasc','Data Nascimento *',c.nascimento,true)+inp('civil','Estado Civil',c.civil)
           +inp('nac','Nacionalidade',c.nac)+inp('natural','Naturalidade',c.natural)+inp('genero','Gênero',c.genero)
-          +inp('raca','Raça / Cor',c.raca)+inp('email','E-mail *',c.email_imp)+inp('endereco','Endereço',c.endereco)
+          +inp('raca','Raça / Cor',c.raca)+inp('email','E-mail *',c.email_imp)+inp('email_inst','E-mail Institucional',c.email_inst)+inp('email_inst','E-mail Institucional',c.email_inst)+inp('endereco','Endereço',c.endereco)
           +inp('cep','CEP',c.cep)+inp('cidade','Cidade',c.cidade)+sel('uf','UF',c.uf||'DF',ufOpts)
           +sel('cargo','Cargo *',c.cargo,cargoOpts)+inp('admissao','Admissão',c.admissao,true)
           +inp('emg_nome','Emerg. Nome',c.emg_nome)+inp('emg_cel','Emerg. Celular',c.emg_cel)+inp('emg_tel','Emerg. Telefone',c.emg_tel)
@@ -5009,29 +5020,71 @@ function subFer(){
     '<strong>Solicitação de férias enviada!</strong><br>Colaborador: '+fNome2+'<br>Período: '+fMes2+'/'+fAno2+' | Início: '+fIni2+' | Fim: '+fFim2+' | Dias: '+fDias2);
   toast('Solicitação enviada!','ok');
 }
+
+function rFerMonthlyCards(){
+  var wrap=document.getElementById('fer-monthly-cards');
+  if(!wrap)return;
+  var aprovadas=FERIAS.filter(function(f){return f.status==='aprovado'||f.acao==='aprovado';});
+  if(!aprovadas.length){wrap.innerHTML='';return;}
+  // Group by mes/ano
+  var grupos={};
+  aprovadas.forEach(function(f){
+    var k=(f.mes||'?')+'/'+(f.ano||'?');
+    if(!grupos[k])grupos[k]=[];
+    grupos[k].push(f);
+  });
+  var keys=Object.keys(grupos).sort(function(a,b){
+    var pa=a.split('/'),pb=b.split('/');
+    var da=new Date(pa[1],pa[0]-1,1),db=new Date(pb[1],pb[0]-1,1);
+    return da-db;
+  });
+  var meses=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  wrap.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--b700);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.5px;">📅 Férias Aprovadas por Mês</div>'
+    +'<div style="display:flex;gap:.5rem;flex-wrap:wrap;">'
+    +keys.map(function(k){
+      var parts=k.split('/');
+      var mes=parseInt(parts[0])||0;
+      var ano=parts[1]||'';
+      var label=(meses[mes]||k)+'/'+ano;
+      var list=grupos[k];
+      return '<div style="background:#d1fae5;border:.5px solid #6ee7b7;border-radius:8px;padding:.625rem .875rem;min-width:160px;">'
+        +'<div style="font-size:10px;font-weight:700;color:#065f46;margin-bottom:.375rem;">'+label+' ('+list.length+')</div>'
+        +list.map(function(f){return '<div style="font-size:10px;color:#374151;padding:1px 0;">• '+f.nome+'</div>';}).join('')
+        +'</div>';
+    }).join('')
+    +'</div>';
+}
+
 function ferAcao(i,acao){
   if(!FERIAS[i])return;
-  if(acao==='pendente'){var mot=prompt('Motivo:');if(mot===null)return;FERIAS[i].acao='pendente';FERIAS[i].motPend=mot;}
-  else{FERIAS[i].acao='aprovado';FERIAS[i].motPend='';}
+  if(acao==='pendente'){
+    var mot=prompt('Informe o motivo da pendência:');
+    if(mot===null)return;
+    FERIAS[i].acao='pendente'; FERIAS[i].status='pendente'; FERIAS[i].motPend=mot; FERIAS[i].motivo_pend=mot;
+  } else {
+    FERIAS[i].acao='aprovado'; FERIAS[i].status='aprovado'; FERIAS[i].motPend=''; FERIAS[i].motivo_pend='';
+  }
   rFerias();saveAll();
-  toast(acao==='aprovado'?'Férias aprovadas!':'Pendente!',acao==='aprovado'?'ok':'warn');
+  toast(acao==='aprovado'?'✅ Férias aprovadas!':'⚠ Pendência registrada!',acao==='aprovado'?'ok':'warn');
 }
 function rFerias(){
   const tbody=document.getElementById('fer-tbody');if(!tbody)return;tbody.innerHTML='';
   FERIAS.forEach((f,idx)=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:500;">${f.nome}</td><td><span class="bdg bi">${f.cargo}</span></td><td>${f.mes}/${f.ano}</td><td>${f.ini}</td><td>${f.fim}</td><td style="font-weight:600;color:var(--b800);">${f.dias}d</td><td>${f.vender?'<span class="bdg bw">Sim</span>':'Não'}</td><td><span class="bdg bok2">${f.status}</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="ferAcao(${idx},'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="ferAcao(${idx},'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){FERIAS.splice(${idx},1);rFerias();refreshGeral();saveAll()}">🗑</button></td>`;
+    tr.innerHTML=`<td style="font-weight:500;">${f.nome}</td><td><span class="bdg bi">${f.cargo}</span></td><td>${f.mes}/${f.ano}</td><td>${f.ini}</td><td>${f.fim}</td><td style="font-weight:600;color:var(--b800);">${f.dias}d</td><td>${f.vender?'<span class="bdg bw">Sim</span>':'Não'}</td><td>${f.status==="aprovado"?'<span style="background:#d1fae5;color:#065f46;font-size:9px;padding:2px 6px;border-radius:4px;">✅ Aprovado</span>':f.status==="pendente"?'<span style="background:#fef3c7;color:#92400e;font-size:9px;padding:2px 6px;border-radius:4px;">⚠ Pendente'+(f.motivo_pend?' — '+f.motivo_pend.substring(0,18):'')+'</span>':'<span style="background:#f1f5f9;color:#64748b;font-size:9px;padding:2px 6px;border-radius:4px;">📋 Solicitado</span>'}</td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="ferAcao(${idx},'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="ferAcao(${idx},'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){FERIAS.splice(${idx},1);rFerias();refreshGeral();saveAll()}">🗑</button></td>`;
     tbody.appendChild(tr);
   });
   const total=FERIAS.reduce((a,f)=>a+f.dias,0);
   document.getElementById('f-cnt').textContent=FERIAS.length;
   document.getElementById('f-dias').textContent=total;
   document.getElementById('f-sem').textContent=Math.max(0,71-FERIAS.length);
+  rFerMonthlyCards();
   const semSol=COLL.filter(c=>!FERIAS.find(f=>f.nome===c.nome));
   const pa=document.getElementById('fer-pend-alerta');
   if(semSol.length>0){pa.style.display='flex';document.getElementById('fer-pend-txt').textContent=semSol.length+' colaborador(es) ainda não solicitaram férias.';}
   else pa.style.display='none';
   document.getElementById('n-f').style.display=semSol.length>0?'inline-block':'none';
+  var meses12x=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];var cardsEl=document.getElementById('fer-monthly-cards');var vazioEl=document.getElementById('fer-monthly-vazio');if(cardsEl){var ap=FERIAS.filter(function(f){return f.status==='aprovado';});cardsEl.innerHTML='';if(!ap.length){if(vazioEl)vazioEl.style.display='block';}else{if(vazioEl)vazioEl.style.display='none';var bm={};ap.forEach(function(f){var k=String(f.mes).padStart(2,'0')+'|'+f.ano;if(!bm[k])bm[k]={mes:f.mes,ano:f.ano,list:[]};bm[k].list.push(f);});Object.keys(bm).sort().forEach(function(k){var g=bm[k];var mn=meses12x[parseInt(g.mes)-1]||g.mes;var c=document.createElement('div');c.style.cssText='background:var(--g50);border:.5px solid var(--g200);border-radius:8px;padding:.75rem;';c.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--g700);margin-bottom:.5rem;">✅ '+mn+'/'+g.ano+' <span style="background:var(--g200);color:var(--g700);padding:1px 6px;border-radius:8px;font-size:10px;">'+g.list.length+'</span></div>'+g.list.map(function(f){return '<div style="font-size:10px;padding:3px 0;border-bottom:.5px solid var(--g100);display:flex;justify-content:space-between;"><span>'+f.nome.split(' ').slice(0,2).join(' ')+'</span><span style="color:var(--muted);">'+f.dias+'d · '+f.ini+'</span></div>';}).join('');cardsEl.appendChild(c);});}}
   refreshGeral();
 }
 
@@ -6348,7 +6401,6 @@ function rFiscalDocs(){
   var fStatus=document.getElementById('fiscal-docs-status')?.value||'';
 
   var ativos=COLL.filter(function(c){
-    if(c.status==='inativo')return false;
     if(fCargo&&c.cargo!==fCargo)return false;
     if(busca&&!c.nome.toLowerCase().includes(busca))return false;
     return true;
@@ -6419,7 +6471,7 @@ function rFiscalAbo(){
   var cnt=document.getElementById('fiscal-abo-count');
   if(cnt)cnt.textContent=ativos.length+' colaboradores';
   tbody.innerHTML='';
-  if(!ativos.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum colaborador.</td></tr>';return;}
+  if(!ativos.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum colaborador.</td></tr>';return;}
   ativos.forEach(function(col,i){
     var bg=i%2===0?'#fff':'#f8fafc';
     var key=abonoKey(col.nome,curMes,curAno);
@@ -6434,6 +6486,7 @@ function rFiscalAbo(){
       +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+col.cargo+'</span></td>'
       +'<td style="padding:7px 10px;background:'+bg+';">'+(col.uf||'DF')+'</td>'
       +'<td style="padding:7px 10px;background:'+bg+';">'+(d.desktop||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(d.internet||'—')+'</td>'
       +'<td style="padding:7px 10px;background:'+bg+';">'+(d.celular||'—')+'</td>'
       +'<td style="padding:7px 10px;background:'+bg+';font-weight:700;color:#065f46;">'+total+'</td>';
     tbody.appendChild(tr);
@@ -6450,7 +6503,6 @@ function rFiscalCad(){
   var busca=(document.getElementById('fiscal-busca')?.value||'').toLowerCase();
   var fCargo=document.getElementById('fiscal-fil-cargo')?.value||'';
   var ativos=COLL.filter(function(c){
-    if(c.status==='inativo')return false;
     if(fCargo&&c.cargo!==fCargo)return false;
     if(busca&&!c.nome.toLowerCase().includes(busca))return false;
     return true;
@@ -6459,7 +6511,7 @@ function rFiscalCad(){
   if(cnt)cnt.textContent=ativos.length+' colaboradores';
   tbody.innerHTML='';
   if(!ativos.length){
-    tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:#64748b;padding:1.5rem;font-size:12px;">Nenhum colaborador encontrado.</td></tr>';
+    tbody.innerHTML='<tr><td colspan="13" style="text-align:center;color:#64748b;padding:1.5rem;font-size:12px;">Nenhum colaborador encontrado.</td></tr>';
     return;
   }
   ativos.forEach(function(c,i){
@@ -6478,7 +6530,27 @@ function rFiscalCad(){
       +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 6px;border-radius:4px;font-weight:700;">'+c.cargo+'</span></td>'
       +'<td style="padding:7px 10px;background:'+bg+';">Terceirizado</td>'
       +'<td style="padding:7px 10px;background:'+bg+';">'+(c.horas||'—')+'</td>'
-      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.uf||'DF')+'</td>';
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.uf||'DF')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'
+        +('<span style="font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;background:'
+          +(c.status==='ativo'?'#d1fae5;color:#065f46':c.status==='inativo'?'#fee2e2;color:#991b1b':c.status==='férias'?'#dbeafe;color:#1e40af':'#fef3c7;color:#854d0e')
+          +';">'+((c.status||'ativo').charAt(0).toUpperCase()+(c.status||'ativo').slice(1))+'</span>')
+      +'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(c.saida||'—')+'</td>';
+    // Expandable motivo row for non-ativo statuses
+    if(c.status&&c.status!=='ativo'&&c.motivo){
+      var expandRow=document.createElement('tr');
+      expandRow.style.display='none';
+      expandRow.id='fiscal-expand-'+i;
+      expandRow.innerHTML='<td colspan="13" style="padding:6px 24px;background:#fef9c3;font-size:11px;color:#78350f;border-bottom:.5px solid #f59e0b;">'
+        +'<strong>Motivo:</strong> '+c.motivo+'</td>';
+      tbody.appendChild(tr);
+      tbody.appendChild(expandRow);
+      tr.style.cursor='pointer';
+      tr.title='Clique para ver motivo';
+      tr.addEventListener('click',function(){ var er=document.getElementById('fiscal-expand-'+i); if(er)er.style.display=er.style.display==='none'?'table-row':'none'; });
+      return;
+    }
     tbody.appendChild(tr);
   });
 }
@@ -6925,19 +6997,75 @@ function enviarTurnoPorEmail(){
   window.location.href = 'mailto:?subject='+subject+'&body='+body;
 }
 
+
+function enviarAnivTodos(){
+  // Build list of this month's aniversariantes
+  var hoje=new Date();
+  var mes=hoje.getMonth()+1;
+  var lista=COLL.filter(function(c){
+    var parts=(c.nascimento||'').split('/');
+    return parts.length>=3 && parseInt(parts[1])===mes;
+  }).sort(function(a,b){
+    return parseInt(a.nascimento.split('/')[0]) - parseInt(b.nascimento.split('/')[0]);
+  });
+
+  if(!lista.length){toast('Nenhum aniversariante este mês.','warn');return;}
+
+  // Show selector modal
+  var modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;';
+  var meses=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  modal.innerHTML=
+    '<div style="background:#fff;border-radius:12px;padding:1.5rem;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2);max-height:85vh;overflow-y:auto;">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--b900);margin-bottom:1rem;">🎂 Enviar parabéns — '+meses[mes]+'</div>'
+    +'<div style="display:flex;flex-direction:column;gap:.375rem;">'
+    +lista.map(function(c){
+      var email = c.email_inst || c.email_imp || '';
+      var dia = c.nascimento.split('/')[0];
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem .75rem;background:#f8fafc;border-radius:6px;">'
+        +'<div>'
+          +'<div style="font-size:11px;font-weight:600;">'+c.nome+'</div>'
+          +'<div style="font-size:9px;color:var(--muted);">dia '+dia+' · '+(email||'sem e-mail')+'</div>'
+        +'</div>'
+        +'<button onclick="enviarAnivEmail(\''+c.nome.replace(/'/g,"\\'")+'\',\''+email+'\')" '
+          +'style="background:var(--b600);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"'
+          +(email?'':' disabled title="Sem e-mail cadastrado"')
+        +'>📧 Enviar</button>'
+        +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div style="margin-top:1rem;text-align:right;">'
+    +'<button onclick="this.closest(\'[style*=fixed]\').remove()" style="padding:7px 20px;background:#f1f5f9;color:#475569;border:none;border-radius:var(--rad);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>'
+    +'</div>'
+    +'</div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+}
+
+function enviarAnivEmail(nome, email){
+  if(!email){toast('Sem e-mail cadastrado para '+nome,'warn');return;}
+  var msg = document.getElementById('aniv-msg')?.value||'Olá, {nome}! 🎂 Feliz aniversário! T&S Engenharia.';
+  var corpo = msg.replace(/\{nome\}/g, nome);
+  var subject = encodeURIComponent('🎂 Feliz Aniversário, '+nome+'!');
+  var body = encodeURIComponent(corpo);
+  window.location.href = 'mailto:'+encodeURIComponent(email)+'?subject='+subject+'&body='+body;
+  toast('📧 E-mail aberto para '+nome,'ok');
+}
+
 /* ═══ PERSIST (localStorage) ═══ */
 const STORE_KEY = 'hepta_portal_data';
-const STORE_VER = '2026-06-v4';
-// Clear old localStorage if version changed (forces fresh data from built-in COLL)
+const STORE_VER = '2026-06-v5';
+// Only clear localStorage if no data exists yet (first time with new version)
 (function(){
   try{
     var savedVer = localStorage.getItem('hepta_portal_ver');
-    if(savedVer !== STORE_VER){
-      localStorage.removeItem(STORE_KEY);
+    var hasData  = !!localStorage.getItem(STORE_KEY);
+    // Clear only if version changed AND there's no user data worth keeping
+    if(savedVer !== STORE_VER && !hasData){
       localStorage.removeItem(STORE_KEY+'_sync');
       localStorage.removeItem(STORE_KEY+'_broadcast');
-      localStorage.setItem('hepta_portal_ver', STORE_VER);
     }
+    localStorage.setItem('hepta_portal_ver', STORE_VER);
   }catch(e){}
 })();
 
@@ -8148,6 +8276,7 @@ function rAniv(){
       <td><span class="bdg ${diffDays===0?'be':diffDays<=30?'bw':'bpu'}">${diffDays===0?'Hoje!':diffDays===1?'Amanhã':'Em '+diffDays+' dias'}</span></td>`;
     tbody.appendChild(tr);
     if(isToday||isMes)mesAniv.push({...col,diffDays});
+  mesAniv.sort(function(a,b){var aT=(a.dNasc===dia&&a.mNasc===mes)?0:1;var bT=(b.dNasc===dia&&b.mNasc===mes)?0:1;if(aT!==bT)return aT-bT;return a.dNasc-b.dNasc;});
     if(diffDays<=30&&!isToday)proxAniv.push({...col,diffDays});
   });
   if(tbody.innerHTML==='')tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:1rem;">Adicione a data de nascimento nos cadastros dos colaboradores para ver os aniversariantes.</td></tr>';
@@ -9486,8 +9615,49 @@ function rGerencial() {
 
 function setGerVal(key, dKey, val) {
   if (!GER_DATA[key]) GER_DATA[key] = {};
-  GER_DATA[key][dKey] = val.toUpperCase();
+  var oldVal = GER_DATA[key][dKey] || '';
+  var newVal = val.toUpperCase();
+  GER_DATA[key][dKey] = newVal;
+
+  // ── PF: auto-deduct from Banco de Horas ──
+  // key = "nome|mes|ano", dKey = "DD" (day zero-padded)
+  var keyParts = key.split('|');
+  var nome = keyParts[0];
+  var mesStr = keyParts[1] || '';
+  var anoStr = keyParts[2] || '';
+  var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mIdx = meses.indexOf(mesStr);
+  var dataFmt = (mIdx>=0) ? (dKey+'/'+String(mIdx+1).padStart(2,'0')+'/'+anoStr) : dKey;
+  var bhId = 'ger_pf_'+key+'_'+dKey;
+
+  if(newVal === 'PF' && oldVal !== 'PF'){
+    // Add negative BH entry
+    var col = COLL.find(function(c){ return c.nome === nome; });
+    var horas = col ? (col.horas||'8h') : '8h';
+    var minutos = horas.includes('6') ? -360 : -480; // 6h=-360min, 8h=-480min
+    // Remove existing PF entry for this day if any
+    var idx = BH_DATA.findIndex(function(b){ return b.id === bhId; });
+    if(idx >= 0) BH_DATA.splice(idx, 1);
+    BH_DATA.push({
+      id: bhId,
+      nome: nome,
+      cargo: col ? col.cargo : '—',
+      tipo: 'negativo',
+      minutos: minutos,
+      data: dataFmt,
+      chamado: '—',
+      desc: 'Ponto Facultativo (automático via Gerencial)',
+      origem: 'pf'
+    });
+    toast('⚠ BH: '+(horas)+' debitadas para '+nome+' — PF em '+dataFmt, 'warn');
+  } else if(oldVal === 'PF' && newVal !== 'PF'){
+    // Remove the PF entry
+    var idx2 = BH_DATA.findIndex(function(b){ return b.id === bhId; });
+    if(idx2 >= 0){ BH_DATA.splice(idx2, 1); toast('✅ BH: PF removido para '+nome, 'ok'); }
+  }
+
   saveAll();
+  try{ refreshGeral(); }catch(e){}
 }
 
 function setGerOC(key, dKey, val) {
@@ -9932,12 +10102,23 @@ function expFeedback() {
         <th style="padding:8px 10px;">Tipo Contrat.</th>
         <th style="padding:8px 10px;">Jornada</th>
         <th style="padding:8px 10px;">UF</th>
+        <th style="padding:8px 10px;">Status</th>
+        <th style="padding:8px 10px;">Dt. Desligamento</th>
       </tr></thead>
       <tbody id="fiscal-cad-tbody"></tbody>
     </table>
   </div>
 </div>
 <div id="fiscal-pane-ger" style="display:none;padding:1rem;">
+  <div style="display:flex;gap:.375rem;flex-wrap:wrap;margin-bottom:.625rem;font-size:10px;">
+    <span style="background:#E1F5EE;color:#3B6D11;padding:2px 8px;border-radius:4px;font-weight:700;">P Presente</span>
+    <span style="background:#FCEBEB;color:#A32D2D;padding:2px 8px;border-radius:4px;font-weight:700;">F Falta</span>
+    <span style="background:#FAEEDA;color:#854F0B;padding:2px 8px;border-radius:4px;font-weight:700;">A Atestado</span>
+    <span style="background:#E6F4FF;color:#185FA5;padding:2px 8px;border-radius:4px;font-weight:700;">H Home Office</span>
+    <span style="background:#FEF9C3;color:#854D0E;padding:2px 8px;border-radius:4px;font-weight:700;">PF Ponto Facultativo</span>
+    <span style="background:#F1EFE8;color:#5F5E5A;padding:2px 8px;border-radius:4px;font-weight:700;">DS Descanso</span>
+    <span style="background:#EEEDFE;color:#534AB7;padding:2px 8px;border-radius:4px;font-weight:700;">OC Ocorrência</span>
+  </div>
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
     <select id="fiscal-ger-mes" onchange="rFiscalGer()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
       <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option>
@@ -10041,7 +10222,8 @@ function expFeedback() {
         <th style="padding:8px 10px;text-align:left;">Colaborador</th>
         <th style="padding:8px 10px;">Cargo</th>
         <th style="padding:8px 10px;">UF</th>
-        <th style="padding:8px 10px;">Desktop/Internet</th>
+        <th style="padding:8px 10px;">Desktop</th>
+        <th style="padding:8px 10px;">Internet</th>
         <th style="padding:8px 10px;">Celular/Tablet</th>
         <th style="padding:8px 10px;">Total</th>
       </tr></thead>
