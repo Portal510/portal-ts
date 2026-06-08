@@ -6913,8 +6913,9 @@ function rTurnoHistorico(){
         +(susp.length?'<div style="font-size:10px;margin-bottom:.375rem;"><strong>⏸ Chamados suspensos ('+susp.length+'):</strong>'
           +susp.map(function(s){return '<div style="background:#fef3c7;border-radius:4px;padding:3px 7px;margin-top:3px;"><strong>'+(s.num||'—')+'</strong> — '+(s.acao||'—')+'</div>';}).join('')+'</div>':'')
         +'<div style="display:flex;justify-content:flex-end;margin-top:.375rem;">'
-          +'<button class="btn bp" style="font-size:9px;padding:2px 8px;" onclick="abrirTurno(\''+date+(hasMulti?'|'+p:'')+'\')">✏️ Editar este registro</button>'
-        +'</div>'
+        +'<div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:.375rem;">'
+          +'<button class="btn" style="font-size:9px;padding:2px 8px;border:.5px solid #ef4444;color:#ef4444;" onclick="removerTurno(\''+date+'|'+p+'\')" title="Remover este registro">🗑 Remover</button>'
+          +'<button class="btn bp" style="font-size:9px;padding:2px 8px;" onclick="abrirTurno(\''+date+'|'+p+'\')" title="Editar este registro">✏️ Editar</button>'
         +'</div>';
     });
 
@@ -6931,12 +6932,54 @@ function rTurnoHistorico(){
 
 function abrirTurno(key){
   var parts = key.split('|');
+
+  // 1. Activate the turno tab first
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function(t){ t.classList.remove('on'); });
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
+  var pgTurno = document.getElementById('pg-turno');
+  if(pgTurno) pgTurno.classList.add('on');
+  // Highlight correct tab button
+  tabs.forEach(function(t){
+    if(t.getAttribute('onclick') && t.getAttribute('onclick').includes('turno')) t.classList.add('on');
+  });
+
+  // 2. Set date and period WITHOUT triggering onchange
   var elData = document.getElementById('turno-data');
   var elPer  = document.getElementById('turno-periodo');
-  if(elData && parts[0]) elData.value = parts[0];
-  if(elPer  && parts[1]) elPer.value  = parts[1];
+  if(elData && parts[0]){
+    elData.removeAttribute('onchange');
+    elData.value = parts[0];
+    setTimeout(function(){ elData.setAttribute('onchange','loadTurno()'); }, 200);
+  }
+  if(elPer && parts[1]){
+    elPer.removeAttribute('onchange');
+    elPer.value = parts[1];
+    setTimeout(function(){ elPer.setAttribute('onchange','loadTurno();toggleOcPeriodo()'); }, 200);
+  }
+
+  // 3. Load the record into the form
   loadTurno();
-  window.scrollTo({top:0,behavior:'smooth'});
+
+  // 4. Scroll to top of form
+  setTimeout(function(){
+    if(pgTurno) pgTurno.scrollIntoView({behavior:'smooth', block:'start'});
+    else window.scrollTo({top:0, behavior:'smooth'});
+    // Flash form
+    var card = pgTurno ? pgTurno.querySelector('.card') : null;
+    if(card){ card.style.outline='2px solid var(--b400)'; setTimeout(function(){ card.style.outline=''; },2000); }
+  }, 100);
+
+  toast('📝 Editando: '+parts[0]+(parts[1]?' — '+(parts[1]==='manha'?'Manhã':parts[1]==='tarde'?'Tarde':'Noite'):''), 'ok');
+}
+
+function removerTurno(key){
+  if(!confirm('Remover este registro de passagem de turno?')) return;
+  delete TURNO_DATA[key];
+  saveAll();
+  rTurnoHistorico();
+  refreshTelCard();
+  toast('🗑 Registro removido.', 'warn');
 }
 
 function enviarTurnoPorEmail(){
