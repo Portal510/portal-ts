@@ -7184,8 +7184,11 @@ function saveAll(){
       ACESSO_DATA:ACESSO_DATA, DOCS_DATA:DOCS_DATA, _docsPainel:_docsPainel,
       FEEDBACK_DATA:FEEDBACK_DATA, GER_DATA:GER_DATA, MALETA_DATA:MALETA_DATA,
       ABONO_DATA:ABONO_DATA, DOC_MATRIX:DOC_MATRIX,
-      PRESENCA_DATA:PRESENCA_DATA, PRESENCA_REG:PRESENCA_REG, TURNO_DATA:TURNO_DATA
+      PRESENCA_DATA:PRESENCA_DATA, PRESENCA_REG:PRESENCA_REG, TURNO_DATA:TURNO_DATA,
+      _savedAt: new Date().toISOString()
     };
+    // Safety check: never save if COLL is empty (would wipe collaborators)
+    if(!data.COLL || data.COLL.length === 0) return;
     var payload = JSON.stringify(data);
     _ls.setItem(STORE_KEY, payload);
     _ls.setItem(STORE_KEY + '_sync', Date.now().toString());
@@ -7208,6 +7211,13 @@ async function loadAllFromFirebase(){
 }
 
 function _applyData(d){
+  // Guard: never apply empty or null data — would wipe everything
+  if(!d || typeof d !== 'object') return;
+  // Count meaningful data keys — if Firebase returns empty shell, skip
+  var hasRealData = (d.COLL&&d.COLL.length>0) || (d.TURNO_DATA&&Object.keys(d.TURNO_DATA).length>0)
+    || (d.FERIAS&&d.FERIAS.length>0) || (d.GER_DATA&&Object.keys(d.GER_DATA).length>0)
+    || (d.ABONO_DATA&&Object.keys(d.ABONO_DATA).length>0) || (d.BH_DATA&&d.BH_DATA.length>0);
+  if(!hasRealData) return;
   var _builtIn={};
   COLL.forEach(function(c){ _builtIn[c.nome]=c; });
   if(d.COLL && Array.isArray(d.COLL)){
@@ -8504,7 +8514,25 @@ function doLogin(){
       if(!window._fbListen) return;
       try{ window._fbStatus('Conectando...',''); }catch(e){}
       window._fbListen(function(fbdata){
-        try{ _applyData(fbdata); _ls.setItem(STORE_KEY,JSON.stringify(fbdata)); _ls.setItem(STORE_KEY+'_sync',Date.now().toString()); }catch(e){}
+        try{
+          // Only apply if Firebase has real data and is not older than localStorage
+          if(fbdata && typeof fbdata==='object'){
+            var lsRaw = _ls.getItem(STORE_KEY);
+            var lsData = lsRaw ? JSON.parse(lsRaw) : null;
+            var fbTurnoCount = fbdata.TURNO_DATA ? Object.keys(fbdata.TURNO_DATA).length : 0;
+            var lsTurnoCount = lsData && lsData.TURNO_DATA ? Object.keys(lsData.TURNO_DATA).length : 0;
+            var fbCollCount = fbdata.COLL ? fbdata.COLL.length : 0;
+            var lsCollCount = lsData && lsData.COLL ? lsData.COLL.length : 0;
+            // Firebase wins only if it has more data
+            var fbScore = fbTurnoCount + fbCollCount + (fbdata.BH_DATA?fbdata.BH_DATA.length:0);
+            var lsScore = lsTurnoCount + lsCollCount + (lsData&&lsData.BH_DATA?lsData.BH_DATA.length:0);
+            if(fbScore >= lsScore && fbScore > 0){
+              _applyData(fbdata);
+              _ls.setItem(STORE_KEY,JSON.stringify(fbdata));
+              _ls.setItem(STORE_KEY+'_sync',Date.now().toString());
+            }
+          }
+        }catch(e){}
         var role=document.body.getAttribute('data-role')||'';
         if(role==='fiscal'){
           try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
