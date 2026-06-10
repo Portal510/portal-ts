@@ -1680,7 +1680,7 @@ body.collab #btn-voltar-form { display: flex !important; }
           <select id="bh-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rBH()">
             <option value="">Todos os cargos</option>
           </select>
-          <select id="bh-exp-mes" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
+          <select id="bh-exp-mes" onchange="rBH()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os meses</option>
             <option>Janeiro</option>
 <option>Fevereiro</option>
@@ -1695,7 +1695,7 @@ body.collab #btn-voltar-form { display: flex !important; }
 <option>Novembro</option>
 <option>Dezembro</option>
           </select>
-          <select id="bh-exp-ano" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
+          <select id="bh-exp-ano" onchange="rBH()" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
             <option value="">Todos os anos</option>
             <option>2025</option>
 <option  selected>2026</option>
@@ -1707,7 +1707,7 @@ body.collab #btn-voltar-form { display: flex !important; }
         </div>
         </div>
       </div>
-      <div id="bh-saldo-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <div id="bh-saldo-list" style="overflow-x:auto;"></div>
     </div>
 
     <!-- TABELA COMPLETA -->
@@ -7567,30 +7567,96 @@ function rBH(){
   document.getElementById('bh-pos').textContent = minToStr(totPos);
   document.getElementById('bh-neg').textContent = minToStr(totNeg);
 
-  // Saldo por colaborador
-  const byName = {};
-  BH_DATA.forEach(r=>{ if(!byName[r.nome]) byName[r.nome]=0; byName[r.nome]+=r.minutos; });
-  const saldoEl = document.getElementById('bh-saldo-list');
-  saldoEl.innerHTML = '';
-  if(Object.keys(byName).length === 0){
-    saldoEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:.5rem 0;">Nenhum registro ainda.</div>';
-  } else {
-    Object.entries(byName).sort((a,b)=>b[1]-a[1]).forEach(([nome,min])=>{
-      const pos = min >= 0;
-      const pct = Math.min(100, Math.abs(min)/480*100); // 8h = 480min = 100%
-      saldoEl.innerHTML += `
-        <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:.5px solid var(--brd);">
-          <div style="font-size:11px;font-weight:500;min-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nome}</div>
-          <div style="flex:1;height:8px;background:var(--gy100);border-radius:4px;overflow:hidden;">
-            <div style="height:100%;width:${pct}%;background:${pos?'var(--g600)':'var(--r600)'};border-radius:4px;transition:width .4s;"></div>
-          </div>
-          <div style="font-size:12px;font-weight:600;color:${pos?'var(--g600)':'var(--r600)'};min-width:70px;text-align:right;">
-            ${pos?'+':''}${minToStr(min)}
-          </div>
-          <span class="bdg ${pos?'bok2':'be'}">${pos?'positivo':'negativo'}</span>
-        </div>`;
+  // ── Saldo por colaborador — tabela com colunas por data ──
+  const filterCargo = document.getElementById('bh-exp-cargo')?.value || '';
+  const filterMes   = document.getElementById('bh-exp-mes')?.value || '';
+  const filterAno   = document.getElementById('bh-exp-ano')?.value || '';
+
+  // Filter BH_DATA by cargo/mes/ano
+  let bhFiltered = BH_DATA;
+  if(filterCargo){
+    const nomes = COLL.filter(c=>c.cargo===filterCargo).map(c=>c.nome);
+    bhFiltered = bhFiltered.filter(r=>nomes.includes(r.nome));
+  }
+  if(filterMes || filterAno){
+    bhFiltered = bhFiltered.filter(r=>{
+      const parts = (r.data||'').split('/'); // dd/mm/yyyy
+      const mes = parts[1]||''; const ano = parts[2]||'';
+      const meses=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const mesNome = meses[parseInt(mes)]||'';
+      if(filterMes && mesNome !== filterMes) return false;
+      if(filterAno && ano !== filterAno) return false;
+      return true;
     });
   }
+
+  // Build per-person per-date saldo matrix
+  const byName = {};
+  const allDates = new Set();
+  bhFiltered.forEach(r=>{
+    if(!byName[r.nome]) byName[r.nome]={};
+    if(!byName[r.nome][r.data]) byName[r.nome][r.data]=0;
+    byName[r.nome][r.data] += r.minutos;
+    allDates.add(r.data||'—');
+  });
+
+  // Also apply nome filter
+  let nomesFilt = Object.keys(byName);
+  if(filterNome) nomesFilt = nomesFilt.filter(n=>n===filterNome);
+
+  // Sort dates dd/mm/yyyy
+  const sortedDates = Array.from(allDates).sort((a,b)=>{
+    const pa=a.split('/'), pb=b.split('/');
+    const da=new Date(pa[2],pa[1]-1,pa[0]), db=new Date(pb[2],pb[1]-1,pb[0]);
+    return da-db;
+  });
+
+  const saldoEl = document.getElementById('bh-saldo-list');
+  saldoEl.innerHTML = '';
+
+  if(nomesFilt.length === 0){
+    saldoEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:.5rem 0;">Nenhum registro para os filtros selecionados.</div>';
+  } else {
+    // Build table
+    let t = '<table style="width:100%;border-collapse:collapse;font-size:10px;">';
+    // Header
+    t += '<thead><tr style="background:var(--b800);color:#fff;">';
+    t += '<th style="padding:6px 10px;text-align:left;position:sticky;left:0;background:var(--b800);z-index:2;min-width:160px;">Colaborador</th>';
+    sortedDates.forEach(d=>{
+      const parts=d.split('/');
+      t += '<th style="padding:6px 6px;text-align:center;white-space:nowrap;">'+
+        (parts[0]||d)+'/'+(parts[1]||'')+
+        '<br><span style="font-size:8px;opacity:.8;">'+(parts[2]||'')+'</span></th>';
+    });
+    t += '<th style="padding:6px 8px;text-align:center;background:#1a365d;position:sticky;right:0;z-index:2;">Saldo Total</th>';
+    t += '</tr></thead><tbody>';
+
+    // Rows
+    nomesFilt.sort().forEach((nome,ri)=>{
+      const row = byName[nome];
+      const total = Object.values(row).reduce((a,v)=>a+v,0);
+      const totalColor = total>=0?'#065f46':'#991b1b';
+      const bg = ri%2===0?'#fff':'#f8fafc';
+      t += '<tr style="border-bottom:.5px solid #f1f5f9;">';
+      t += '<td style="padding:6px 10px;font-weight:600;background:'+bg+';position:sticky;left:0;z-index:1;white-space:nowrap;">'+nome+'</td>';
+      sortedDates.forEach(d=>{
+        const min = row[d]||null;
+        if(min===null){
+          t += '<td style="padding:6px 6px;text-align:center;background:'+bg+';color:#e2e8f0;">—</td>';
+        } else {
+          const clr = min>=0?'#065f46':'#991b1b';
+          const bgC = min>=0?'#d1fae5':'#fee2e2';
+          t += '<td style="padding:6px 6px;text-align:center;background:'+bgC+';color:'+clr+';font-weight:700;">'+minToStr(min)+'</td>';
+        }
+      });
+      t += '<td style="padding:6px 8px;text-align:center;font-weight:700;background:'+(total>=0?'#d1fae5':'#fee2e2')+';color:'+totalColor+';position:sticky;right:0;">'+minToStr(total)+'</td>';
+      t += '</tr>';
+    });
+
+    t += '</tbody></table>';
+    saldoEl.innerHTML = t;
+  }
+
 
   // Tabela completa
   const tbody = document.getElementById('bh-tbody');
