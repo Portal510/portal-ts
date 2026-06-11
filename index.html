@@ -497,12 +497,14 @@ body.collab #btn-voltar-form { display: flex !important; }
       _fbStatus('Salvando...','');
       try{
         var json = JSON.stringify(data);
+        var ver = Date.now().toString();
         var body = JSON.stringify({fields:{
           payload:{stringValue: json},
           savedAt:{stringValue: new Date().toISOString()},
-          v:{stringValue:'1'}
+          ver:{stringValue: ver}
         }});
-        return fetch(DOC_URL+'?key='+API_KEY+'&updateMask.fieldPaths=payload&updateMask.fieldPaths=savedAt&updateMask.fieldPaths=v',{
+        _fbOwnSaveVer = ver; // remember our version to skip in listener
+        return fetch(DOC_URL+'?key='+API_KEY+'&updateMask.fieldPaths=payload&updateMask.fieldPaths=savedAt&updateMask.fieldPaths=ver',{
           method:'PATCH', headers:{'Content-Type':'application/json'}, body:body
         }).then(function(r){
           if(!r.ok) return r.text().then(function(t){ throw new Error(r.status+': '+t.slice(0,100)); });
@@ -526,31 +528,36 @@ body.collab #btn-voltar-form { display: flex !important; }
         }).catch(function(e){ _fbStatus('Offline','err'); console.warn('[FB] load error:',e); return null; });
     };
 
-    // Listen: poll every 4s, compare savedAt to detect changes
-    var _lastSavedAt = null;
+    // Listen: poll every 4s using version counter
+    var _fbLastVer = null;
+    var _fbOwnSaveVer = null; // version we just saved — skip once
     window._fbListen = function(callback){
+      var _pollActive = true;
       function poll(){
-        fetch(DOC_URL+'?key='+API_KEY+'&fields=fields.savedAt,fields.payload')
+        if(!_pollActive) return;
+        fetch(DOC_URL+'?key='+API_KEY)
           .then(function(r){ return r.ok?r.json():null; })
           .then(function(doc){
             if(!doc||!doc.fields) return;
-            var savedAt = (doc.fields.savedAt&&doc.fields.savedAt.stringValue)||'';
-            if(_lastSavedAt===null){ _lastSavedAt=savedAt; _fbStatus('Ativo ●','ok'); return; }
-            if(savedAt && savedAt!==_lastSavedAt){
-              _lastSavedAt = savedAt;
-              if(window._skipNextFbCallback){ _fbStatus('Ativo ●','ok'); return; }
-              _fbStatus('Atualizando...','ok');
-              // Full load to get payload
-              window._fbLoad().then(function(data){
-                if(data){ callback(data); }
-              });
-            } else {
-              _fbStatus('Ativo ●','ok');
+            var ver = (doc.fields.ver&&doc.fields.ver.stringValue)
+                   || (doc.fields.savedAt&&doc.fields.savedAt.stringValue)||'';
+            _fbStatus('Ativo ●','ok');
+            if(_fbLastVer===null){ _fbLastVer=ver; return; } // init
+            if(ver && ver!==_fbLastVer){
+              var prev=_fbLastVer; _fbLastVer=ver;
+              // Skip if this is our own save
+              if(_fbOwnSaveVer && ver===_fbOwnSaveVer){ _fbOwnSaveVer=null; return; }
+              _fbStatus('Recebendo...','ok');
+              try{
+                var payload=(doc.fields.payload&&doc.fields.payload.stringValue)||'';
+                if(payload){ var data=JSON.parse(payload); if(data) callback(data); }
+              }catch(e){ console.warn('[FB] parse error:',e); }
             }
-          }).catch(function(){ _fbStatus('Offline','err'); });
+          }).catch(function(e){ _fbStatus('Offline','err'); });
       }
-      poll();
-      return setInterval(poll, 4000);
+      setTimeout(poll,1000); // first poll after 1s
+      var iv=setInterval(poll,4000);
+      return function(){ _pollActive=false; clearInterval(iv); };
     };
 
     window._fbReady = true;
@@ -7146,36 +7153,26 @@ const STORE_VER = '2026-06-v6';
 })();
 
 function manualRefresh(){
-  var gasUrl = getGasUrl();
-  if(gasUrl){
-    var ind = document.getElementById('sync-indicator');
-    if(ind){ ind.textContent = '☁️ Sincronizando...'; ind.style.color='var(--b600)'; }
-    gasPull().then(function(ok){
-      if(!ok){
-        try{ loadAll(); }catch(e){}
-        refreshAll();
-      }
-      var now = new Date();
-      var pad = function(n){ return String(n).padStart(2,'0'); };
-      if(ind){
-        ind.textContent = (ok?'☁️':'💾')+' Atualizado às '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
-        ind.style.color = 'var(--g600)';
-        setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; }, 4000);
-      }
-      toast('Painel atualizado!','ok');
-    });
-  } else {
-    try{ loadAll(); }catch(e){}
-    refreshAll();
-    var ind2 = document.getElementById('sync-indicator');
-    if(ind2){
-      var now2 = new Date();
-      var pad2 = function(n){ return String(n).padStart(2,'0'); };
-      ind2.textContent = '💾 Atualizado às '+pad2(now2.getHours())+':'+pad2(now2.getMinutes())+':'+pad2(now2.getSeconds());
-      ind2.style.color = 'var(--g600)';
-      setTimeout(function(){ if(ind2) ind2.style.color='var(--muted)'; }, 3000);
+  var ind = document.getElementById('sync-indicator');
+  if(ind){ ind.textContent = '🔄 Buscando...'; ind.style.color='var(--b600)'; }
+  function _done(source){
+    var now=new Date(), p=function(n){return String(n).padStart(2,'0');};
+    if(ind){
+      ind.textContent=source+' Atualizado às '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
+      ind.style.color='var(--g600)';
+      setTimeout(function(){ if(ind) ind.style.color='var(--muted)'; },4000);
     }
-    toast('Painel atualizado!','ok');
+    try{ loadAll(); }catch(e){}
+    try{ _refreshUI(); }catch(e){ try{refreshAll();}catch(e2){} }
+    toast('✅ Atualizado!','ok');
+  }
+  if(window._fbLoad){
+    window._fbLoad().then(function(data){
+      if(data){ try{ _applyData(data); }catch(e){} }
+      _done('🔥');
+    }).catch(function(){ _done('💾'); });
+  } else {
+    _done('💾');
   }
 }
 
@@ -8665,6 +8662,18 @@ try{
   if(_saved) _SESSION_USER = JSON.parse(_saved);
 }catch(e){}
 
+function _refreshUI(){
+  var role=document.body.getAttribute('data-role')||'';
+  if(role==='fiscal'){
+    try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
+    try{rFiscalMal();}catch(e){} try{rFiscalDev();}catch(e){} try{rFiscalDocs();}catch(e){}
+  } else {
+    try{refreshDash();}catch(e){} try{refreshGeral();}catch(e){}
+    try{refreshTelCard();}catch(e){} try{rAbono();}catch(e){} try{rMaleta();}catch(e){}
+    try{rCtrl();}catch(e){}
+  }
+}
+
 function doLogin(){
   var user = (document.getElementById('login-user').value||'').trim().toLowerCase();
   var pwd  = (document.getElementById('login-pwd').value||'').trim();
@@ -8699,17 +8708,7 @@ function doLogin(){
       setTimeout(function(){ toast('Bem-vindo, '+found.nome+'!','ok'); }, 100);
     });
     // Firebase background sync — definitive
-    function _refreshUI(){
-      var role=document.body.getAttribute('data-role')||'';
-      if(role==='fiscal'){
-        try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
-        try{rFiscalMal();}catch(e){} try{rFiscalDev();}catch(e){} try{rFiscalDocs();}catch(e){}
-      } else {
-        try{refreshDash();}catch(e){} try{refreshGeral();}catch(e){}
-        try{refreshTelCard();}catch(e){} try{rAbono();}catch(e){} try{rMaleta();}catch(e){}
-        try{rCtrl();}catch(e){}
-      }
-    }
+    // _refreshUI is defined globally below
     function _startLoginFbSync(){
       if(!window._fbListen) return;
       try{ window._fbStatus('Conectando...',''); }catch(e){}
