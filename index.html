@@ -476,135 +476,90 @@ body.collab #btn-voltar-form { display: flex !important; }
 })();
 </script>
 
-  <!-- Firebase REST API (sem SDK) -->
+  <!-- Firebase REST API -->
   <script>
   (function(){
     var PROJECT = 'portal-ts';
-    var API_KEY = 'AIzaSyB6gK-4UWyVnf0u7wQf-lge1LEXnoDmTz8';
-    var BASE    = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+'/databases/(default)/documents/portal-ts/dados';
-    var HEADERS = {'Content-Type':'application/json'};
+    var API_KEY  = 'AIzaSyB6gK-4UWyVnf0u7wQf-lge1LEXnoDmTz8';
+    var DOC_URL  = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+'/databases/(default)/documents/portal-ts/dados';
 
-    function _toFirestore(obj){
-      // Convert JS object to Firestore REST format
-      function encodeVal(v){
-        if(v===null||v===undefined) return {nullValue:null};
-        if(typeof v==='boolean') return {booleanValue:v};
-        if(typeof v==='number') return {doubleValue:v};
-        if(typeof v==='string') return {stringValue:v};
-        if(Array.isArray(v)) return {arrayValue:{values:v.map(encodeVal)}};
-        if(typeof v==='object'){
-          var fields={};
-          Object.keys(v).forEach(function(k){ fields[k]=encodeVal(v[k]); });
-          return {mapValue:{fields:fields}};
-        }
-        return {stringValue:String(v)};
-      }
-      var fields={};
-      Object.keys(obj).forEach(function(k){ fields[k]=encodeVal(obj[k]); });
-      return {fields:fields};
-    }
-
-    function _fromFirestore(doc){
-      if(!doc||!doc.fields) return null;
-      function decodeVal(v){
-        if(!v) return null;
-        if('nullValue' in v) return null;
-        if('booleanValue' in v) return v.booleanValue;
-        if('integerValue' in v) return parseInt(v.integerValue);
-        if('doubleValue' in v) return parseFloat(v.doubleValue);
-        if('stringValue' in v) return v.stringValue;
-        if('arrayValue' in v) return (v.arrayValue.values||[]).map(decodeVal);
-        if('mapValue' in v){
-          var obj={};
-          Object.keys(v.mapValue.fields||{}).forEach(function(k){ obj[k]=decodeVal(v.mapValue.fields[k]); });
-          return obj;
-        }
-        return null;
-      }
-      var obj={};
-      Object.keys(doc.fields).forEach(function(k){ obj[k]=decodeVal(doc.fields[k]); });
-      return obj;
-    }
-
-    window._fbStatus = function(text, color){
+    function _fbStatus(text, color){
       var el=document.getElementById('fb-status');
-      if(el){
-        el.textContent='🔥 '+text;
-        el.style.background=color==='ok'?'rgba(209,250,229,.3)':color==='err'?'rgba(254,226,226,.3)':'rgba(255,255,255,.15)';
-        el.style.color=color==='ok'?'#6ee7b7':color==='err'?'#fca5a5':'rgba(255,255,255,.7)';
-      }
-    };
-    function _fbStatus(text,color){ window._fbStatus(text,color); }
+      if(!el) return;
+      el.textContent='🔥 '+text;
+      el.style.background=color==='ok'?'rgba(209,250,229,.3)':color==='err'?'rgba(254,226,226,.3)':'rgba(255,255,255,.15)';
+      el.style.color=color==='ok'?'#6ee7b7':color==='err'?'#fca5a5':'rgba(255,255,255,.7)';
+    }
+    window._fbStatus = _fbStatus;
 
+    // Save: store entire payload as a single string field "payload" + timestamp
     window._fbSave = function(data){
       _fbStatus('Salvando...','');
-      return fetch(BASE+'?key='+API_KEY, {
-        method:'PATCH',
-        headers:HEADERS,
-        body:JSON.stringify(_toFirestore(data))
-      }).then(function(r){
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        _fbStatus('Salvo ✓','ok');
-        setTimeout(function(){ _fbStatus('Ativo ●','ok'); },2000);
-      }).catch(function(e){
-        _fbStatus('Erro','err');
-        console.warn('Firebase save error:',e);
-      });
+      try{
+        var json = JSON.stringify(data);
+        var body = JSON.stringify({fields:{
+          payload:{stringValue: json},
+          savedAt:{stringValue: new Date().toISOString()},
+          v:{stringValue:'1'}
+        }});
+        return fetch(DOC_URL+'?key='+API_KEY+'&updateMask.fieldPaths=payload&updateMask.fieldPaths=savedAt&updateMask.fieldPaths=v',{
+          method:'PATCH', headers:{'Content-Type':'application/json'}, body:body
+        }).then(function(r){
+          if(!r.ok) return r.text().then(function(t){ throw new Error(r.status+': '+t.slice(0,100)); });
+          _fbStatus('Salvo ✓','ok');
+          setTimeout(function(){ _fbStatus('Ativo ●','ok'); },2000);
+        }).catch(function(e){ _fbStatus('Erro','err'); console.warn('[FB] save error:',e); });
+      }catch(e){ _fbStatus('Erro','err'); console.warn('[FB] save exception:',e); return Promise.reject(e); }
     };
 
+    // Load: read the payload string field
     window._fbLoad = function(){
-      return fetch(BASE+'?key='+API_KEY)
+      return fetch(DOC_URL+'?key='+API_KEY)
         .then(function(r){ return r.ok?r.json():null; })
         .then(function(doc){
-          if(doc&&doc.fields){
+          if(doc && doc.fields && doc.fields.payload){
             _fbStatus('Carregado','ok');
-            return _fromFirestore(doc);
+            try{ return JSON.parse(doc.fields.payload.stringValue); }catch(e){ return null; }
           }
           _fbStatus('Sem dados','');
           return null;
-        })
-        .catch(function(e){
-          _fbStatus('Offline','err');
-          console.warn('Firebase load error:',e);
-          return null;
-        });
+        }).catch(function(e){ _fbStatus('Offline','err'); console.warn('[FB] load error:',e); return null; });
     };
 
-    // Polling every 5s instead of onSnapshot (REST doesn't support streaming easily)
-    var _lastFbUpdate = null;
+    // Listen: poll every 4s, compare savedAt to detect changes
+    var _lastSavedAt = null;
     window._fbListen = function(callback){
       function poll(){
-        fetch(BASE+'?key='+API_KEY)
+        fetch(DOC_URL+'?key='+API_KEY+'&fields=fields.savedAt,fields.payload')
           .then(function(r){ return r.ok?r.json():null; })
           .then(function(doc){
             if(!doc||!doc.fields) return;
-            var updateTime = doc.updateTime||'';
-            if(_lastFbUpdate === null){ _lastFbUpdate = updateTime; return; }
-            if(updateTime !== _lastFbUpdate){
-              _lastFbUpdate = updateTime;
-              var data = _fromFirestore(doc);
-              if(data){ _fbStatus('Ativo ●','ok'); callback(data); }
+            var savedAt = (doc.fields.savedAt&&doc.fields.savedAt.stringValue)||'';
+            if(_lastSavedAt===null){ _lastSavedAt=savedAt; _fbStatus('Ativo ●','ok'); return; }
+            if(savedAt && savedAt!==_lastSavedAt){
+              _lastSavedAt = savedAt;
+              _fbStatus('Atualizando...','ok');
+              // Full load to get payload
+              window._fbLoad().then(function(data){
+                if(data){ callback(data); }
+              });
             } else {
               _fbStatus('Ativo ●','ok');
             }
-          })
-          .catch(function(){ _fbStatus('Offline','err'); });
+          }).catch(function(){ _fbStatus('Offline','err'); });
       }
-      poll(); // immediate first check
-      return setInterval(poll, 5000);
+      poll();
+      return setInterval(poll, 4000);
     };
 
     window._fbReady = true;
-    // Update status after DOM is ready
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', function(){ window._fbStatus('Pronto',''); });
-    } else {
-      window._fbStatus('Pronto','');
-    }
-    // Dispatch after DOM is ready
-    setTimeout(function(){ window.dispatchEvent(new Event('firebase-ready')); }, 200);
+    if(document.readyState==='loading'){
+      document.addEventListener('DOMContentLoaded',function(){ _fbStatus('Pronto',''); });
+    } else { _fbStatus('Pronto',''); }
+    setTimeout(function(){ window.dispatchEvent(new Event('firebase-ready')); },200);
   })();
   </script>
+t>
 </head>
 <body>
 
