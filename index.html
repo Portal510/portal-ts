@@ -7286,23 +7286,15 @@ function _applyData(d){
   // ── Score incoming data vs current data ──
   // Only replace arrays if incoming has MORE entries (never downgrade)
   function mergeArr(current, incoming){
+    // Full replace — Firebase is source of truth
     if(!incoming || !Array.isArray(incoming)) return;
-    if(incoming.length >= current.length){
-      current.splice(0, current.length, ...incoming);
-    } else {
-      // Merge: add entries from incoming that aren't already in current (by id or nome+data)
-      incoming.forEach(function(item){
-        var exists = current.some(function(c){
-          return (item.id && c.id===item.id) || (item.nome && item.data && c.nome===item.nome && c.data===item.data);
-        });
-        if(!exists) current.push(item);
-      });
-    }
+    current.splice(0, current.length, ...incoming);
   }
 
   function mergeObj(current, incoming){
     if(!incoming || typeof incoming !== 'object') return;
-    // Add/update keys from incoming, never delete existing keys
+    // Full replace object keys
+    Object.keys(current).forEach(function(k){ delete current[k]; });
     Object.keys(incoming).forEach(function(k){ current[k] = incoming[k]; });
   }
 
@@ -7354,7 +7346,7 @@ function _applyData(d){
   if(d.PRESENCA_REG) mergeObj(PRESENCA_REG, d.PRESENCA_REG);
   if(d.TURNO_DATA)   mergeObj(TURNO_DATA, d.TURNO_DATA);
 
-  // After merge, save to localStorage to preserve everything
+  // After merge, save to localStorage and update sync timestamp
   try{
     var merged = {
       COLL,PAUSAS,PEND_PAUSAS,FERIAS,BH_DATA,ATES_DATA,DEVICE_DATA,UNI_DATA,SOL_DATA,
@@ -7362,7 +7354,11 @@ function _applyData(d){
       DOC_MATRIX,PRESENCA_DATA,PRESENCA_REG,TURNO_DATA,_savedAt:new Date().toISOString()
     };
     if(merged.COLL && merged.COLL.length > 0){
-      localStorage.setItem('hepta_portal_data', JSON.stringify(merged));
+      var payload = JSON.stringify(merged);
+      localStorage.setItem('hepta_portal_data', payload);
+      // Update sync timestamp so polling detects the change and refreshes UI
+      localStorage.setItem('hepta_portal_data_sync', Date.now().toString());
+      try{ sessionStorage.setItem('hepta_portal_data_bak', payload); }catch(e){}
     }
   }catch(e){}
 }
@@ -8769,21 +8765,17 @@ function doLogin(){
       try{ window._fbStatus('Conectando...',''); }catch(e){}
       window._fbListen(function(fbdata){
         try{
-          // Only apply if Firebase has real data and is not older than localStorage
-          if(fbdata && typeof fbdata==='object'){
+          if(fbdata && typeof fbdata==='object' && fbdata.COLL && fbdata.COLL.length>0){
+            // Check if Firebase data is newer than our local data
+            var fbSavedAt = fbdata._savedAt ? new Date(fbdata._savedAt).getTime() : 0;
             var lsRaw = _ls.getItem(STORE_KEY);
             var lsData = lsRaw ? JSON.parse(lsRaw) : null;
-            var fbTurnoCount = fbdata.TURNO_DATA ? Object.keys(fbdata.TURNO_DATA).length : 0;
-            var lsTurnoCount = lsData && lsData.TURNO_DATA ? Object.keys(lsData.TURNO_DATA).length : 0;
-            var fbCollCount = fbdata.COLL ? fbdata.COLL.length : 0;
-            var lsCollCount = lsData && lsData.COLL ? lsData.COLL.length : 0;
-            // Firebase wins only if it has more data
-            var fbScore = fbTurnoCount + fbCollCount + (fbdata.BH_DATA?fbdata.BH_DATA.length:0);
-            var lsScore = lsTurnoCount + lsCollCount + (lsData&&lsData.BH_DATA?lsData.BH_DATA.length:0);
-            if(fbScore >= lsScore && fbScore > 0){
+            var lsSavedAt = lsData && lsData._savedAt ? new Date(lsData._savedAt).getTime() : 0;
+            // Only apply if Firebase data is newer (someone else saved it)
+            // Add 2s tolerance to avoid applying our own just-saved data
+            if(fbSavedAt > lsSavedAt + 2000 || lsSavedAt === 0){
               _applyData(fbdata);
-              _ls.setItem(STORE_KEY,JSON.stringify(fbdata));
-              _ls.setItem(STORE_KEY+'_sync',Date.now().toString());
+              // _applyData already saves to localStorage and updates _sync
             }
           }
         }catch(e){}
