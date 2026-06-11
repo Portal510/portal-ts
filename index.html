@@ -1851,67 +1851,78 @@ body.collab #btn-voltar-form { display: flex !important; }
   <div id="device-success" style="display:none;"></div>
   <div id="device-form-wrap" style="display:none;">
     <div class="card">
-      <div class="ctitle">Registrar Dispositivo Recebido</div>
+      <div class="ctitle">📱 Registro — Celular e Tablet</div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:.75rem;">Preencha seus dados, número de celular e informe se possui tablet.</p>
       <div class="fg">
         <div class="fp ff"><label>Cargo *</label><select id="dev_cargo" onchange="filterNameByCargo('dev_cargo','dev_nome')"><option value="">— Selecione o cargo —</option></select></div>
         <div class="fp ff"><label>Seu nome *</label><select id="dev_nome"><option value="">— Selecione seu nome —</option></select></div>
-        <div class="fp ff"><label>Tipo de dispositivo *</label>
-          <select id="dev_tipo" onchange="onDevTipo()">
-            <option value="">Selecione</option>
-            <option value="celular">Celular</option>
-            <option value="tablet">Tablet</option>
+      </div>
+      <div class="fg" style="margin-top:.75rem;">
+        <div class="fp ff"><label>CPF *</label><input type="text" id="dev_cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14"></div>
+        <div class="fp ff"><label>Número do celular *</label><input type="text" id="dev_num" placeholder="(00) 9 0000-0000" oninput="maskPhone(this)" maxlength="16"></div>
+        <div class="fp ff"><label>Possui tablet? *</label>
+          <select id="tab_possui" onchange="onTabPossui()">
+            <option value="">— Selecione —</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
           </select>
         </div>
       </div>
-      <div id="dev-celular-fields" style="display:none;margin-top:.875rem;">
-        <div class="fg">
-          <div class="fp"><label>Número com DDD</label><input type="text" id="dev_num" placeholder="(61) 9xxxx-xxxx"></div>
-        </div>
-      </div>
-      <div id="dev-tablet-fields" style="display:none;margin-top:.875rem;">
-        <div class="fg">
-          <div class="fp ff"><label>Possui tablet? *</label>
-            <select id="tab_possui" onchange="onTabPossui()">
-              <option value="">— Selecione —</option>
-              <option value="Sim">Sim</option>
-              <option value="Não">Não</option>
-            </select>
-          </div>
-          <div id="tab-previsao-field" class="fp ff" style="display:none;">
-            <label>Previsão de aquisição</label>
-            <input type="text" id="tab_previsao" placeholder="dd/mm/aaaa" oninput="maskDate(this)">
-          </div>
-        </div>
-      </div>
-      <div class="brow"><button class="btn bp" onclick="subDevice()">Enviar registro →</button></div>
+      <div class="brow"><button class="btn bp" onclick="subDevice()">Enviar →</button></div>
     </div>
   </div>
   <div id="device-dash">
+    <!-- KPIs -->
     <div class="srow srow3" style="margin-bottom:.875rem;">
-      <div class="sc"><div class="sl">Celulares</div><div class="sv" id="dev-cel-cnt">0</div></div>
-      <div class="sc"><div class="sl">Tablets</div><div class="sv" id="dev-tab-cnt">0</div></div>
-      <div class="sc"><div class="sl">Total dispositivos</div><div class="sv" id="dev-tot">0</div></div>
+      <div class="sc"><div class="sl">Celulares registrados</div><div class="sv" id="dev-cel-cnt">0</div></div>
+      <div class="sc"><div class="sl">Possuem tablet</div><div class="sv" id="dev-tab-cnt">0</div></div>
+      <div class="sc"><div class="sl">Sem tablet</div><div class="sv" id="dev-sem-tab" style="color:var(--r600);">0</div></div>
     </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
-        <div class="ctitle" style="margin:0;">Dispositivos Registrados</div>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
-          <input type="text" id="dev-search" placeholder="🔍 Nome, tipo, modelo, IMEI, data, status..." style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);width:280px;" oninput="rDevice()">
-          <select id="dev-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rDevice()">
-            <option value="">Todos os cargos</option>
-          </select>
-          <select id="dev-exp-mes" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
-            <option value="">Todos os meses</option>
-            <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option>
-          </select>
-          <select id="dev-exp-ano" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);">
-            <option value="">Todos os anos</option>
-            <option>2025</option><option selected>2026</option><option>2027</option>
-          </select>
-          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expDevices('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expDevices('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
+
+    <!-- Filtros -->
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.875rem;">
+      <input type="text" id="dev-search" placeholder="🔍 Buscar por nome..." style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);width:220px;" oninput="rDevice()">
+      <select id="dev-exp-cargo" style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:var(--rad);max-width:200px;" onchange="rDevice()">
+        <option value="">Todos os cargos</option>
+      </select>
+    </div>
+
+    <!-- Grid: Celular + Tablet side by side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;">
+
+      <!-- CONTROLE CELULAR -->
+      <div class="card">
+        <div class="ctitle" style="margin-bottom:.75rem;">📱 Controle de Celular</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:11px;">
+            <thead><tr style="background:var(--b800);color:#fff;">
+              <th style="padding:7px 10px;text-align:left;">Colaborador</th>
+              <th style="padding:7px 10px;text-align:left;">Cargo</th>
+              <th style="padding:7px 10px;text-align:center;">Número</th>
+              <th style="padding:7px 10px;text-align:center;">Data</th>
+              <th style="padding:7px 10px;text-align:center;">Ação</th>
+            </tr></thead>
+            <tbody id="dev-cel-tbody"></tbody>
+          </table>
         </div>
       </div>
-      <div class="tw"><table><thead><tr><th>Colaborador</th><th>Tipo</th><th>Marca</th><th>Modelo</th><th>IMEI/Série</th><th>Nº/DDD</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead><tbody id="device-tbody"></tbody></table></div>
+
+      <!-- CONTROLE TABLET -->
+      <div class="card">
+        <div class="ctitle" style="margin-bottom:.75rem;">💻 Controle de Tablet</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:11px;">
+            <thead><tr style="background:var(--b800);color:#fff;">
+              <th style="padding:7px 10px;text-align:left;">Colaborador</th>
+              <th style="padding:7px 10px;text-align:left;">Cargo</th>
+              <th style="padding:7px 10px;text-align:center;">Possui Tablet</th>
+              <th style="padding:7px 10px;text-align:center;">Data</th>
+            </tr></thead>
+            <tbody id="dev-tab-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -6350,10 +6361,8 @@ function fiscalTab(tab){
 }
 function rFiscalDev(){
   var tbody=document.getElementById('fiscal-dev-tbody');if(!tbody)return;
-  var tipo=document.getElementById('fiscal-dev-tipo')?.value||'';
   var busca=(document.getElementById('fiscal-dev-busca')?.value||'').toLowerCase();
   var list=(DEVICE_DATA||[]).filter(function(e){
-    if(tipo&&e.tipo!==tipo)return false;
     if(busca&&!(e.nome||'').toLowerCase().includes(busca))return false;
     return true;
   }).sort(function(a,b){return (a.nome||'').localeCompare(b.nome||'','pt-BR');});
@@ -6363,15 +6372,20 @@ function rFiscalDev(){
   if(!list.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum registro.</td></tr>';return;}
   list.forEach(function(e,i){
     var bg=i%2===0?'#fff':'#f8fafc';
-    var cargoLabel=(CD[e.cargo]||{}).label||e.cargo||'—';
-    var detalhe=e.tipo==='celular'?('Nº: '+(e.num||'—')):('Possui: '+(e.possui||'—')+(e.possui==='Não'&&e.previsao?' | Previsão: '+e.previsao:''));
+    var col = COLL.find(function(c){return c.nome===e.nome;})||{};
+    var cargo = e.cargo || col.cargo || '—';
+    var possui = e.possui_tablet||e.possui||'—';
+    var possuiBg=possui==='Sim'?'#d1fae5':possui==='Não'?'#fee2e2':'#f1f5f9';
+    var possuiClr=possui==='Sim'?'#065f46':possui==='Não'?'#991b1b':'#64748b';
     var tr=document.createElement('tr');
     tr.style.borderBottom='.5px solid #f1f5f9';
     tr.innerHTML='<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+(e.nome||'—')+'</td>'
-      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+(e.cargo||'—')+'</span></td>'
-      +'<td style="padding:7px 10px;background:'+bg+';">'+(e.tipo||'—')+'</td>'
-      +'<td style="padding:7px 10px;background:'+bg+';">'+detalhe+'</td>'
-      +'<td style="padding:7px 10px;background:'+bg+';">'+(e.data||'—')+'</td>';
+      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+cargo+'</span></td>'
+      +'<td style="padding:7px 10px;text-align:center;background:'+bg+';font-family:monospace;">'+(e.num||'—')+'</td>'
+      +'<td style="padding:7px 10px;text-align:center;background:'+bg+';">'
+        +'<span style="font-size:10px;background:'+possuiBg+';color:'+possuiClr+';padding:2px 10px;border-radius:10px;font-weight:700;">'+possui+'</span>'
+      +'</td>'
+      +'<td style="padding:7px 10px;text-align:center;background:'+bg+';font-size:10px;color:#64748b;">'+(e.data||'—')+'</td>';
     tbody.appendChild(tr);
   });
 }
@@ -6384,18 +6398,27 @@ function rFiscalMal(){
   var cnt=document.getElementById('fiscal-mal-count');
   if(cnt)cnt.textContent=list.length+' registro(s)';
   tbody.innerHTML='';
-  if(!list.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum registro.</td></tr>';return;}
+  if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#64748b;padding:1.5rem;">Nenhum registro.</td></tr>';return;}
   list.forEach(function(e,i){
     var bg=i%2===0?'#fff':'#f8fafc';
     var col=COLL.find(function(c){return c.nome===e.nome;})||{};
+    var ok=e.itensOK!==undefined?e.itensOK:(e.nOK||0);
+    var tot=e.total||0;
+    var completo=ok===tot&&tot>0;
+    var situacao=e.situacao||(completo?'Completa':'Incompleta');
+    var missing=e.missing?(Array.isArray(e.missing)?e.missing.join(', '):e.missing):'—';
     var tr=document.createElement('tr');
     tr.style.borderBottom='.5px solid #f1f5f9';
     tr.innerHTML='<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+(e.nome||'—')+'</td>'
-      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+(e.cargo||'—')+'</span></td>'
-      +'<td style="padding:7px 10px;background:'+bg+';">'+(col.uf||e.uf||'—')+'</td>'
-      +'<td style="padding:7px 10px;background:'+bg+';">'+(e.data||'—')+'</td>'
-      +'<td style="padding:7px 10px;background:'+bg+';font-weight:700;color:'+(e.nOK===e.total?'#065f46':'#991b1b')+';">'+(e.nOK||0)+'/'+(e.total||0)+'</td>'
-      +'<td style="padding:7px 10px;background:'+bg+';">'+(e.reprNome||'—')+'</td>';
+      +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+(e.cargo||col.cargo||'—')+'</span></td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'+(col.uf||e.uf||e.num||'—')+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';font-size:10px;color:#64748b;">'+(e.data||'—')+'</td>'
+      +'<td style="padding:7px 10px;text-align:center;background:'+bg+';font-weight:700;color:'+(completo?'#065f46':'#991b1b')+';">'+ok+'/'+tot+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';">'
+        +'<span style="font-size:9px;padding:2px 8px;border-radius:10px;font-weight:700;background:'+(completo?'#d1fae5':'#fef3c7')+';color:'+(completo?'#065f46':'#92400e')+';">'+situacao+'</span>'
+      +'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';font-size:10px;color:#991b1b;">'+missing+'</td>'
+      +'<td style="padding:7px 10px;background:'+bg+';font-size:10px;color:#64748b;">'+(e.obs&&e.obs!=='—'?e.obs:'—')+'</td>';
     tbody.appendChild(tr);
   });
 }
@@ -6596,6 +6619,7 @@ function rFiscalGer(){
     var ds=['D','S','T','Q','Q','S','S'][dow];
     t+='<th style="padding:4px 2px;min-width:30px;text-align:center;'+(dow===0||dow===6?'background:rgba(255,255,255,.1);':'')+'"><div style="font-size:7px;opacity:.7;">'+ds+'</div><div>'+d+'</div></th>';
   });
+  t+='<th style="padding:6px 10px;text-align:left;min-width:220px;background:#1a3050;position:sticky;right:0;">💬 Ocorrências</th>';
   t+='</tr></thead><tbody>';
   ativos.forEach(function(col,ri){
     var bg=ri%2===0?'#fff':'#f8fafc';
@@ -6611,6 +6635,19 @@ function rFiscalGer(){
       var cellSt=val?st:(isWE?'background:#f1f5f9;color:#94a3b8;':ST['']);
       t+='<td style="padding:2px;text-align:center;'+cellSt+';border-right:.5px solid #f1f5f9;font-weight:700;font-size:9px;">'+(val||'')+'</td>';
     });
+    // OC column
+    var ocLines=[];
+    dias.forEach(function(d2){
+      var dk2=String(d2).padStart(2,'0');
+      var arr=rec['oc_'+dk2];
+      if(!arr) return;
+      if(!Array.isArray(arr)){ if(arr) ocLines.push('Dia '+d2+': '+arr); return; }
+      arr.forEach(function(c2){ if(c2&&c2.txt) ocLines.push('<b>Dia '+d2+':</b> '+c2.txt.replace(/</g,'&lt;')); });
+    });
+    var ocHtml=ocLines.length
+      ? '<div style="font-size:9px;line-height:1.5;">'+ocLines.join('<br>')+'</div>'
+      : '<div style="font-size:9px;color:#ccc;text-align:center;">—</div>';
+    t+='<td style="padding:5px 8px;background:'+bg+';position:sticky;right:0;border-left:.5px solid #e2e8f0;vertical-align:top;max-width:220px;">'+ocHtml+'</td>';
     t+='</tr>';
   });
   t+='</tbody></table>';
@@ -7191,6 +7228,8 @@ function saveAll(){
     if(!data.COLL || data.COLL.length === 0) return;
     var payload = JSON.stringify(data);
     _ls.setItem(STORE_KEY, payload);
+    // Refresh collab form selects if visible
+    try{ refreshCollabFormSelects(); }catch(e){}
     _ls.setItem(STORE_KEY + '_sync', Date.now().toString());
     try{ _ls.setItem(STORE_KEY + '_broadcast', Date.now().toString()); }catch(e){}
     // Save to Firebase (real-time sync between devices)
@@ -8122,17 +8161,9 @@ function cpAtesLink(open){
 /* ═══ CELULAR/TABLET ═══ */
 let DEVICE_DATA=[];
 
-function onDevTipo(){
-  const t=document.getElementById('dev_tipo').value;
-  document.getElementById('dev-celular-fields').style.display=t==='celular'?'block':'none';
-  document.getElementById('dev-tablet-fields').style.display=t==='tablet'?'block':'none';
-}
+function onDevTipo(){}  // no longer needed
 
-function onTabPossui(){
-  var v=document.getElementById('tab_possui').value;
-  var pf=document.getElementById('tab-previsao-field');
-  if(pf) pf.style.display=v==='Não'?'block':'none';
-}
+function onTabPossui(){} // no longer needed
 
 function devFileUp(id, el){
   if(el.files.length>0){
@@ -8146,70 +8177,160 @@ function initDevNames(){
 }
 
 function subDevice(){
-  const nome=document.getElementById('dev_nome').value;
-  const tipo=document.getElementById('dev_tipo').value;
-  if(!nome||!tipo){toast('Preencha todos os campos obrigatórios.','warn');return;}
-  let entry={id:Date.now(),nome,tipo};
-  if(tipo==='celular'){
-    entry.marca='—';
-    entry.modelo='';
-    entry.cor='';
-    entry.imei='';
-    entry.num=document.getElementById('dev_num').value||'—';
-    entry.carregador='';
-    entry.obs='';
-    entry.data=new Date().toLocaleDateString('pt-BR');
-  } else {
-    var possui=document.getElementById('tab_possui').value;
-    var previsao=document.getElementById('tab_previsao')?.value||'';
-    if(!possui){toast('Informe se possui tablet.','warn');return;}
-    entry.marca='—';
-    entry.modelo='';
-    entry.cor='';
-    entry.imei='';
-    entry.num='—';
-    entry.carregador='';
-    entry.obs='';
-    entry.data=new Date().toLocaleDateString('pt-BR');
-    entry.possui=possui;
-    entry.previsao=previsao;
-  }
+  var nome   = document.getElementById('dev_nome').value;
+  var cpf    = document.getElementById('dev_cpf').value;
+  var num    = document.getElementById('dev_num').value;
+  var possui = document.getElementById('tab_possui').value;
+
+  if(!nome){ toast('Selecione seu nome.','warn'); return; }
+  if(!cpf || cpf.length < 14){ toast('Informe o CPF no formato correto.','warn'); return; }
+  if(!num){ toast('Informe o número do celular.','warn'); return; }
+  if(!possui){ toast('Informe se possui tablet.','warn'); return; }
+
+  var entry = {
+    id: Date.now(), nome: nome, tipo: 'celular/tablet',
+    cpf: cpf, num: num, possui_tablet: possui,
+    cargo: (COLL.find(function(c){return c.nome===nome;})||{}).cargo||document.getElementById('dev_cargo')?.value||'',
+    marca:'—', modelo:'', imei:'', data: new Date().toLocaleDateString('pt-BR'),
+    status:'ativo'
+  };
+
   DEVICE_DATA.push(entry);
   saveAll();
-  var _e=DEVICE_DATA[DEVICE_DATA.length-1]; try{if(_e) gasPost('Dispositivos',[_e.id||Date.now(),_e.nome||'',_e.cargo||''],{entry:_e});}catch(e){}
-  showCollabSuccess('device-form-wrap','device-success',
-    '<strong>Dispositivo registrado com sucesso!</strong><br>Colaborador: '+nome+'<br>Tipo: '+tipo+' | Marca: '+(entry.marca||'—')+' | Modelo: '+(entry.modelo||'—')+'<br>IMEI/Série: '+(entry.imei||'—'));
-  toast('Dispositivo registrado!','ok');
+
+  // Generate term
+  var termo = gerarTermoDevice(nome, cpf, possui);
+  var successDiv = document.getElementById('device-success');
+  var formDiv    = document.getElementById('device-form-wrap');
+  var dashDiv    = document.getElementById('device-dash');
+  var linkCard   = document.querySelector('#pg-device .g-only');
+  if(formDiv) formDiv.style.display='none';
+  if(dashDiv) dashDiv.style.display='none';
+  if(linkCard) linkCard.style.display='none';
+  if(successDiv){
+    successDiv.style.display='block';
+    successDiv.innerHTML =
+      '<div class="card" style="border:.5px solid var(--g200);background:var(--g50);margin-bottom:.875rem;">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:.5rem;">✅ Registro enviado com sucesso!</div>'
+      +'<div style="font-size:11px;color:var(--g700);">Colaborador: <strong>'+nome+'</strong></div>'
+      +'</div>'
+      +'<div class="card" id="dev-termo-card">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;flex-wrap:wrap;gap:.5rem;">'
+      +'<div class="ctitle" style="margin:0;">📄 Termo de Responsabilidade</div>'
+      +'<button class="btn bp" style="font-size:10px;" onclick="window.print()">🖨️ Imprimir</button>'
+      +'</div>'
+      +'<div style="font-size:12px;line-height:1.8;color:#1a1a18;white-space:pre-wrap;font-family:Georgia,serif;padding:.5rem;">'+termo+'</div>'
+      +'<div style="margin-top:1.25rem;background:#eff6ff;border:.5px solid #bfdbfe;border-radius:8px;padding:.875rem 1rem;font-size:11px;color:#1e40af;line-height:1.7;">'
+      +'<div style="font-weight:700;margin-bottom:.375rem;">📋 Instruções para envio:</div>'
+      +'<div>1. Imprima este documento, assine e digitalize <strong>ou</strong> assine digitalmente através do <strong>Gov.br</strong>.</div>'
+      +'<div style="margin-top:.25rem;">2. Após assinar, anexe o documento assinado no formulário oficial:</div>'
+      +'<div style="margin-top:.5rem;"><a href="https://forms.office.com/r/jP8r02eu6L" target="_blank" style="display:inline-flex;align-items:center;gap:.375rem;background:#1d4ed8;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-weight:700;font-size:11px;">📎 Formulário de Controle de Tablets e Celulares</a></div>'
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--muted);">Local e data: ___________________________________  /  _____ / _____</div>'
+      +'<div style="margin-top:1.5rem;font-size:11px;">___________________________________________</div>'
+      +'<div style="font-size:10px;color:var(--muted);">Assinatura do(a) Colaborador(a)</div>'
+      +'</div>'
+      +'</div>';
+  }
+  toast('✅ Registro e termo gerados!','ok');
+}
+
+function gerarTermoDevice(nome, cpf, possuiTablet){
+  var nl='\n\n';
+  if(possuiTablet === 'Sim'){
+    return 'Eu, '+nome+', inscrito(a) no CPF nº '+cpf+', declaro para os devidos fins que:'+nl
+      +'1. Estou ciente de que, conforme previsto no edital e informado no início do contrato, cada colaborador deve possuir um celular e um tablet para utilização durante suas atividades laborais.'+nl
+      +'2. Declaro que possuo o tablet necessário para execução das minhas funções e que o mesmo será utilizado exclusivamente durante o expediente de trabalho.'+nl
+      +'3. Estou ciente de que a empresa realizará o depósito mensal no valor de R$ 95,00 (noventa e cinco reais) referente ao aluguel do celular e do tablet, conforme estabelecido.'+nl
+      +'4. Comprometo-me a manter o equipamento em condições adequadas de uso e disponível para o desempenho das atividades profissionais.';
+  } else {
+    return 'Eu, '+nome+', inscrito(a) no CPF nº '+cpf+', declaro para os devidos fins que:'+nl
+      +'1. Estou ciente de que, conforme previsto no edital e informado no início do contrato, cada colaborador deve possuir um celular e um tablet para utilização durante suas atividades laborais.'+nl
+      +'2. Estou ciente de que, para a execução das minhas funções, é necessário adquirir um tablet o mais breve possível, comprometendo-me a providenciar o equipamento para uso exclusivo durante o expediente de trabalho.'+nl
+      +'3. Estou ciente de que a empresa realizará o depósito mensal no valor de R$ 95,00 (noventa e cinco reais) referente ao aluguel do celular e do tablet, conforme estabelecido.'+nl
+      +'4. Comprometo-me a manter o equipamento em condições adequadas de uso e disponível para o desempenho das atividades profissionais.';
+  }
 }
 
 function rDevice(){
-  const tbody=document.getElementById('device-tbody');
-  if(!tbody) return;
-  tbody.innerHTML='';
-  const cel=DEVICE_DATA.filter(r=>r.tipo==='celular').length;
-  const tab=DEVICE_DATA.filter(r=>r.tipo==='tablet').length;
-  const dc=document.getElementById('dev-cel-cnt');const dt=document.getElementById('dev-tab-cnt');const tot=document.getElementById('dev-tot');
-  if(dc)dc.textContent=cel;if(dt)dt.textContent=tab;if(tot)tot.textContent=cel+tab;
-  const q=(document.getElementById('dev-search')?.value||'').toLowerCase();
-  const mn=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const filterM=document.getElementById('dev-exp-mes')?.value||'';
-  const filterA=document.getElementById('dev-exp-ano')?.value||'';
-  const dev_cargo_filter=document.getElementById('dev-exp-cargo')?.value||'';
-  const filtered=DEVICE_DATA.filter((r,i)=>{
-    if(q&&![ r.nome,r.tipo,r.modelo,r.marca,r.imei,r.data,r.num,r.status].join(' ').toLowerCase().includes(q)) return false;
-    if(filterM){const parts=(r.data||'').split('/');if(mn[parseInt(parts[1]||0)-1]!==filterM) return false;}
-    if(filterA){const parts=(r.data||'').split('/');if(String(parts[2]||'')!==String(filterA)) return false;}
-    if(dev_cargo_filter){const col=COLL.find(x=>x.nome===r.nome);const lbl=(CD[dev_cargo_filter]||{}).label||dev_cargo_filter;if(!col||!(col.cargo===dev_cargo_filter||col.cargo===lbl))return false;}
+  var celTbody = document.getElementById('dev-cel-tbody');
+  var tabTbody = document.getElementById('dev-tab-tbody');
+  if(!celTbody || !tabTbody) return;
+
+  var q = (document.getElementById('dev-search')?.value||'').toLowerCase();
+  var fCargo = document.getElementById('dev-exp-cargo')?.value||'';
+
+  // Populate cargo select
+  var csel = document.getElementById('dev-exp-cargo');
+  if(csel && csel.options.length<=1){
+    Object.keys(CD).sort().forEach(function(k){
+      var o=document.createElement('option');o.value=k;o.textContent=(CD[k]||{}).label||k;csel.appendChild(o);
+    });
+  }
+
+  // Filter DEVICE_DATA
+  var filtered = DEVICE_DATA.filter(function(r){
+    if(q && !(r.nome||'').toLowerCase().includes(q)) return false;
+    if(fCargo){
+      var col = COLL.find(function(c){return c.nome===r.nome;});
+      if(!col || col.cargo!==fCargo) return false;
+    }
     return true;
-  });
-  filtered.forEach((r,i)=>{
-    const tr=document.createElement('tr');
-    const devFull=!!(r.marca&&r.modelo&&r.imei&&r.data);
-    tr.innerHTML=`<td style="font-weight:500;">${r.nome}</td><td><span class="bdg bi">${r.tipo}</span></td><td>${r.marca||'—'}</td><td>${r.modelo||'—'}</td><td style="font-family:monospace;font-size:10px;">${r.imei||'—'}</td><td>${r.num||'—'}</td><td>${r.data||'—'}</td>
-      <td><span class="bdg ${r.acao==='aprovado'?'bok2':r.acao==='pendente'?'be':'bw'}">${r.acao==='aprovado'?'✓ OK':r.acao==='pendente'?'⚠ Pendente':'Aguardando'}</span></td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="deviceAcao(${i},'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="deviceAcao(${i},'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){DEVICE_DATA.splice(${i},1);rDevice();saveAll()}">🗑</button></td>`;
-    tbody.appendChild(tr);
-  });
-  if(filtered.length===0)tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:1rem;">'+(q?'Nenhum resultado para a pesquisa.':'Nenhum dispositivo registrado.')+'</td></tr>';
+  }).sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||'','pt-BR'); });
+
+  // KPIs
+  var celCount = DEVICE_DATA.length; // all registered = have celular
+  var tabSim   = DEVICE_DATA.filter(function(r){ return r.possui_tablet==='Sim'; }).length;
+  var tabNao   = DEVICE_DATA.filter(function(r){ return r.possui_tablet==='Não'; }).length;
+  var dc=document.getElementById('dev-cel-cnt');
+  var dt=document.getElementById('dev-tab-cnt');
+  var ds=document.getElementById('dev-sem-tab');
+  if(dc) dc.textContent=celCount;
+  if(dt) dt.textContent=tabSim;
+  if(ds) ds.textContent=tabNao;
+
+  var empty = '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:1.5rem;font-size:11px;">Nenhum registro.</td></tr>';
+
+  // ── Tabela Celular ──
+  celTbody.innerHTML='';
+  if(!filtered.length){ celTbody.innerHTML=empty; }
+  else {
+    filtered.forEach(function(r,i){
+      var col = COLL.find(function(c){return c.nome===r.nome;})||{};
+      var bg = i%2===0?'#fff':'#f8fafc';
+      var tr=document.createElement('tr');
+      tr.style.borderBottom='.5px solid #f1f5f9';
+      var celIdx = DEVICE_DATA.indexOf(r);
+      tr.innerHTML='<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+r.nome+'</td>'
+        +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+(col.cargo||'—')+'</span></td>'
+        +'<td style="padding:7px 10px;text-align:center;background:'+bg+';font-family:monospace;">'+(r.num||'—')+'</td>'
+        +'<td style="padding:7px 10px;text-align:center;background:'+bg+';font-size:10px;color:#64748b;">'+(r.data||'—')+'</td>'
+        +'<td style="padding:5px 8px;background:'+bg+';"><button class="btn" style="font-size:9px;padding:2px 7px;border:.5px solid #ef4444;color:#ef4444;" onclick="DEVICE_DATA.splice('+celIdx+',1);rDevice();saveAll();">🗑</button></td>';
+      celTbody.appendChild(tr);
+    });
+  }
+
+  // ── Tabela Tablet ──
+  tabTbody.innerHTML='';
+  if(!filtered.length){ tabTbody.innerHTML=empty; }
+  else {
+    filtered.forEach(function(r,i){
+      var col = COLL.find(function(c){return c.nome===r.nome;})||{};
+      var possui = r.possui_tablet||'—';
+      var bg = i%2===0?'#fff':'#f8fafc';
+      var possuiBg = possui==='Sim'?'#d1fae5':possui==='Não'?'#fee2e2':'#f1f5f9';
+      var possuiClr= possui==='Sim'?'#065f46':possui==='Não'?'#991b1b':'#64748b';
+      var tr=document.createElement('tr');
+      tr.style.borderBottom='.5px solid #f1f5f9';
+      tr.innerHTML='<td style="padding:7px 10px;font-weight:600;background:'+bg+';">'+r.nome+'</td>'
+        +'<td style="padding:7px 10px;background:'+bg+';"><span style="font-size:9px;background:#eff6ff;color:#1d4ed8;padding:2px 5px;border-radius:3px;">'+(col.cargo||'—')+'</span></td>'
+        +'<td style="padding:7px 10px;text-align:center;background:'+bg+';">'
+          +'<span style="font-size:10px;background:'+possuiBg+';color:'+possuiClr+';padding:2px 10px;border-radius:10px;font-weight:700;">'+possui+'</span>'
+        +'</td>'
+        +'<td style="padding:7px 10px;text-align:center;background:'+bg+';font-size:10px;color:#64748b;">'+(r.data||'—')+'</td>';
+      tabTbody.appendChild(tr);
+    });
+  }
 }
 
 function deviceAcao(i,acao){
@@ -8429,7 +8550,7 @@ function rLinks(){
     {icon:'🌴', title:'Solicitação de Férias',             desc:'Solicitar período de férias',        form:'fer'},
     {icon:'⏰', title:'Banco de Horas',                    desc:'Registrar horas positivas ou negativas', form:'bh'},
     {icon:'🏥', title:'Atestado Médico / Comparecimento', desc:'Enviar atestado',                    form:'ates'},
-    {icon:'📱', title:'Celular / Tablet',                  desc:'Registrar dispositivo recebido',     form:'device'},
+    {icon:'📱', title:'Celular / Tablet',                  desc:'Informar número do celular e se possui tablet',     form:'device'},
     {icon:'👔', title:'Uniforme — Recebimento',            desc:'Confirmar uniforme recebido',        form:'uni-rec'},
     {icon:'👔', title:'Uniforme — Solicitação',            desc:'Solicitar novas peças',              form:'uni-sol'},
     {icon:'🧰', title:'Maleta de Ferramentas',             desc:'Confirmar recebimento e assinar',    form:'maleta'}
@@ -8700,7 +8821,55 @@ function abrirFormCollab(formKey){
   checkHash();
 }
 
+
+function refreshCollabFormSelects(){
+  // Rebuild all cargo/name selects in collab forms
+  var cargoSelects = ['dev_cargo','at_cargo','uni_rec_cargo','uni_sol_cargo','pau_cargo','mal_cargo'];
+  cargoSelects.forEach(function(id){
+    var sel = document.getElementById(id);
+    if(!sel) return;
+    var curVal = sel.value;
+    sel.innerHTML = '<option value="">— Selecione o cargo —</option>';
+    Object.keys(CD).sort().forEach(function(k){
+      var o = document.createElement('option');
+      o.value = k; o.textContent = (CD[k]||{}).label||k;
+      sel.appendChild(o);
+    });
+    sel.value = curVal;
+    // Rebuild name select if cargo is set
+    if(curVal){
+      var nameId = id.replace('_cargo','_nome');
+      var nameSel = document.getElementById(nameId);
+      if(nameSel){
+        var curName = nameSel.value;
+        nameSel.innerHTML = '<option value="">— Selecione seu nome —</option>';
+        COLL.filter(function(c){return c.cargo===curVal&&c.status!=='inativo';}).sort(function(a,b){return a.nome.localeCompare(b.nome,'pt-BR');}).forEach(function(c){
+          var o=document.createElement('option'); o.value=c.nome; o.textContent=c.nome; nameSel.appendChild(o);
+        });
+        nameSel.value = curName;
+      }
+    }
+  });
+}
+
 function voltarPortalLinks(){
+  // Reset device form for fresh fill
+  var successDiv = document.getElementById('device-success');
+  var formDiv    = document.getElementById('device-form-wrap');
+  var dashDiv    = document.getElementById('device-dash');
+  var linkCard   = document.querySelector('#pg-device .g-only');
+  if(successDiv){ successDiv.style.display='none'; successDiv.innerHTML=''; }
+  if(formDiv){ formDiv.style.display='none'; }
+  if(dashDiv) dashDiv.style.display='';
+  if(linkCard) linkCard.style.display='';
+  // Reset form fields
+  ['dev_cargo','dev_nome','tab_possui'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  ['dev_cpf','dev_num'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+
   document.body.classList.remove('collab-form');
   document.querySelectorAll('.page').forEach(function(p){
     p.style.display = '';
@@ -9826,16 +9995,24 @@ function gerOcModal(key, dKey) {
 
   // Build date label
   const [nome, mes, ano] = key.split('|');
-  const dateLabel = dKey + '/' + (['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'].indexOf(mes)+1+'').padStart(2,'0') + '/' + ano;
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const mIdx = meses.indexOf(mes);
+  const diasNoMes = new Date(parseInt(ano), mIdx+1, 0).getDate();
 
   // Re-use existing modal overlay
   const overlay = document.getElementById('modal-overlay');
   const body    = document.getElementById('modal-body');
   if (!overlay||!body) return;
 
+  // Current selected day (can be changed by user)
+  let currentDKey = dKey;
+
   function renderOcModal() {
-    const comments = rec['oc_'+dKey] || [];
+    // Ensure array for current day
+    if (!rec['oc_'+currentDKey]) rec['oc_'+currentDKey] = [];
+    const comments = rec['oc_'+currentDKey] || [];
+    const dateLabel = currentDKey + '/' + String(mIdx+1).padStart(2,'0') + '/' + ano;
     const rows = comments.length
       ? comments.map((c,i) =>
           '<div style="display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:.5px solid #eee;">'
@@ -9843,30 +10020,47 @@ function gerOcModal(key, dKey) {
             +(c.ts?'<div style="font-size:9px;color:#888;margin-bottom:2px;">'+c.ts+'</div>':'')
             +'<div style="font-size:12px;color:#1a1a18;white-space:pre-wrap;">'+escHtml(c.txt)+'</div>'
           +'</div>'
-          +'<button onclick="gerOcDel(\''+key+'\',\''+dKey+'\','+i+')" '
+          +'<button onclick="gerOcDel(\''+key+'\',\''+currentDKey+'\','+i+')" '
             +'style="flex-shrink:0;background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;" title="Remover">🗑</button>'
           +'</div>'
         ).join('')
       : '<div style="font-size:12px;color:#aaa;padding:8px 0;">Nenhuma ocorrência registrada.</div>';
 
+    // Build day options
+    var dayOptions = '';
+    for(var d=1; d<=diasNoMes; d++){
+      var dk = String(d).padStart(2,'0');
+      var cnt = (rec['oc_'+dk]||[]).length;
+      dayOptions += '<option value="'+dk+'"'+(dk===currentDKey?' selected':'')+'>Dia '+d+(cnt>0?' ('+cnt+')':'')+'</option>';
+    }
+
     body.innerHTML =
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">'
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">'
         +'<div>'
           +'<div style="font-size:14px;font-weight:700;color:#042C53;">💬 Ocorrências — '+nome.split(' ').slice(0,2).join(' ')+'</div>'
-          +'<div style="font-size:11px;color:#666;">'+mes+' / '+ano+' · Dia '+parseInt(dKey)+'  ('+dateLabel+')</div>'
+          +'<div style="font-size:11px;color:#666;">'+mes+' / '+ano+'</div>'
         +'</div>'
         +'<button onclick="document.getElementById(\'modal-overlay\').style.display=\'none\'" '
           +'style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>'
       +'</div>'
+      // Date selector
+      +'<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;background:var(--b50);padding:.625rem .875rem;border-radius:8px;">'
+        +'<span style="font-size:11px;font-weight:600;color:var(--b800);">📅 Dia:</span>'
+        +'<select id="oc-day-sel" onchange="window._gerOcCtx.currentDKey=this.value.padStart(2,\'0\');window._gerOcCtx.renderOcModal();" '
+          +'style="font-size:11px;padding:4px 8px;border:.5px solid var(--brd);border-radius:6px;font-family:inherit;">'
+          +dayOptions
+        +'</select>'
+        +'<span style="font-size:11px;color:var(--muted);">'+dateLabel+'</span>'
+      +'</div>'
       // List
-      +'<div id="oc-list" style="max-height:220px;overflow-y:auto;margin-bottom:1rem;">'+rows+'</div>'
+      +'<div id="oc-list" style="max-height:200px;overflow-y:auto;margin-bottom:1rem;">'+rows+'</div>'
       // Add new
       +'<div style="background:var(--b50);border:.5px solid var(--b100);border-radius:8px;padding:.875rem;">'
-        +'<div style="font-size:11px;font-weight:600;color:var(--b800);margin-bottom:.5rem;">➕ Adicionar ocorrência</div>'
+        +'<div style="font-size:11px;font-weight:600;color:var(--b800);margin-bottom:.5rem;">➕ Adicionar ocorrência — Dia '+parseInt(currentDKey)+'</div>'
         +'<textarea id="oc-new-txt" rows="3" placeholder="Descreva a ocorrência..." '
           +'style="width:100%;padding:8px;border:.5px solid var(--brd);border-radius:6px;font-family:inherit;font-size:12px;resize:vertical;margin-bottom:.5rem;"></textarea>'
         +'<div style="display:flex;gap:.5rem;justify-content:flex-end;">'
-          +'<button onclick="gerOcAdd(\''+key+'\',\''+dKey+'\')" '
+          +'<button onclick="gerOcAdd(\''+key+'\',window._gerOcCtx.currentDKey)" '
             +'style="background:#042C53;color:#fff;border:none;padding:7px 18px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">💾 Salvar ocorrência</button>'
           +'<button onclick="document.getElementById(\'modal-overlay\').style.display=\'none\'" '
             +'style="background:#eee;color:#444;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:12px;">Fechar</button>'
@@ -9877,7 +10071,10 @@ function gerOcModal(key, dKey) {
 
   renderOcModal();
   // Store context for gerOcAdd/gerOcDel
-  window._gerOcCtx = {key, dKey, renderOcModal};
+  window._gerOcCtx = {key, dKey: currentDKey, renderOcModal,
+    get currentDKey(){ return currentDKey; },
+    set currentDKey(v){ currentDKey = v; }
+  };
 }
 
 function gerOcAdd(key, dKey) {
@@ -10281,10 +10478,7 @@ function expFeedback() {
 <!-- Celular/Tablet pane -->
 <div id="fiscal-pane-dev" style="display:none;padding:1rem;">
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
-    <select id="fiscal-dev-tipo" onchange="rFiscalDev()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
-      <option value="">Todos</option><option value="celular">Celular</option><option value="tablet">Tablet</option>
-    </select>
-    <input type="text" id="fiscal-dev-busca" placeholder="🔍 Nome..." oninput="rFiscalDev()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:180px;">
+    <input type="text" id="fiscal-dev-busca" placeholder="🔍 Nome..." oninput="rFiscalDev()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:200px;">
     <span id="fiscal-dev-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10292,15 +10486,14 @@ function expFeedback() {
       <thead><tr style="background:#1e3a5f;color:#fff;">
         <th style="padding:8px 10px;text-align:left;">Colaborador</th>
         <th style="padding:8px 10px;">Cargo</th>
-        <th style="padding:8px 10px;">Tipo</th>
-        <th style="padding:8px 10px;">Número / Possui</th>
-        <th style="padding:8px 10px;">Data</th>
+        <th style="padding:8px 10px;text-align:center;">Nº Celular</th>
+        <th style="padding:8px 10px;text-align:center;">Possui Tablet</th>
+        <th style="padding:8px 10px;text-align:center;">Data</th>
       </tr></thead>
       <tbody id="fiscal-dev-tbody"></tbody>
     </table>
   </div>
 </div>
-
 <!-- Maleta pane -->
 <div id="fiscal-pane-mal" style="display:none;padding:1rem;">
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
@@ -10314,8 +10507,10 @@ function expFeedback() {
         <th style="padding:8px 10px;">Cargo</th>
         <th style="padding:8px 10px;">UF</th>
         <th style="padding:8px 10px;">Data</th>
-        <th style="padding:8px 10px;">Itens OK</th>
-        <th style="padding:8px 10px;">Representante TCU</th>
+        <th style="padding:8px 10px;text-align:center;">Itens OK</th>
+        <th style="padding:8px 10px;">Situação</th>
+        <th style="padding:8px 10px;">Itens Faltantes</th>
+        <th style="padding:8px 10px;">Obs.</th>
       </tr></thead>
       <tbody id="fiscal-mal-tbody"></tbody>
     </table>
