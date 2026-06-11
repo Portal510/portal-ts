@@ -1298,7 +1298,7 @@ t>
 ════════════════════════════════════════════════════ -->
 <div class="page" id="pg-ctrl">
 <div class="dash-page">
-  <div class="dh2"><div class="dhic" style="background:var(--b50);">👥</div>Controle de Colaboradores</div>
+  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--b50);">👥</div>Controle de Colaboradores<button class="btn" onclick="expCad()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
   <div class="srow">
     <div class="sc"><div class="sl">Total colaboradores</div><div class="sv" id="ct-tot">—</div></div>
     <div class="sc"><div class="sl">Folha mensal total</div><div class="sv" style="font-size:14px;color:var(--g600);" id="ct-fol">—</div></div>
@@ -1804,7 +1804,7 @@ t>
 ════════════════════════════════════════════════════ -->
 <div class="page" id="pg-device">
 <div class="dash-page">
-  <div class="dh2"><div class="dhic" style="background:var(--b50);">📱</div>Controle de Celular/Tablet</div>
+  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--b50);">📱</div>Controle de Celular/Tablet<button class="btn" onclick="expDevice()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
   <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
       <div><div style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link do formulário de dispositivos</div></div>
@@ -2387,7 +2387,7 @@ t>
 ════════════════════════════════════════════════════ -->
 <div class="page" id="pg-aniv">
 <div class="dash-page">
-  <div class="dh2"><div class="dhic" style="background:var(--a50);">🎂</div>Aniversariantes</div>
+  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--a50);">🎂</div>Aniversariantes<button class="btn" onclick="expAniv()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
   <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;">
     <div style="font-size:12px;font-weight:700;color:var(--b800);margin-bottom:.5rem;">✉️ Mensagem de parabéns por e-mail</div>
     <p style="font-size:10px;color:var(--b700);margin-bottom:.75rem;">Use <strong>{nome}</strong> para inserir o nome do colaborador automaticamente. Clique em 📧 ao lado de cada aniversariante para enviar.</p>
@@ -2570,7 +2570,7 @@ function doGet(e) {
 <!-- ════════════ PASSAGEM DE TURNO ════════════ -->
 <div class="page" id="pg-turno">
 <div class="dash-page">
-  <div class="dh2"><div class="dhic" style="background:#fef3c7;">🔄</div>Passagem de Turno — Suporte Telefônico TEL</div>
+  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:#fef3c7;">🔄</div>Passagem de Turno — Suporte Telefônico TEL<button class="btn" onclick="expTurno()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
 
   <!-- Cabeçalho: data + turno + ações -->
   <div class="card" style="margin-bottom:.875rem;">
@@ -4914,6 +4914,165 @@ function getExpFilters(prefix) {
   return {m,a,cargo};
 }
 
+
+/* ═══ EXPORT XLS — todas as abas ═══ */
+
+function expGeral(){
+  var hdrs=['Cargo','Vagas','Ativos','Folha (R$)'];
+  var rows=Object.entries(CD).map(function(e){
+    var k=e[0],d=e[1];
+    var cnt=COLL.filter(function(c){return c.cargo===k&&c.status!=='excluido';}).length;
+    return [d.label||k, d.vagas, cnt, 'R$ '+((d.vagas*d.sal)||0).toLocaleString('pt-BR',{minimumFractionDigits:2})];
+  });
+  buildXLS(hdrs,rows,'geral_visao_geral');
+}
+
+function expCad(){
+  var hdrs=['Nome','Cargo','UF','Jornada','Admissão','CPF','RG','Nascimento','Gênero','Raça','E-mail','Status'];
+  var rows=COLL.filter(function(c){return c.status!=='excluido';}).map(function(c){
+    return [c.nome,c.cargo,c.uf||'DF',c.horas,c.admissao||'',c.cpf_imp||'',c.rg_imp||'',
+            c.nascimento||'',c.genero||'',c.raca||'',c.email_imp||'',c.status||'ativo'];
+  });
+  buildXLS(hdrs,rows,'cadastro_colaboradores');
+}
+
+function expCtrl(){
+  var hdrs=['Cargo','Descrição','Vagas','Ativos','Saldo'];
+  var rows=Object.entries(CD).map(function(e){
+    var k=e[0],d=e[1];
+    var cnt=COLL.filter(function(c){return c.cargo===k&&c.status!=='excluido';}).length;
+    return [k, d.label||k, d.vagas, cnt, d.vagas-cnt];
+  });
+  buildXLS(hdrs,rows,'controle_colaboradores');
+}
+
+function expDevice(){
+  var hdrs=['Nome','Cargo','CPF','Nº Celular','Possui Tablet','Data'];
+  var rows=DEVICE_DATA.map(function(e){
+    var col=COLL.find(function(c){return c.nome===e.nome;})||{};
+    return [e.nome,e.cargo||col.cargo||'—',e.cpf||'',e.num||'',e.possui_tablet||'',e.data||''];
+  });
+  buildXLS(hdrs,rows,'celular_tablet');
+}
+
+function expAniv(){
+  var hdrs=['Nome','Cargo','UF','Data Nascimento','Dia','Mês'];
+  var rows=COLL.filter(function(c){return c.nascimento;}).map(function(c){
+    var p=(c.nascimento||'').split('/');
+    return [c.nome,c.cargo,c.uf||'DF',c.nascimento,p[0]||'',p[1]||''];
+  }).sort(function(a,b){
+    return (parseInt(a[5])||0)-(parseInt(b[5])||0)||((parseInt(a[4])||0)-(parseInt(b[4])||0));
+  });
+  buildXLS(hdrs,rows,'aniversariantes');
+}
+
+function expTurno(){
+  var hdrs=['Data','Período','Rec. Dia','Atend. 15s','Rec. Mês','Atend. 15s Mês','Res. 2h','Total CH','Aband. Dia','Aband. Mês','Pendências','Responsável'];
+  var rows=Object.keys(TURNO_DATA).sort().map(function(k){
+    var r=TURNO_DATA[k],p=k.split('|');
+    return [p[0]||k,p[1]||'',r.ti_rec_dia||'',r.ti_atend15_dia||'',r.ti_rec_mes||'',
+            r.ti_atend15_mes||'',r.ti_res2h||'',r.ti_total_ch||'',r.ti_aband_dia||'',
+            r.ti_aband_mes||'',r.ti_pendencias||'',r.ti_responsavel||''];
+  });
+  buildXLS(hdrs,rows,'passagem_turno');
+}
+
+function expDocsAdmin(){
+  var hdrs=['Nome','Cargo','UF','Documentos Entregues','Total Reqs','% Conclusão','Observação'];
+  var rows=COLL.filter(function(c){return c.status!=='excluido';}).map(function(c){
+    var mat=DOC_MATRIX[c.nome]||{};
+    var reqs=((DOC_REQ_DATA&&DOC_REQ_DATA[c.cargo]&&DOC_REQ_DATA[c.cargo].requisitos)||[]);
+    var ok=reqs.filter(function(_,i){return mat[i]&&mat[i].ok;}).length;
+    var obs=(_docsPainel[c.nome]&&_docsPainel[c.nome].obs)||'';
+    var pct=reqs.length>0?Math.round(ok/reqs.length*100)+'%':'—';
+    return [c.nome,c.cargo,c.uf||'DF',ok,reqs.length,pct,obs];
+  });
+  buildXLS(hdrs,rows,'documentacao');
+}
+
+/* Fiscal exports */
+function expFiscalCad(){
+  var hdrs=['Nome','CPF','RG','Data Nasc.','Cor/Raça','E-mail','Dt. Admissão','Cargo','Jornada','UF','Status','Dt. Saída'];
+  var rows=COLL.filter(function(c){return c.status!=='excluido';}).map(function(c){
+    return [c.nome,c.cpf_imp||'',c.rg_imp||'',c.nascimento||'',c.raca||'',c.email_imp||'',
+            c.admissao||'',c.cargo,c.horas,c.uf||'DF',c.status||'ativo',c.saida||''];
+  });
+  buildXLS(hdrs,rows,'fiscal_cadastro');
+}
+
+function expFiscalGer(){
+  var mes=document.getElementById('fiscal-ger-mes')?.value||'Janeiro';
+  var ano=document.getElementById('fiscal-ger-ano')?.value||'2026';
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mIdx=meses.indexOf(mes);
+  var nDias=new Date(parseInt(ano),mIdx+1,0).getDate();
+  var dias=Array.from({length:nDias},function(_,i){return String(i+1).padStart(2,'0');});
+  var hdrs=['Colaborador','Cargo'].concat(dias.map(function(d){return 'Dia '+parseInt(d);})).concat(['Ocorrências']);
+  var rows=COLL.filter(function(c){return c.status!=='inativo';}).map(function(c){
+    var key=c.nome+'|'+mes+'|'+ano;
+    var rec=GER_DATA[key]||{};
+    var vals=dias.map(function(d){return rec[d]||'';});
+    var ocLines=[];
+    dias.forEach(function(d){
+      var arr=rec['oc_'+d];
+      if(!arr)return;
+      if(!Array.isArray(arr)){if(arr)ocLines.push('Dia '+parseInt(d)+': '+arr);return;}
+      arr.forEach(function(c2){if(c2&&c2.txt)ocLines.push('Dia '+parseInt(d)+': '+c2.txt);});
+    });
+    return [c.nome,c.cargo].concat(vals).concat([ocLines.join(' | ')]);
+  });
+  buildXLS(hdrs,rows,'fiscal_gerencial_'+mes+'_'+ano);
+}
+
+function expFiscalDev(){
+  var hdrs=['Nome','Cargo','Nº Celular','Possui Tablet','Data'];
+  var rows=DEVICE_DATA.map(function(e){
+    var col=COLL.find(function(c){return c.nome===e.nome;})||{};
+    return [e.nome,e.cargo||col.cargo||'—',e.num||'',e.possui_tablet||'',e.data||''];
+  });
+  buildXLS(hdrs,rows,'fiscal_celular_tablet');
+}
+
+function expFiscalMal(){
+  var hdrs=['Nome','Cargo','UF','Data','Itens OK','Total','Situação','Itens Faltantes','Obs.'];
+  var rows=MALETA_DATA.map(function(e){
+    var col=COLL.find(function(c){return c.nome===e.nome;})||{};
+    var ok=e.itensOK!==undefined?e.itensOK:(e.nOK||0);
+    var missing=e.missing?(Array.isArray(e.missing)?e.missing.join(', '):e.missing):'';
+    return [e.nome,e.cargo||col.cargo||'—',col.uf||e.uf||'DF',e.data||'',ok,e.total||0,e.situacao||'',missing,e.obs||''];
+  });
+  buildXLS(hdrs,rows,'fiscal_maleta');
+}
+
+function expFiscalAbo(){
+  var mes=document.getElementById('fiscal-abo-mes')?.value||'Junho';
+  var ano=document.getElementById('fiscal-abo-ano')?.value||'2026';
+  var hdrs=['Nome','Cargo','UF','Desktop','Internet','Celular/Tablet','Total'];
+  var rows=COLL.filter(function(c){return c.status!=='inativo';}).map(function(c){
+    var key=abonoKey(c.nome,mes,ano);
+    var d=ABONO_DATA[key]||{desktop:'R$ 0,00',internet:'R$ 0,00',celular:'R$ 0,00'};
+    var dv=parseFloat((d.desktop||'0').replace('R$','').replace(',','.'))||0;
+    var iv=parseFloat((d.internet||'0').replace('R$','').replace(',','.'))||0;
+    var cv=parseFloat((d.celular||'0').replace('R$','').replace(',','.'))||0;
+    return [c.nome,c.cargo,c.uf||'DF',d.desktop||'R$ 0,00',d.internet||'R$ 0,00',d.celular||'R$ 0,00','R$ '+(dv+iv+cv).toFixed(2).replace('.',',')];
+  });
+  buildXLS(hdrs,rows,'fiscal_abono_'+mes+'_'+ano);
+}
+
+function expFiscalDocs(){
+  var hdrs=['Nome','Cargo','UF','Entregues','Total','%','Status','Observação'];
+  var rows=COLL.filter(function(c){return c.status!=='inativo';}).map(function(c){
+    var mat=DOC_MATRIX[c.nome]||{};
+    var reqs=((DOC_REQ_DATA&&DOC_REQ_DATA[c.cargo]&&DOC_REQ_DATA[c.cargo].requisitos)||[]);
+    var ok=reqs.filter(function(_,i){return mat[i]&&mat[i].ok;}).length;
+    var pct=reqs.length>0?Math.round(ok/reqs.length*100)+'%':'—';
+    var obs=(_docsPainel[c.nome]&&_docsPainel[c.nome].obs)||'';
+    return [c.nome,c.cargo,c.uf||'DF',ok,reqs.length,pct,ok===reqs.length&&reqs.length>0?'Completo':'Pendente',obs];
+  });
+  buildXLS(hdrs,rows,'fiscal_documentacao');
+}
+
+
 function expFer(fmt){
   const {m,a,cargo}=getExpFilters('fer');
   let data=FERIAS;
@@ -5055,9 +5214,19 @@ function ferAcao(i,acao){
 }
 function rFerias(){
   const tbody=document.getElementById('fer-tbody');if(!tbody)return;tbody.innerHTML='';
-  FERIAS.forEach((f,idx)=>{
+  const fCargo=document.getElementById('fer-exp-cargo')?.value||'';
+  // Build cargo select if empty
+  const csel=document.getElementById('fer-exp-cargo');
+  if(csel&&csel.options.length<=1){
+    Object.keys(CD).sort().forEach(function(k){
+      var o=document.createElement('option');o.value=k;o.textContent=(CD[k]||{}).label||k;csel.appendChild(o);
+    });
+  }
+  const data = fCargo ? FERIAS.filter(f=>f.cargo===fCargo||(COLL.find(c=>c.nome===f.nome)?.cargo===fCargo)) : FERIAS;
+  data.forEach((f,idx)=>{
+    const realIdx=FERIAS.indexOf(f);
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:500;">${f.nome}</td><td><span class="bdg bi">${f.cargo}</span></td><td>${f.mes}/${f.ano}</td><td>${f.ini}</td><td>${f.fim}</td><td style="font-weight:600;color:var(--b800);">${f.dias}d</td><td>${f.vender?'<span class="bdg bw">Sim</span>':'Não'}</td><td>${f.status==="aprovado"?'<span style="background:#d1fae5;color:#065f46;font-size:9px;padding:2px 6px;border-radius:4px;">✅ Aprovado</span>':f.status==="pendente"?'<span style="background:#fef3c7;color:#92400e;font-size:9px;padding:2px 6px;border-radius:4px;">⚠ Pendente'+(f.motivo_pend?' — '+f.motivo_pend.substring(0,18):'')+'</span>':'<span style="background:#f1f5f9;color:#64748b;font-size:9px;padding:2px 6px;border-radius:4px;">📋 Solicitado</span>'}</td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="ferAcao(${idx},'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="ferAcao(${idx},'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){FERIAS.splice(${idx},1);rFerias();refreshGeral();saveAll()}">🗑</button></td>`;
+    tr.innerHTML=`<td style="font-weight:500;">${f.nome}</td><td><span class="bdg bi">${f.cargo}</span></td><td>${f.mes}/${f.ano}</td><td>${f.ini}</td><td>${f.fim}</td><td style="font-weight:600;color:var(--b800);">${f.dias}d</td><td>${f.vender?'<span class="bdg bw">Sim</span>':'Não'}</td><td>${f.status==="aprovado"?'<span style="background:#d1fae5;color:#065f46;font-size:9px;padding:2px 6px;border-radius:4px;">✅ Aprovado</span>':f.status==="pendente"?'<span style="background:#fef3c7;color:#92400e;font-size:9px;padding:2px 6px;border-radius:4px;">⚠ Pendente'+(f.motivo_pend?' — '+f.motivo_pend.substring(0,18):'')+'</span>':'<span style="background:#f1f5f9;color:#64748b;font-size:9px;padding:2px 6px;border-radius:4px;">📋 Solicitado</span>'}</td><td style="white-space:nowrap;"><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="ferAcao(${realIdx},'aprovado')">✓ OK</button><button class="btn bs" style="font-size:9px;padding:3px 7px;background:var(--a50);border-color:var(--a600);color:var(--a600);margin-right:2px;" onclick="ferAcao(${realIdx},'pendente')">⚠ Pend.</button><button class="btn bs" style="font-size:9px;padding:2px 5px;" onclick="if(confirm('Remover?')){FERIAS.splice(${realIdx},1);rFerias();refreshGeral();saveAll()}">🗑</button></td>`;
     tbody.appendChild(tr);
   });
   const total=FERIAS.reduce((a,f)=>a+f.dias,0);
@@ -8219,15 +8388,17 @@ function subDevice(){
       +'<button class="btn bp" style="font-size:10px;" onclick="window.print()">🖨️ Imprimir</button>'
       +'</div>'
       +'<div style="font-size:12px;line-height:1.8;color:#1a1a18;white-space:pre-wrap;font-family:Georgia,serif;padding:.5rem;">'+termo+'</div>'
-      +'<div style="margin-top:1.25rem;background:#eff6ff;border:.5px solid #bfdbfe;border-radius:8px;padding:.875rem 1rem;font-size:11px;color:#1e40af;line-height:1.7;">'
+      +'<div style="margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--brd);">'
+      +'<div style="font-size:11px;color:var(--muted);">Local e data: ___________________________________  /  _____ / _____</div>'
+      +'<div style="margin-top:1.5rem;font-size:11px;">___________________________________________</div>'
+      +'<div style="font-size:10px;color:var(--muted);margin-bottom:1.5rem;">Assinatura do(a) Colaborador(a)</div>'
+      +'</div>'
+      +'<div style="background:#eff6ff;border:.5px solid #bfdbfe;border-radius:8px;padding:.875rem 1rem;font-size:11px;color:#1e40af;line-height:1.7;margin-top:.5rem;">'
       +'<div style="font-weight:700;margin-bottom:.375rem;">📋 Instruções para envio:</div>'
       +'<div>1. Imprima este documento, assine e digitalize <strong>ou</strong> assine digitalmente através do <strong>Gov.br</strong>.</div>'
       +'<div style="margin-top:.25rem;">2. Após assinar, anexe o documento assinado no formulário oficial:</div>'
       +'<div style="margin-top:.5rem;"><a href="https://forms.office.com/r/jP8r02eu6L" target="_blank" style="display:inline-flex;align-items:center;gap:.375rem;background:#1d4ed8;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-weight:700;font-size:11px;">📎 Formulário de Controle de Tablets e Celulares</a></div>'
       +'</div>'
-      +'<div style="font-size:11px;color:var(--muted);">Local e data: ___________________________________  /  _____ / _____</div>'
-      +'<div style="margin-top:1.5rem;font-size:11px;">___________________________________________</div>'
-      +'<div style="font-size:10px;color:var(--muted);">Assinatura do(a) Colaborador(a)</div>'
       +'</div>'
       +'</div>';
   }
@@ -8236,18 +8407,22 @@ function subDevice(){
 
 function gerarTermoDevice(nome, cpf, possuiTablet){
   var nl='\n\n';
+  var obs=nl+'Observação: Este termo tem caráter vinculativo e integra as condições de trabalho estabelecidas entre colaborador e empresa.';
+  var header='Eu, '+nome+', inscrito(a) no CPF nº '+cpf+', declaro para os devidos fins que:'+nl;
   if(possuiTablet === 'Sim'){
-    return 'Eu, '+nome+', inscrito(a) no CPF nº '+cpf+', declaro para os devidos fins que:'+nl
-      +'1. Estou ciente de que, conforme previsto no edital e informado no início do contrato, cada colaborador deve possuir um celular e um tablet para utilização durante suas atividades laborais.'+nl
-      +'2. Declaro que possuo o tablet necessário para execução das minhas funções e que o mesmo será utilizado exclusivamente durante o expediente de trabalho.'+nl
-      +'3. Estou ciente de que a empresa realizará o depósito mensal no valor de R$ 95,00 (noventa e cinco reais) referente ao aluguel do celular e do tablet, conforme estabelecido.'+nl
-      +'4. Comprometo-me a manter o equipamento em condições adequadas de uso e disponível para o desempenho das atividades profissionais.';
+    return header
+      +'1. Declaro estar ciente de que, conforme previsto no edital e informado no início do contrato, cada colaborador deve possuir um celular e um tablet para utilização durante suas atividades laborais.'+nl
+      +'2. Declaro que possuo o tablet necessário para a execução das minhas funções e que o mesmo será utilizado exclusivamente durante o expediente de trabalho.'+nl
+      +'3. Estou ciente de que a empresa realizará o depósito mensal no valor de R$ 95,00 (noventa e cinco reais), referente ao aluguel do celular e do tablet, conforme estabelecido.'+nl
+      +'4. Comprometo-me a manter os equipamentos em condições adequadas de uso e disponíveis para o desempenho das atividades profissionais.'+nl
+      +'5. Declaro estar de acordo com os termos acima e assumo integral responsabilidade pelo cumprimento das obrigações aqui descritas.'+obs;
   } else {
-    return 'Eu, '+nome+', inscrito(a) no CPF nº '+cpf+', declaro para os devidos fins que:'+nl
-      +'1. Estou ciente de que, conforme previsto no edital e informado no início do contrato, cada colaborador deve possuir um celular e um tablet para utilização durante suas atividades laborais.'+nl
-      +'2. Estou ciente de que, para a execução das minhas funções, é necessário adquirir um tablet o mais breve possível, comprometendo-me a providenciar o equipamento para uso exclusivo durante o expediente de trabalho.'+nl
-      +'3. Estou ciente de que a empresa realizará o depósito mensal no valor de R$ 95,00 (noventa e cinco reais) referente ao aluguel do celular e do tablet, conforme estabelecido.'+nl
-      +'4. Comprometo-me a manter o equipamento em condições adequadas de uso e disponível para o desempenho das atividades profissionais.';
+    return header
+      +'1. Declaro estar ciente de que, conforme previsto no edital e informado no início do contrato, cada colaborador deve possuir um celular e um tablet para utilização durante suas atividades laborais.'+nl
+      +'2. Comprometo-me a adquirir, até o final do mês de junho, um tablet destinado exclusivamente ao uso durante o expediente de trabalho, reconhecendo sua necessidade para a execução das minhas funções.'+nl
+      +'3. Estou ciente de que a empresa realizará o depósito mensal no valor de R$ 95,00 (noventa e cinco reais), referente ao aluguel do celular e do tablet, conforme estabelecido.'+nl
+      +'4. Comprometo-me a manter os equipamentos em condições adequadas de uso e disponíveis para o desempenho das atividades profissionais.'+nl
+      +'5. Declaro estar de acordo com os termos acima e assumo integral responsabilidade pelo cumprimento das obrigações aqui descritas.'+obs;
   }
 }
 
@@ -10420,6 +10595,7 @@ function expFeedback() {
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
     <input type="text" id="fiscal-busca" placeholder="🔍 Buscar por nome..." oninput="rFiscalCad()" style="font-size:11px;padding:5px 10px;border:.5px solid #e2e8f0;border-radius:6px;width:220px;">
     <select id="fiscal-fil-cargo" onchange="rFiscalCad()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;max-width:200px;"><option value="">Todos os cargos</option></select>
+    <button class="btn" onclick="expFiscalCad()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-cad-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10453,7 +10629,7 @@ function expFeedback() {
     <span style="background:#F1EFE8;color:#5F5E5A;padding:2px 8px;border-radius:4px;font-weight:700;">DS Descanso</span>
     <span style="background:#EEEDFE;color:#534AB7;padding:2px 8px;border-radius:4px;font-weight:700;">OC Ocorrência</span>
   </div>
-  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;"><button class="btn" onclick="expFiscalGer()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <select id="fiscal-ger-mes" onchange="rFiscalGer()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
       <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option>
       <option>Maio</option><option selected>Junho</option><option>Julho</option><option>Agosto</option>
@@ -10471,6 +10647,7 @@ function expFeedback() {
 <div id="fiscal-pane-dev" style="display:none;padding:1rem;">
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
     <input type="text" id="fiscal-dev-busca" placeholder="🔍 Nome..." oninput="rFiscalDev()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:200px;">
+    <button class="btn" onclick="expFiscalDev()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-dev-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10490,6 +10667,7 @@ function expFeedback() {
 <div id="fiscal-pane-mal" style="display:none;padding:1rem;">
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
     <input type="text" id="fiscal-mal-busca" placeholder="🔍 Nome..." oninput="rFiscalMal()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:180px;">
+    <button class="btn" onclick="expFiscalMal()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-mal-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10517,6 +10695,7 @@ function expFeedback() {
     <select id="fiscal-docs-status" onchange="rFiscalDocs()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
       <option value="">Todos</option><option value="completo">✅ Completo</option><option value="pendente">⚠ Pendente</option>
     </select>
+    <button class="btn" onclick="expFiscalDocs()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-docs-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10546,6 +10725,7 @@ function expFeedback() {
     <select id="fiscal-abo-ano" onchange="rFiscalAbo()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
       <option>2025</option><option selected>2026</option><option>2027</option>
     </select>
+    <button class="btn" onclick="expFiscalAbo()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-abo-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
