@@ -538,6 +538,7 @@ body.collab #btn-voltar-form { display: flex !important; }
             if(_lastSavedAt===null){ _lastSavedAt=savedAt; _fbStatus('Ativo ●','ok'); return; }
             if(savedAt && savedAt!==_lastSavedAt){
               _lastSavedAt = savedAt;
+              if(window._skipNextFbCallback){ _fbStatus('Ativo ●','ok'); return; }
               _fbStatus('Atualizando...','ok');
               // Full load to get payload
               window._fbLoad().then(function(data){
@@ -7379,36 +7380,19 @@ setInterval(function(){
     var ts = (_ls.getItem(STORE_KEY+'_sync'))||'0';
     var changed = (ts !== _lastSyncTs);
     if(changed) _lastSyncTs = ts;
-    if(role === 'fiscal'){
-      // Fiscal: sempre lê direto do localStorage (não depende de evento)
-      try{
-        var raw=_ls.getItem(STORE_KEY);
-        if(raw){
-          var d=JSON.parse(raw);
-          if(d.ABONO_DATA){Object.keys(ABONO_DATA).forEach(function(k){delete ABONO_DATA[k];});Object.assign(ABONO_DATA,d.ABONO_DATA);}
-          if(d.GER_DATA){Object.keys(GER_DATA).forEach(function(k){delete GER_DATA[k];});Object.assign(GER_DATA,d.GER_DATA);}
-          if(d.COLL&&Array.isArray(d.COLL))COLL.splice(0,COLL.length,...d.COLL);
-          if(d.MALETA_DATA)MALETA_DATA.splice(0,MALETA_DATA.length,...d.MALETA_DATA);
-          if(d.DEVICE_DATA)DEVICE_DATA.splice(0,DEVICE_DATA.length,...d.DEVICE_DATA);
-          if(d.DOC_MATRIX){Object.keys(DOC_MATRIX).forEach(function(k){delete DOC_MATRIX[k];});Object.assign(DOC_MATRIX,d.DOC_MATRIX);}
-          if(d._docsPainel){Object.keys(_docsPainel).forEach(function(k){delete _docsPainel[k];});Object.assign(_docsPainel,d._docsPainel);}
-        }
-      }catch(ex){}
       if(changed){
-        try{ rFiscalCad(); }catch(e){}
-        try{ rFiscalGer(); }catch(e){}
-        try{ rFiscalAbo(); }catch(e){}
-        try{ rFiscalMal(); }catch(e){}
-        try{ rFiscalDev(); }catch(e){}
-        try{ rFiscalDocs(); }catch(e){}
+      try{ loadAll(); }catch(e){}
+      try{ _refreshUI(); }catch(e){
+        // _refreshUI may not be defined yet if user is not logged in
+        var role2=document.body.getAttribute('data-role')||'';
+        if(role2==='fiscal'){
+          try{rFiscalCad();}catch(ex){} try{rFiscalGer();}catch(ex){} try{rFiscalAbo();}catch(ex){}
+          try{rFiscalMal();}catch(ex){} try{rFiscalDev();}catch(ex){} try{rFiscalDocs();}catch(ex){}
+        } else {
+          try{refreshDash();}catch(ex){} try{refreshGeral();}catch(ex){}
+          try{rAbono();}catch(ex){} try{rMaleta();}catch(ex){}
+        }
       }
-    } else if(changed){
-      loadAll();
-      try{ refreshDash(); }catch(e){}
-      try{ refreshGeral(); }catch(e){}
-      try{ refreshTelCard(); }catch(e){}
-      try{ rAbono(); }catch(e){}
-      try{ rMaleta(); }catch(e){}
     }
   }catch(ex){}
 }, 3000);
@@ -8714,34 +8698,29 @@ function doLogin(){
       _initPortal();
       setTimeout(function(){ toast('Bem-vindo, '+found.nome+'!','ok'); }, 100);
     });
-    // Firebase background sync
+    // Firebase background sync — definitive
+    function _refreshUI(){
+      var role=document.body.getAttribute('data-role')||'';
+      if(role==='fiscal'){
+        try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
+        try{rFiscalMal();}catch(e){} try{rFiscalDev();}catch(e){} try{rFiscalDocs();}catch(e){}
+      } else {
+        try{refreshDash();}catch(e){} try{refreshGeral();}catch(e){}
+        try{refreshTelCard();}catch(e){} try{rAbono();}catch(e){} try{rMaleta();}catch(e){}
+        try{rCtrl();}catch(e){}
+      }
+    }
     function _startLoginFbSync(){
       if(!window._fbListen) return;
       try{ window._fbStatus('Conectando...',''); }catch(e){}
+      // _fbListen callback is called ONLY when savedAt changes in Firestore
       window._fbListen(function(fbdata){
+        if(!fbdata || typeof fbdata!=='object' || !fbdata.COLL || !fbdata.COLL.length) return;
         try{
-          if(fbdata && typeof fbdata==='object' && fbdata.COLL && fbdata.COLL.length>0){
-            // Check if Firebase data is newer than our local data
-            var fbSavedAt = fbdata._savedAt ? new Date(fbdata._savedAt).getTime() : 0;
-            var lsRaw = _ls.getItem(STORE_KEY);
-            var lsData = lsRaw ? JSON.parse(lsRaw) : null;
-            var lsSavedAt = lsData && lsData._savedAt ? new Date(lsData._savedAt).getTime() : 0;
-            // Only apply if Firebase data is newer (someone else saved it)
-            // Add 2s tolerance to avoid applying our own just-saved data
-            if(fbSavedAt > lsSavedAt + 2000 || lsSavedAt === 0){
-              _applyData(fbdata);
-              // _applyData already saves to localStorage and updates _sync
-            }
-          }
-        }catch(e){}
-        var role=document.body.getAttribute('data-role')||'';
-        if(role==='fiscal'){
-          try{rFiscalCad();}catch(e){} try{rFiscalGer();}catch(e){} try{rFiscalAbo();}catch(e){}
-          try{rFiscalMal();}catch(e){} try{rFiscalDev();}catch(e){} try{rFiscalDocs();}catch(e){}
-        } else {
-          try{refreshDash();}catch(e){} try{refreshGeral();}catch(e){}
-          try{refreshTelCard();}catch(e){} try{rAbono();}catch(e){} try{rMaleta();}catch(e){}
-        }
+          // Apply and refresh — the listener only fires when remote data actually changed
+          _applyData(fbdata);
+          _refreshUI();
+        }catch(e){ console.warn('[FB sync] error:', e); }
       });
     }
     if(window._fbReady){ _startLoginFbSync(); }
