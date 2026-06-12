@@ -497,20 +497,32 @@ body.collab #btn-voltar-form { display: flex !important; }
       _fbStatus('Salvando...','');
       try{
         var json = JSON.stringify(data);
+        // Check size — Firestore stringValue limit is ~1MB
+        if(json.length > 900000){
+          // Strip large binary fields (signatures, etc.) to reduce size
+          var slim = JSON.parse(json);
+          if(slim.MALETA_DATA) slim.MALETA_DATA = slim.MALETA_DATA.map(function(m){
+            return Object.assign({},m,{assinatura:null,assinatura_tec:null,assinatura_repr:null,anexo:null});
+          });
+          if(slim.ATES_DATA) slim.ATES_DATA = slim.ATES_DATA.map(function(a){
+            return Object.assign({},a,{arquivo:null,fileData:null});
+          });
+          json = JSON.stringify(slim);
+        }
         var ver = Date.now().toString();
         var body = JSON.stringify({fields:{
           payload:{stringValue: json},
           savedAt:{stringValue: new Date().toISOString()},
           ver:{stringValue: ver}
         }});
-        _fbOwnSaveVer = ver; // remember our version to skip in listener
+        _fbOwnSaveVer = ver;
         return fetch(DOC_URL+'?key='+API_KEY+'&updateMask.fieldPaths=payload&updateMask.fieldPaths=savedAt&updateMask.fieldPaths=ver',{
           method:'PATCH', headers:{'Content-Type':'application/json'}, body:body
         }).then(function(r){
-          if(!r.ok) return r.text().then(function(t){ throw new Error(r.status+': '+t.slice(0,100)); });
+          if(!r.ok) return r.text().then(function(t){ throw new Error(r.status+': '+t.slice(0,200)); });
           _fbStatus('Salvo ✓','ok');
           setTimeout(function(){ _fbStatus('Ativo ●','ok'); },2000);
-        }).catch(function(e){ _fbStatus('Erro','err'); console.warn('[FB] save error:',e); });
+        }).catch(function(e){ _fbStatus('Erro: '+e.message.slice(0,30),'err'); console.warn('[FB] save error:',e); });
       }catch(e){ _fbStatus('Erro','err'); console.warn('[FB] save exception:',e); return Promise.reject(e); }
     };
 
@@ -2229,7 +2241,7 @@ t>
     <div class="tw"><table>
       <thead><tr>
         <th>Data</th><th>Colaborador</th><th>Cargo</th><th>UF</th>
-        <th>Itens ✓</th><th>Total</th><th>Situação</th><th>Itens Faltantes</th><th>Obs.</th><th>Anexo Assinado</th><th>Status</th><th>Ação</th>
+        <th>Itens ✓</th><th>Total</th><th>Situação</th><th>Itens Faltantes</th><th>Obs.</th><th>Representante TCU</th><th>Status</th><th>Ação</th>
       </tr></thead>
       <tbody id="mal-tbody"></tbody>
     </table></div>
@@ -7294,7 +7306,7 @@ function enviarAnivEmail(nome, email){
 
 /* ═══ PERSIST (localStorage) ═══ */
 const STORE_KEY = 'hepta_portal_data';
-const STORE_VER = '2026-06-v6';
+const STORE_VER = '2026-06-v7';
 
 // ── Auto-restore: if localStorage is empty but sessionStorage has data, restore it ──
 (function(){
@@ -7408,15 +7420,14 @@ function _applyData(d){
   // ── Score incoming data vs current data ──
   // Only replace arrays if incoming has MORE entries (never downgrade)
   function mergeArr(current, incoming){
-    // Full replace — Firebase is source of truth
     if(!incoming || !Array.isArray(incoming)) return;
-    current.splice(0, current.length, ...incoming);
+    // Only replace if incoming is non-empty
+    if(incoming.length > 0) current.splice(0, current.length, ...incoming);
   }
 
   function mergeObj(current, incoming){
     if(!incoming || typeof incoming !== 'object') return;
-    // Full replace object keys
-    Object.keys(current).forEach(function(k){ delete current[k]; });
+    // Add/update keys from incoming — never delete existing keys
     Object.keys(incoming).forEach(function(k){ current[k] = incoming[k]; });
   }
 
@@ -9513,15 +9524,7 @@ function rMaleta(){
       +'<td><span class="bdg '+sc+'">'+r.situacao+'</span></td>'
       +'<td style="font-size:10px;max-width:200px;white-space:normal;">'+missTxt+'</td>'
       +'<td style="font-size:10px;max-width:160px;">'+r.obs+'</td>'
-      +'<td style="white-space:nowrap;">'
-        +(r.anexo
-          ?'<button class="btn bs" style="font-size:9px;padding:2px 7px;background:var(--g50);border-color:var(--g600);color:var(--g600);margin-right:2px;" onclick="malVerAnexo('+idx+')">👁 Ver</button>'
-           +'<span style="font-size:9px;color:var(--g600);display:block;margin-top:1px;">'+r.anexo.nome.substring(0,18)+'</span>'
-          :'<label style="cursor:pointer;">'
-            +'<span class="btn bs" style="font-size:9px;padding:2px 8px;background:var(--b50);border-color:var(--b600);color:var(--b600);">📎 Anexar</span>'
-            +'<input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="malUploadAnexo('+idx+',this)">'
-          +'</label>')
-      +'</td>'
+      +'<td style="font-size:10px;">'+(r.reprNome||'—')+'</td>'
       +'<td><span class="bdg '+ac+'">'+atxt+'</span></td>'
       +'<td style="white-space:nowrap;">'
         +'<button class="btn bs" style="font-size:9px;padding:2px 7px;background:var(--pu50);border-color:var(--pu600);color:var(--pu600);margin-right:2px;" onclick="gerarTermoPDF('+idx+')">📄 Termo</button>'
@@ -9595,8 +9598,10 @@ function malVerAnexo(idx){
 }
 
 // ── Generate PDF Term (print window) ──
-function gerarTermoPDF(idx){
-  var r=MALETA_DATA[idx];
+function gerarTermoPDF(idx, entryId){
+  var r = entryId
+    ? MALETA_DATA.find(function(m){ return m.id == entryId; })
+    : MALETA_DATA[idx];
   if(!r){toast('Registro não encontrado.','warn');return;}
   var cargo=(CD[r.cargo]||{}).label||r.cargo||'—';
   var colEntry=COLL.find(function(c){return c.nome===r.nome;})||{};
@@ -9694,19 +9699,21 @@ function gerarTermoPDF(idx){
     // Signatures
     +'<div class="sig-area">'
       +'<div class="sig-box">'
-        +reprSigHtml
-        +'<div class="sig-label">'+(r.reprNome||'Representante TCU')+'<br><span style="font-size:8pt;color:#666;">Representante do TCU / '+colUF+'</span></div>'
+        +(r.assinatura_tec?'<img src="'+r.assinatura_tec+'" style="height:70px;max-width:100%;border-radius:4px;" alt="Assinatura Técnico">':'<div style="width:100%;height:70px;border-bottom:2px solid #333;"></div>')
+        +'<div class="sig-label">'+r.nome+'<br><span style="font-size:8pt;color:#666;">Assinatura do Colaborador Técnico</span></div>'
       +'</div>'
       +'<div class="sig-box">'
-        +sigHtml
-        +'<div class="sig-label">'+r.nome+'<br><span style="font-size:8pt;color:#666;">Colaborador Técnico</span></div>'
+        +(r.assinatura_repr?'<img src="'+r.assinatura_repr+'" style="height:70px;max-width:100%;border-radius:4px;" alt="Assinatura Representante">':'<div style="width:100%;height:70px;border-bottom:2px solid #333;"></div>')
+        +'<div class="sig-label">'+(r.reprNome||'_________________________________')+'<br><span style="font-size:8pt;color:#666;">Assinatura do Representante TCU / '+colUF+'</span></div>'
       +'</div>'
     +'</div>'
     +localDataStr
-      +'<div class="sig-box">'
-        +'<div style="width:280px;height:60px;border-bottom:2px solid #333;margin:0 auto;"></div>'
-        +'<div class="sig-label">Gestor Responsável<br><span style="font-size:8pt;color:#666;">T&S Engenharia</span></div>'
-      +'</div>'
+
+    +'<div style="margin-top:1.5rem;background:#eff6ff;border:.5px solid #bfdbfe;border-radius:8px;padding:.875rem 1rem;font-size:10pt;color:#1e40af;line-height:1.7;">'
+      +'<div style="font-weight:700;margin-bottom:.375rem;">📋 Instruções para envio:</div>'
+      +'<div>1. Imprima este documento, assine e digitalize <strong>ou</strong> assine digitalmente através do <strong>Gov.br</strong>.</div>'
+      +'<div style="margin-top:.375rem;">2. Após assinar, anexe o documento assinado no formulário oficial:</div>'
+      +'<div style="margin-top:.5rem;"><a href="https://forms.office.com/r/Cu0gApdQyQ" target="_blank" style="display:inline-flex;align-items:center;gap:.375rem;background:#1d4ed8;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-weight:700;font-size:10pt;">📎 Maleta de Ferramenta — Preencher o formulário</a></div>'
     +'</div>'
 
     +'<div style="margin-top:1.5rem;text-align:center;font-size:8pt;color:#999;">'
@@ -9807,20 +9814,6 @@ function openMaletaCollabForm(){
         +'style="width:100%;padding:10px;border:.5px solid #ddd;border-radius:8px;font-family:inherit;font-size:12px;resize:vertical;"></textarea>'
     +'</div>'
 
-    // Step 4: Signature
-    +'<div class="card" style="margin-bottom:1rem;">'
-      +'<div style="font-size:13px;font-weight:700;color:#042C53;margin-bottom:.625rem;">✍️ Assinatura Digital</div>'
-      +'<p style="font-size:11px;color:#666;margin-bottom:.75rem;">Assine no espaço abaixo com o mouse ou dedo (toque).</p>'
-      +'<div style="border:2px dashed #B5D4F4;border-radius:10px;overflow:hidden;background:#f8fbff;position:relative;">'
-        +'<canvas id="mc-sig-canvas" width="600" height="140" '
-          +'style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>'
-        +'<div id="mc-sig-hint" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;color:#aaa;pointer-events:none;">Clique e arraste para assinar</div>'
-      +'</div>'
-      +'<div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:.5rem;">'
-        +'<button onclick="mcClearSig()" style="font-size:10px;padding:3px 10px;background:#faeeda;color:#854F0B;border:1px solid #854F0B;border-radius:5px;cursor:pointer;">✕ Limpar Assinatura</button>'
-      +'</div>'
-    +'</div>'
-
     // Submit
     +'<div class="card" style="background:var(--b50);border-color:var(--b100);">'
       +'<p style="font-size:11px;color:#185FA5;margin-bottom:.75rem;">Ao confirmar, você declara que recebeu os itens marcados acima e se compromete a zelar pelos equipamentos.</p>'
@@ -9837,7 +9830,7 @@ function openMaletaCollabForm(){
   if(mc){var t=new Date();var pad=function(n){return String(n).padStart(2,'0');};mc.value=t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());}
 
   // Init signature canvas
-  setTimeout(function(){mcInitSig();},100);
+  setTimeout(function(){ mcInitSig(); }, 100);
 }
 
 function mcItemDesc(id){
@@ -9910,6 +9903,50 @@ function mcGetSigData(){
   return cv.toDataURL('image/png');
 }
 
+// Generic canvas init for técnico / representante
+var _mcSigState={};
+function mcInitSigCanvas(canvasId, hintId, isFirst){
+  var cv=document.getElementById(canvasId);
+  if(!cv)return;
+  var hint=document.getElementById(hintId);
+  var state={drawing:false,has:false};
+  _mcSigState[canvasId]=state;
+  var ctx=cv.getContext('2d');
+  ctx.strokeStyle='#042C53';ctx.lineWidth=2;ctx.lineCap='round';
+  function getPos(e){
+    var r=cv.getBoundingClientRect();
+    var src=e.touches?e.touches[0]:e;
+    return {x:(src.clientX-r.left)*(cv.width/r.width),y:(src.clientY-r.top)*(cv.height/r.height)};
+  }
+  function start(e){e.preventDefault();state.drawing=true;var p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);}
+  function move(e){e.preventDefault();if(!state.drawing)return;var p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();state.has=true;if(hint)hint.style.display='none';}
+  function stop(){state.drawing=false;}
+  cv.addEventListener('mousedown',start);cv.addEventListener('mousemove',move);cv.addEventListener('mouseup',stop);cv.addEventListener('mouseleave',stop);
+  cv.addEventListener('touchstart',start,{passive:false});cv.addEventListener('touchmove',move,{passive:false});cv.addEventListener('touchend',stop);
+}
+function mcClearSigTec(){
+  var cv=document.getElementById('mc-sig-tec');
+  if(cv){cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}
+  if(_mcSigState['mc-sig-tec'])_mcSigState['mc-sig-tec'].has=false;
+  var h=document.getElementById('mc-sig-tec-hint');if(h)h.style.display='';
+}
+function mcClearSigRepr(){
+  var cv=document.getElementById('mc-sig-repr');
+  if(cv){cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}
+  if(_mcSigState['mc-sig-repr'])_mcSigState['mc-sig-repr'].has=false;
+  var h=document.getElementById('mc-sig-repr-hint');if(h)h.style.display='';
+}
+function mcGetSigTec(){
+  var cv=document.getElementById('mc-sig-tec');
+  var s=_mcSigState['mc-sig-tec'];
+  return(cv&&s&&s.has)?cv.toDataURL('image/png'):null;
+}
+function mcGetSigRepr(){
+  var cv=document.getElementById('mc-sig-repr');
+  var s=_mcSigState['mc-sig-repr'];
+  return(cv&&s&&s.has)?cv.toDataURL('image/png'):null;
+}
+
 function mcSubmit(){
   var nome =document.getElementById('mc_nome')?.value;
   var cargo=document.getElementById('mc_cargo')?.value;
@@ -9919,9 +9956,7 @@ function mcSubmit(){
   var obs  =(document.getElementById('mc_obs')?.value||'').trim();
   if(!nome||!data){toast('Preencha seu nome e a data.','warn');return;}
 
-  var sigData=mcGetSigData();
-  if(!sigData){toast('Por favor, assine no campo de assinatura antes de confirmar.','warn');return;}
-
+  var sigData=null; // assinatura será no termo impresso
   var checked=[],missing=[];
   MAL_ITENS.forEach(function(it,i){
     var el=document.getElementById('mc_i'+(i+1));
@@ -9938,7 +9973,7 @@ function mcSubmit(){
     id:Date.now(),nome:nome,cargo:cargo||'—',data:dataFmt,mes:mesNome,ano:parts[0],
     num:num||'—',uf:num||'—',reprNome:reprNome,itensOK:nOK,total:MAL_ITENS.length,situacao:situacao,
     checked:checked,missing:missing,obs:obs||'—',status:'Registrado',acao:'aguardando',
-    assinatura:sigData,anexo:null
+    assinatura:sigData, anexo:null
   };
   MALETA_DATA.push(entry);
   saveAll();
@@ -9957,8 +9992,13 @@ function mcSubmit(){
         +'<strong>'+nome+'</strong> — '+cargo+'<br>'
         +'Maleta: '+(num||'—')+' | '+nOK+'/'+MAL_ITENS.length+' itens | '+dataFmt
       +'</div>'
-      +'<button onclick="gerarTermoPDF('+newIdx+')" style="background:#042C53;color:#fff;border:none;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-bottom:.75rem;">📄 Gerar PDF do Termo de Recebimento</button>'
-      +'<p style="font-size:11px;color:#999;">Após imprimir/salvar o PDF, envie o arquivo ao gestor para anexar ao portal.</p>'
+      +'<button onclick="gerarTermoPDF(null,'+entry.id+')" style="background:#042C53;color:#fff;border:none;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-bottom:.75rem;">📄 Gerar PDF do Termo de Recebimento</button>'
+      +'<div style="background:#eff6ff;border:.5px solid #bfdbfe;border-radius:10px;padding:1rem;margin-top:1rem;text-align:left;font-size:12px;color:#1e40af;line-height:1.8;">'
+        +'<div style="font-weight:700;margin-bottom:.375rem;">📋 Instruções para envio:</div>'
+        +'<div>1. Gere o PDF, imprima e assine — ou assine digitalmente pelo <strong>Gov.br</strong>.</div>'
+        +'<div>2. Após assinar, anexe o documento no formulário oficial:</div>'
+        +'<div style="margin-top:.5rem;"><a href="https://forms.office.com/r/Cu0gApdQyQ" target="_blank" style="display:inline-flex;align-items:center;gap:.375rem;background:#1d4ed8;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-weight:700;font-size:11px;">📎 Maleta de Ferramenta — Preencher o formulário</a></div>'
+      +'</div>'
       +'</div>';
   }
 }
