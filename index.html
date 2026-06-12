@@ -1088,7 +1088,7 @@ t>
         <div class="va"><button class="bv" id="bv1" onclick="valP(1)">✓ Validar e liberar Fase 2</button><button class="br2" onclick="rejP(1)">✗ Solicitar correção</button></div>
         <div class="vst" id="vs1">✓ Fase 1 validada — Fase 2 liberada</div>
       </div>
-      <div class="brow g-only"><button class="btn bs" onclick="gp(5)">📊 Dashboard</button><button class="btn bp" onclick="gp(2)">Próximo → Termos de Acesso</button><span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="exportCSV('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="exportCSV('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span></div>
+      <div class="brow g-only"><button class="btn bs" onclick="gp(5)">📊 Dashboard</button><button class="btn bp" onclick="gp(2)">Próximo → Termos de Acesso</button><span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="exportCSV('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="exportCSV('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span></div>
     </div>
 
     <!-- ── P3: Termos ── -->
@@ -1190,7 +1190,7 @@ t>
           <div class="ctitle" style="margin:0;">Painel de Acesso ao Sistema Contratante</div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
             <input type="text" id="acesso-busca" placeholder="🔍 Buscar colaborador..." oninput="rAcesso()" style="font-size:11px;padding:5px 9px;border:.5px solid var(--brd);border-radius:var(--rad);width:220px;">
-            <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expAcesso('xls')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-right:.5px solid var(--b600);border-radius:0;cursor:pointer;font-weight:600;">⬇ XLS</button><button class="btn" onclick="expAcesso('pdf')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-radius:0;cursor:pointer;font-weight:600;">📄 PDF</button></span>
+            <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expAcesso('xls')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-right:.5px solid var(--b600);border-radius:0;cursor:pointer;font-weight:600;">⬇ XLS</button><button class="btn g-only" onclick="expAcesso('pdf')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-radius:0;cursor:pointer;font-weight:600;">📄 PDF</button></span>
           </div>
         </div>
         <div class="tw">
@@ -1298,7 +1298,7 @@ t>
 ════════════════════════════════════════════════════ -->
 <div class="page" id="pg-ctrl">
 <div class="dash-page">
-  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--b50);">👥</div>Controle de Colaboradores<button class="btn" onclick="expCad()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
+  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--b50);">👥</div>Controle de Colaboradores<button class="btn g-only" onclick="expCad()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
   <div class="srow">
     <div class="sc"><div class="sl">Total colaboradores</div><div class="sv" id="ct-tot">—</div></div>
     <div class="sc"><div class="sl">Folha mensal total</div><div class="sv" style="font-size:14px;color:var(--g600);" id="ct-fol">—</div></div>
@@ -1428,7 +1428,7 @@ t>
 <option>2028</option>
 <option>2029</option>
           </select>
-          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expPausas('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expPausas('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
+          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expPausas('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="expPausas('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div>
       </div>
       <div class="tw"><table><thead><tr><th>Colaborador</th><th>Data</th><th>Tipo</th><th>Horário</th><th>Detalhes</th><th>Status</th><th>Ação da Gestão</th></tr></thead><tbody id="pau-tbody"></tbody></table></div>
@@ -1542,7 +1542,7 @@ t>
 <option>2028</option>
 <option>2029</option>
           </select>
-          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expFer('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expFer('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
+          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expFer('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="expFer('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div></div>
       </div>
       <div class="tw"><table><thead><tr><th>Colaborador</th><th>Cargo</th><th>Mês/Ano</th><th>Início</th><th>Fim</th><th>Dias</th><th>Venda 10d</th><th>Status</th><th>Ação</th></tr></thead><tbody id="fer-tbody"></tbody></table></div>
@@ -1666,7 +1666,7 @@ t>
 <option>2028</option>
 <option>2029</option>
           </select>
-          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expBH('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expBH('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
+          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expBH('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="expBH('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div>
         </div>
       </div>
@@ -1790,7 +1790,7 @@ t>
 <option>2028</option>
 <option>2029</option>
           </select>
-          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expAtestados('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expAtestados('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
+          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expAtestados('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="expAtestados('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div>
       </div>
       <div class="tw"><table><thead><tr><th>Colaborador</th><th>Tipo</th><th>Data</th><th>Dias/Horas</th><th>Retorno</th><th>BH Negativo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="ates-tbody"></tbody></table></div>
@@ -1804,7 +1804,7 @@ t>
 ════════════════════════════════════════════════════ -->
 <div class="page" id="pg-device">
 <div class="dash-page">
-  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--b50);">📱</div>Controle de Celular/Tablet<button class="btn" onclick="expDevice()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
+  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--b50);">📱</div>Controle de Celular/Tablet<button class="btn g-only" onclick="expDevice()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
   <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
       <div><div style="font-size:12px;font-weight:600;color:var(--b800);">🔗 Link do formulário de dispositivos</div></div>
@@ -2025,7 +2025,7 @@ t>
             <option value="">Todos os anos</option>
             <option>2025</option><option selected>2026</option><option>2027</option>
           </select>
-          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expUni('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expUni('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
+          <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expUni('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="expUni('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
         </div>
       </div>
       <div class="tw"><table><thead><tr><th>Colaborador</th><th>Gênero</th><th>Camisa</th><th>Calça</th><th>Sapato</th><th>Extras</th><th>Dt. Recebimento</th><th>Status</th><th>Situação</th><th>Ação</th></tr></thead><tbody id="uni-tbody"></tbody></table></div>
@@ -2224,7 +2224,7 @@ t>
         <option value="">Todos os anos</option>
         <option>2025</option><option selected>2026</option><option>2027</option>
       </select>
-      <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expMaleta('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expMaleta('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
+      <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expMaleta('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="expMaleta('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
     </div>
     <div class="tw"><table>
       <thead><tr>
@@ -2245,7 +2245,7 @@ t>
   <div class="dh2" style="justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
     <div style="display:flex;align-items:center;gap:10px;"><div class="dhic" style="background:var(--pu50);">📁</div>Entrega de Documentação</div>
     <div style="display:flex;gap:.5rem;">
-      <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expDocs('xls')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-right:.5px solid var(--b600);border-radius:0;cursor:pointer;font-weight:600;">⬇ XLS</button><button class="btn" onclick="expDocs('pdf')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-radius:0;cursor:pointer;font-weight:600;">📄 PDF</button></span>
+      <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expDocs('xls')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-right:.5px solid var(--b600);border-radius:0;cursor:pointer;font-weight:600;">⬇ XLS</button><button class="btn g-only" onclick="expDocs('pdf')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-radius:0;cursor:pointer;font-weight:600;">📄 PDF</button></span>
     </div>
   </div>
 
@@ -2387,7 +2387,7 @@ t>
 ════════════════════════════════════════════════════ -->
 <div class="page" id="pg-aniv">
 <div class="dash-page">
-  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--a50);">🎂</div>Aniversariantes<button class="btn" onclick="expAniv()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
+  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:var(--a50);">🎂</div>Aniversariantes<button class="btn g-only" onclick="expAniv()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
   <div class="card g-only" style="background:var(--b50);border-color:var(--b100);margin-bottom:.875rem;">
     <div style="font-size:12px;font-weight:700;color:var(--b800);margin-bottom:.5rem;">✉️ Mensagem de parabéns por e-mail</div>
     <p style="font-size:10px;color:var(--b700);margin-bottom:.75rem;">Use <strong>{nome}</strong> para inserir o nome do colaborador automaticamente. Clique em 📧 ao lado de cada aniversariante para enviar.</p>
@@ -2570,7 +2570,7 @@ function doGet(e) {
 <!-- ════════════ PASSAGEM DE TURNO ════════════ -->
 <div class="page" id="pg-turno">
 <div class="dash-page">
-  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:#fef3c7;">🔄</div>Passagem de Turno — Suporte Telefônico TEL<button class="btn" onclick="expTurno()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
+  <div class="dh2" style="display:flex;align-items:center;"><div class="dhic" style="background:#fef3c7;">🔄</div>Passagem de Turno — Suporte Telefônico TEL<button class="btn g-only" onclick="expTurno()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);margin-left:auto;">⬇ XLS</button></div>
 
   <!-- Cabeçalho: data + turno + ações -->
   <div class="card" style="margin-bottom:.875rem;">
@@ -2706,7 +2706,7 @@ Consequência: Equipe desfalcada." style="font-size:11px;resize:vertical;width:1
           <option value="">Todos os cargos</option>
         </select>
       </div>
-      <span style="display:inline-flex;border-radius:6px;overflow:hidden;margin-left:auto;"><button class="btn" onclick="expGerencial('xls')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);border-right:.5px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expGerencial('pdf')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);border-radius:0;">📄 PDF</button></span>
+      <span style="display:inline-flex;border-radius:6px;overflow:hidden;margin-left:auto;"><button class="btn g-only" onclick="expGerencial('xls')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);border-right:.5px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="expGerencial('pdf')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);border-radius:0;">📄 PDF</button></span>
     </div>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem;">
       <span style="font-size:10px;background:var(--g50);color:var(--g600);border-radius:4px;padding:2px 7px;font-weight:600;">P = Presente</span>
@@ -2735,8 +2735,8 @@ Consequência: Equipe desfalcada." style="font-size:11px;resize:vertical;width:1
     <div style="display:flex;align-items:center;gap:10px;"><div class="dhic" style="background:var(--g50);">💰</div>Controle de Abono</div>
     <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
       <span style="display:inline-flex;border-radius:6px;overflow:hidden;">
-        <button class="btn" onclick="expAbono('xls')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-right:.5px solid var(--b600);border-radius:0;cursor:pointer;font-weight:600;">⬇ XLS</button>
-        <button class="btn" onclick="expAbono('pdf')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-radius:0;cursor:pointer;font-weight:600;">📄 PDF</button>
+        <button class="btn g-only" onclick="expAbono('xls')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-right:.5px solid var(--b600);border-radius:0;cursor:pointer;font-weight:600;">⬇ XLS</button>
+        <button class="btn g-only" onclick="expAbono('pdf')" style="font-size:10px;padding:4px 9px;border:1px solid var(--b600);background:#fff;color:var(--b600);border-radius:0;cursor:pointer;font-weight:600;">📄 PDF</button>
       </span>
     </div>
   </div>
@@ -2888,7 +2888,7 @@ Consequência: Equipe desfalcada." style="font-size:11px;resize:vertical;width:1
         <option value="">Todos os anos</option>
         <option>2025</option><option selected>2026</option><option>2027</option>
       </select>
-      <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn" onclick="expFeedback('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn" onclick="expFeedback('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
+      <span style="display:inline-flex;border-radius:6px;overflow:hidden;"><button class="btn g-only" onclick="expFeedback('xls')" title="Exportar XLS" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-right:.5px solid var(--b600);border-radius:0;">⬇ XLS</button><button class="btn g-only" onclick="expFeedback('pdf')" title="Exportar PDF" style="font-size:10px;padding:4px 0;border:1px solid var(--b600);cursor:pointer;font-weight:600;background:#fff;color:var(--b600);padding:4px 9px;border-radius:0;">📄 PDF</button></span>
     </div>
     <div class="tw"><table>
       <thead><tr>
@@ -7458,6 +7458,7 @@ function _applyData(d){
   if(d.ACESSO_DATA)  mergeArr(ACESSO_DATA, d.ACESSO_DATA);
   if(d.FEEDBACK_DATA)mergeArr(FEEDBACK_DATA, d.FEEDBACK_DATA);
   if(d.MALETA_DATA)  mergeArr(MALETA_DATA, d.MALETA_DATA);
+  if(d.DOCS_DATA)    mergeArr(DOCS_DATA, d.DOCS_DATA);
 
   // Objects: merge (add/update keys, never delete)
   if(d.GER_DATA)     mergeObj(GER_DATA, d.GER_DATA);
@@ -7538,18 +7539,17 @@ document.addEventListener('visibilitychange', function(){
   }
 });
 
-// ── Auto-refresh a cada 3s — fiscal lê localStorage diretamente ──
+// ── Auto-refresh definitivo: 2s polling + storage event ──
 var _lastSyncTs = (function(){ try{ return _ls.getItem(STORE_KEY+'_sync')||'0'; }catch(e){return '0';} })();
-setInterval(function(){
+
+function _checkAndRefresh(){
   try{
-    var role = document.body.getAttribute('data-role')||'';
-    var ts = (_ls.getItem(STORE_KEY+'_sync'))||'0';
-    var changed = (ts !== _lastSyncTs);
-    if(changed) _lastSyncTs = ts;
-      if(changed){
+    if(document.body.classList.contains('collab-form')) return;
+    var ts = _ls.getItem(STORE_KEY+'_sync')||'0';
+    if(ts !== _lastSyncTs){
+      _lastSyncTs = ts;
       try{ loadAll(); }catch(e){}
       try{ _refreshUI(); }catch(e){
-        // _refreshUI may not be defined yet if user is not logged in
         var role2=document.body.getAttribute('data-role')||'';
         if(role2==='fiscal'){
           try{rFiscalCad();}catch(ex){} try{rFiscalGer();}catch(ex){} try{rFiscalAbo();}catch(ex){}
@@ -7561,7 +7561,18 @@ setInterval(function(){
       }
     }
   }catch(ex){}
-}, 3000);
+}
+
+// Poll every 2s
+setInterval(_checkAndRefresh, 2000);
+
+// storage event fires in OTHER tabs/windows on same browser
+window.addEventListener('storage', function(e){
+  if(e.key===STORE_KEY || e.key===STORE_KEY+'_sync' || e.key===STORE_KEY+'_broadcast'){
+    _lastSyncTs = '0'; // force refresh on next poll
+    setTimeout(_checkAndRefresh, 100);
+  }
+});
 
 
 // ── postMessage listener: Google Sites can send form routing commands ──
@@ -9709,10 +9720,15 @@ function gerarTermoPDF(idx){
 
     +'</body></html>';
 
-  var blobT=new Blob([html],{type:'text/html;charset=utf-8'});
-  var urlT=URL.createObjectURL(blobT);
-  var pw=window.open(urlT,'_blank');
-  if(!pw){toast('Popup bloqueado — permita popups para este site.','warn');return;}
+  // Render inline in a full-screen overlay (works on mobile, no popup needed)
+  var overlay = document.createElement('div');
+  overlay.id = 'termo-overlay-mal';
+  overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:#fff;overflow:auto;';
+  var closeFn = "document.getElementById('termo-overlay-mal').remove()";
+  overlay.innerHTML = '<button onclick="'+closeFn+'" style="position:fixed;top:12px;right:12px;background:#042C53;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;z-index:100000;">✕ Fechar</button>'
+    + '<button onclick="window.print()" style="position:fixed;top:12px;right:110px;background:#065f46;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;z-index:100000;">🖨 Imprimir</button>'
+    + html.replace('<div class="no-print"','<div class="no-print" style="display:none;"');
+  document.body.appendChild(overlay);
 }
 
 // ── Collab maleta form (opened via #maleta-form=1) ──
@@ -10595,7 +10611,7 @@ function expFeedback() {
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
     <input type="text" id="fiscal-busca" placeholder="🔍 Buscar por nome..." oninput="rFiscalCad()" style="font-size:11px;padding:5px 10px;border:.5px solid #e2e8f0;border-radius:6px;width:220px;">
     <select id="fiscal-fil-cargo" onchange="rFiscalCad()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;max-width:200px;"><option value="">Todos os cargos</option></select>
-    <button class="btn" onclick="expFiscalCad()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
+    <button class="btn g-only" onclick="expFiscalCad()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-cad-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10629,7 +10645,7 @@ function expFeedback() {
     <span style="background:#F1EFE8;color:#5F5E5A;padding:2px 8px;border-radius:4px;font-weight:700;">DS Descanso</span>
     <span style="background:#EEEDFE;color:#534AB7;padding:2px 8px;border-radius:4px;font-weight:700;">OC Ocorrência</span>
   </div>
-  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;"><button class="btn" onclick="expFiscalGer()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;"><button class="btn g-only" onclick="expFiscalGer()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <select id="fiscal-ger-mes" onchange="rFiscalGer()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
       <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option>
       <option>Maio</option><option selected>Junho</option><option>Julho</option><option>Agosto</option>
@@ -10647,7 +10663,7 @@ function expFeedback() {
 <div id="fiscal-pane-dev" style="display:none;padding:1rem;">
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
     <input type="text" id="fiscal-dev-busca" placeholder="🔍 Nome..." oninput="rFiscalDev()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:200px;">
-    <button class="btn" onclick="expFiscalDev()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
+    <button class="btn g-only" onclick="expFiscalDev()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-dev-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10667,7 +10683,7 @@ function expFeedback() {
 <div id="fiscal-pane-mal" style="display:none;padding:1rem;">
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;">
     <input type="text" id="fiscal-mal-busca" placeholder="🔍 Nome..." oninput="rFiscalMal()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;width:180px;">
-    <button class="btn" onclick="expFiscalMal()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
+    <button class="btn g-only" onclick="expFiscalMal()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-mal-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10695,7 +10711,7 @@ function expFeedback() {
     <select id="fiscal-docs-status" onchange="rFiscalDocs()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
       <option value="">Todos</option><option value="completo">✅ Completo</option><option value="pendente">⚠ Pendente</option>
     </select>
-    <button class="btn" onclick="expFiscalDocs()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
+    <button class="btn g-only" onclick="expFiscalDocs()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-docs-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -10725,7 +10741,7 @@ function expFeedback() {
     <select id="fiscal-abo-ano" onchange="rFiscalAbo()" style="font-size:11px;padding:5px 9px;border:.5px solid #e2e8f0;border-radius:6px;">
       <option>2025</option><option selected>2026</option><option>2027</option>
     </select>
-    <button class="btn" onclick="expFiscalAbo()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
+    <button class="btn g-only" onclick="expFiscalAbo()" style="font-size:10px;padding:3px 10px;border:.5px solid var(--b600);color:var(--b600);">⬇ XLS</button>
     <span id="fiscal-abo-count" style="font-size:10px;color:#64748b;margin-left:auto;"></span>
   </div>
   <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
